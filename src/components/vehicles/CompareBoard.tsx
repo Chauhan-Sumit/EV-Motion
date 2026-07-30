@@ -1,0 +1,104 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { VehiclePicker } from "@/components/vehicles/VehiclePicker";
+import { CompareTable } from "@/components/vehicles/CompareTable";
+import { getAllVehicles, getVehicleBySlug } from "@/lib/data";
+import { VehicleCategory } from "@/types/vehicle";
+
+const MAX_COMPARE = 4;
+
+export function CompareBoard({ initialSlugs }: { initialSlugs: string[] }) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const initialVehicles = initialSlugs
+    .map((slug) => getVehicleBySlug(slug))
+    .filter((v): v is NonNullable<typeof v> => Boolean(v));
+
+  const lockedCategory: VehicleCategory | null = initialVehicles[0]?.category ?? null;
+
+  const [selectedSlugs, setSelectedSlugs] = useState<string[]>(
+    lockedCategory
+      ? initialVehicles.filter((v) => v.category === lockedCategory).map((v) => v.slug).slice(0, MAX_COMPARE)
+      : []
+  );
+  const [category, setCategory] = useState<VehicleCategory>(lockedCategory ?? "car");
+
+  const allVehicles = useMemo(() => getAllVehicles(), []);
+  const selectedVehicles = selectedSlugs
+    .map((slug) => allVehicles.find((v) => v.slug === slug))
+    .filter((v): v is NonNullable<typeof v> => Boolean(v));
+
+  function syncUrl(slugs: string[]) {
+    const qs = slugs.length ? `?ids=${slugs.join(",")}` : "";
+    router.replace(`${pathname}${qs}`, { scroll: false });
+  }
+
+  function handleAdd(slug: string) {
+    const next = [...selectedSlugs, slug].slice(0, MAX_COMPARE);
+    setSelectedSlugs(next);
+    syncUrl(next);
+  }
+
+  function handleRemove(slug: string) {
+    const next = selectedSlugs.filter((s) => s !== slug);
+    setSelectedSlugs(next);
+    syncUrl(next);
+  }
+
+  function handleCategoryChange(next: VehicleCategory) {
+    setCategory(next);
+    if (selectedSlugs.length === 0) return;
+    setSelectedSlugs([]);
+    syncUrl([]);
+  }
+
+  const eligibleVehicles = allVehicles.filter(
+    (v) => v.category === category && !selectedSlugs.includes(v.slug)
+  );
+
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <h1 className="font-heading text-2xl font-semibold">Compare Vehicles</h1>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Compare up to {MAX_COMPARE} EV cars or 2-wheelers side by side. Mixing
+        categories isn&apos;t supported.
+      </p>
+
+      <div className="mt-4">
+        <Tabs
+          value={category}
+          onValueChange={(value) => handleCategoryChange(value as VehicleCategory)}
+        >
+          <TabsList>
+            <TabsTrigger value="car">Cars</TabsTrigger>
+            <TabsTrigger value="2-wheeler">2-Wheelers</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
+      <div className="mt-4">
+        {selectedSlugs.length < MAX_COMPARE ? (
+          <VehiclePicker vehicles={eligibleVehicles} onSelect={handleAdd} />
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Maximum of {MAX_COMPARE} vehicles reached. Remove one to add another.
+          </p>
+        )}
+      </div>
+
+      <div className="mt-8">
+        {selectedVehicles.length === 0 ? (
+          <p className="rounded-xl border border-dashed p-10 text-center text-muted-foreground">
+            No vehicles selected yet. Use the picker above to start comparing.
+          </p>
+        ) : (
+          <CompareTable vehicles={selectedVehicles} onRemove={handleRemove} />
+        )}
+      </div>
+    </div>
+  );
+}
