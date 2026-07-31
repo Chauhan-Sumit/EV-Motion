@@ -15,9 +15,10 @@ export function ListingCard({ item, priority }: { item: ListingCardData; priorit
   const detailHref = `${basePath}/${item.slug}`;
 
   return (
-    <article
+    <Link
+      href={detailHref}
       data-carousel-item
-      className="cursor-pointer overflow-hidden rounded-[10px] border border-border bg-surface transition-all duration-200 hover:-translate-y-0.5 hover:border-primary hover:shadow-card-hover"
+      className="focus-ring block overflow-hidden rounded-[10px] border border-border bg-surface transition-all duration-200 hover:-translate-y-0.5 hover:border-primary hover:shadow-card-hover"
     >
       <div className="relative h-40 overflow-hidden border-b border-border bg-white">
         {item.badge ? (
@@ -60,10 +61,8 @@ export function ListingCard({ item, priority }: { item: ListingCardData; priorit
 
       <div className="flex items-center justify-between border-t border-border px-[11px] py-[7px]">
         <span className="text-[10px] text-ink-muted">📍 {item.locationLabel}</span>
-        <Link href={detailHref} className="focus-ring text-[11px] font-semibold text-primary">
-          {item.ctaLabel} ›
-        </Link>
+        <span className="text-[11px] font-semibold text-primary">{item.ctaLabel} ›</span>
       </div>
-    </article>
+    </Link>
   );
 }

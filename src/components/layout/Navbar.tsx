@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Search,
   Moon,
   Sun,
   MapPin,
@@ -15,12 +14,14 @@ import {
   X,
   ChevronDown,
   Check,
+  Search,
 } from "lucide-react";
+import { VehicleSearchBox } from "@/components/search/VehicleSearchBox";
 
-const NAV_LINKS = [
+const NAV_LINKS: Array<{ label: string; href?: string }> = [
   { label: "NEW CARS", href: "/cars" },
   { label: "SCOOTERS & BIKES", href: "/two-wheelers" },
-  { label: "REVIEWS & NEWS", href: "/reviews" },
+  { label: "REVIEWS & NEWS" },
 ];
 
 const CITIES = ["Delhi", "Mumbai", "Bengaluru", "Chennai", "Pune", "Hyderabad"];
@@ -80,12 +81,25 @@ export function Navbar() {
         {/* Nav links */}
         <div className="hidden h-16 items-center lg:flex">
           {NAV_LINKS.map((link) => {
-            const active = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
+            if (!link.href) {
+              return (
+                <span
+                  key={link.label}
+                  className="flex h-16 items-center gap-1.5 whitespace-nowrap px-2.5 text-[13px] font-semibold tracking-[0.3px] text-ink-muted xl:px-3.5"
+                >
+                  {link.label}
+                  <span className="rounded-full bg-surface-secondary px-1.5 py-px text-[9px] font-bold uppercase tracking-wide text-ink-muted">
+                    Soon
+                  </span>
+                </span>
+              );
+            }
+            const active = pathname === link.href || pathname.startsWith(link.href);
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`focus-ring flex h-16 items-center whitespace-nowrap border-b-[3px] px-3.5 text-[13px] font-semibold tracking-[0.3px] transition-colors ${
+                className={`focus-ring flex h-16 items-center whitespace-nowrap border-b-[3px] px-2.5 text-[13px] font-semibold tracking-[0.3px] transition-colors xl:px-3.5 ${
                   active
                     ? "border-primary text-primary"
                     : "border-transparent text-ink-secondary hover:text-primary"
@@ -96,9 +110,12 @@ export function Navbar() {
             );
           })}
 
-          {/* Ad slot placeholder — desktop only, sized to fit within the 64px navbar */}
+          {/* Ad slot placeholder — deferred until there's room to spare (≥xl). It's
+              decorative filler with no functional cost when absent, unlike every
+              other item in this row, so it's the one thing that's fully hidden
+              rather than collapsed at the 1024-1279px band. */}
           <div
-            className="ml-2 flex h-9 w-24 shrink-0 items-center justify-center rounded-lg border border-dashed border-border-strong bg-surface-secondary"
+            className="ml-2 hidden h-9 w-24 shrink-0 items-center justify-center rounded-lg border border-dashed border-border-strong bg-surface-secondary xl:flex"
             aria-hidden="true"
           >
             <span className="text-[10px] font-medium uppercase tracking-wide text-ink-muted">Ad Space</span>
@@ -106,23 +123,10 @@ export function Navbar() {
         </div>
 
         {/* Right — utility icons */}
-        <div className="hidden items-center gap-1.5 lg:flex">
-          <div className="flex h-9 w-[230px] items-center overflow-hidden rounded-lg border-[1.5px] border-border-strong bg-white">
-            <input
-              type="text"
-              placeholder="Search EVs..."
-              className="h-full flex-1 border-none bg-transparent px-2.5 text-xs text-ink outline-none placeholder:text-ink-muted"
-            />
-            <button
-              type="button"
-              aria-label="Search"
-              className="flex h-full w-9 shrink-0 items-center justify-center border-l border-border bg-transparent"
-            >
-              <Search size={13} strokeWidth={2.5} className="text-ink-muted" />
-            </button>
-          </div>
+        <div className="hidden items-center gap-1 lg:flex xl:gap-1.5">
+          <VehicleSearchBox ariaLabel="Search EVs by name or brand" className="w-[170px] xl:w-[230px]" />
 
-          <div className="mx-1 h-6 w-px bg-border" aria-hidden="true" />
+          <div className="mx-0.5 h-6 w-px bg-border xl:mx-1" aria-hidden="true" />
 
           <button
             type="button"
@@ -133,17 +137,19 @@ export function Navbar() {
             {isDark ? <Sun size={ICON_SIZE} /> : <Moon size={ICON_SIZE} />}
           </button>
 
-          {/* Location */}
+          {/* Location — icon-only in the 1024-1279px band (no room for the label),
+              full icon+label pill from xl up */}
           <div className="relative" ref={cityRef}>
             <button
               type="button"
               onClick={() => setCityOpen((o) => !o)}
               aria-haspopup="true"
               aria-expanded={cityOpen}
-              className="focus-ring flex items-center gap-1.5 rounded-full px-3 py-2 text-[13px] font-semibold text-ink-secondary transition-colors hover:bg-surface-secondary hover:text-ink"
+              aria-label={`Select city (current: ${city})`}
+              className="focus-ring flex items-center gap-1.5 rounded-full px-2.5 py-2 text-[13px] font-semibold text-ink-secondary transition-colors hover:bg-surface-secondary hover:text-ink xl:px-3"
             >
               <MapPin size={ICON_SIZE} />
-              {city}
+              <span className="hidden xl:inline">{city}</span>
             </button>
             {cityOpen ? (
               <div
@@ -169,18 +175,19 @@ export function Navbar() {
             ) : null}
           </div>
 
-          {/* Language */}
+          {/* Language — icon-only in the 1024-1279px band, full pill from xl up */}
           <div className="relative" ref={langRef}>
             <button
               type="button"
               onClick={() => setLangOpen((o) => !o)}
               aria-haspopup="true"
               aria-expanded={langOpen}
-              className="focus-ring flex items-center gap-1.5 rounded-full px-3 py-2 text-[13px] font-semibold text-ink-secondary transition-colors hover:bg-surface-secondary hover:text-ink"
+              aria-label={`Select language (current: ${lang})`}
+              className="focus-ring flex items-center gap-1.5 rounded-full px-2.5 py-2 text-[13px] font-semibold text-ink-secondary transition-colors hover:bg-surface-secondary hover:text-ink xl:px-3"
             >
               <Globe size={ICON_SIZE} />
-              {lang}
-              <ChevronDown size={14} className={`transition-transform ${langOpen ? "rotate-180" : ""}`} />
+              <span className="hidden xl:inline">{lang}</span>
+              <ChevronDown size={14} className={`hidden transition-transform xl:block ${langOpen ? "rotate-180" : ""}`} />
             </button>
             {langOpen ? (
               <div
@@ -206,14 +213,17 @@ export function Navbar() {
             ) : null}
           </div>
 
-          <div className="mx-1 h-6 w-px bg-border" aria-hidden="true" />
+          <div className="mx-0.5 h-6 w-px bg-border xl:mx-1" aria-hidden="true" />
 
           <button
             type="button"
-            className="focus-ring flex items-center gap-1.5 rounded-full px-3 py-2 text-[13px] font-semibold text-ink-secondary transition-colors hover:bg-surface-secondary hover:text-ink"
+            disabled
+            title="Accounts are coming soon"
+            aria-label="Login — accounts coming soon"
+            className="flex cursor-not-allowed items-center gap-1.5 rounded-full px-2.5 py-2 text-[13px] font-semibold text-ink-muted opacity-60 xl:px-3"
           >
             <User size={ICON_SIZE} />
-            Login
+            <span className="hidden xl:inline">Login (Soon)</span>
           </button>
         </div>
 
@@ -242,16 +252,7 @@ export function Navbar() {
       {/* Mobile inline search */}
       {mobileSearchOpen ? (
         <div className="border-t border-border bg-surface px-4 py-3 lg:hidden">
-          <div className="flex h-9 items-center overflow-hidden rounded-lg border-[1.5px] border-border-strong bg-white">
-            <input
-              type="text"
-              placeholder="Search EVs..."
-              className="h-full flex-1 bg-transparent px-2.5 text-xs text-ink outline-none placeholder:text-ink-muted"
-            />
-            <span className="flex h-full w-9 shrink-0 items-center justify-center border-l border-border">
-              <Search size={13} strokeWidth={2.5} className="text-ink-muted" />
-            </span>
-          </div>
+          <VehicleSearchBox ariaLabel="Search EVs by name or brand" autoFocus />
         </div>
       ) : null}
 
@@ -259,16 +260,28 @@ export function Navbar() {
       {mobileOpen ? (
         <div className="absolute inset-x-0 top-16 z-40 max-h-[calc(100vh-64px)] overflow-y-auto border-b border-border bg-surface px-4 py-4 shadow-popover lg:hidden">
           <nav aria-label="Primary mobile" className="flex flex-col">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className="focus-ring border-b border-border py-3 text-[13px] font-bold tracking-wide text-ink"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {NAV_LINKS.map((link) =>
+              link.href ? (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="focus-ring border-b border-border py-3 text-[13px] font-bold tracking-wide text-ink"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <span
+                  key={link.label}
+                  className="flex items-center gap-1.5 border-b border-border py-3 text-[13px] font-bold tracking-wide text-ink-muted"
+                >
+                  {link.label}
+                  <span className="rounded-full bg-surface-secondary px-1.5 py-px text-[9px] font-bold uppercase tracking-wide text-ink-muted">
+                    Soon
+                  </span>
+                </span>
+              ),
+            )}
           </nav>
 
           <div className="mt-4 flex flex-col gap-1">
@@ -312,10 +325,12 @@ export function Navbar() {
             </div>
             <button
               type="button"
-              className="focus-ring flex items-center gap-3 rounded-lg px-2 py-3 text-sm font-medium text-ink-secondary hover:bg-surface-secondary"
+              disabled
+              title="Accounts are coming soon"
+              className="flex cursor-not-allowed items-center gap-3 rounded-lg px-2 py-3 text-sm font-medium text-ink-muted opacity-60"
             >
               <User size={ICON_SIZE} />
-              Login
+              Login (Soon)
             </button>
           </div>
         </div>

@@ -1,7 +1,17 @@
+import type { Metadata } from "next";
 import { VehicleListing } from "@/components/vehicles/VehicleListing";
 import { twoWheelers } from "@/lib/data/two-wheelers";
+import { parseListingParams } from "@/lib/listing-params";
+
+export const metadata: Metadata = {
+  title: "Electric Scooters & Bikes in India — Compare Prices, Range & Specs",
+  description: `Browse ${twoWheelers.length} electric scooters and motorcycles from every major OEM in India. Filter by price, range, battery and brand to find the right EV.`,
+  alternates: { canonical: "/two-wheelers" },
+};
 
 const PRICE_BOUNDS: [number, number] = [0, 2];
+const RANGE_BOUNDS: [number, number] = [0, 200];
+const BATTERY_BOUNDS: [number, number] = [0, 5];
 
 const SUB_TYPE_OPTIONS = [
   { value: "all", label: "All Types" },
@@ -15,35 +25,18 @@ export default async function TwoWheelersPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const params = await searchParams;
-
-  const oemsParam = typeof params.oems === "string" ? params.oems : "";
-  const initialOems = oemsParam ? oemsParam.split(",") : [];
-
-  const budgetParam = typeof params.budget === "string" ? params.budget : "";
-  const [minStr, maxStr] = budgetParam.split("-");
-  const min = Number(minStr);
-  const max = Number(maxStr);
-  const initialPrice: [number, number] =
-    budgetParam && !Number.isNaN(min) && !Number.isNaN(max)
-      ? [min, Math.min(max, PRICE_BOUNDS[1])]
-      : PRICE_BOUNDS;
-
-  const initialSubType = typeof params.type === "string" ? params.type : "all";
-  const initialSort = typeof params.sort === "string" ? params.sort : "price-asc";
+  const initial = parseListingParams(params, PRICE_BOUNDS, RANGE_BOUNDS, BATTERY_BOUNDS);
 
   return (
     <VehicleListing
       category="2-wheeler"
       vehicles={twoWheelers}
       priceBounds={PRICE_BOUNDS}
+      rangeBounds={RANGE_BOUNDS}
+      batteryBounds={BATTERY_BOUNDS}
       subTypeLabel="Type"
       subTypeOptions={SUB_TYPE_OPTIONS}
-      initial={{
-        oems: initialOems,
-        price: initialPrice,
-        subType: initialSubType,
-        sort: initialSort,
-      }}
+      initial={initial}
     />
   );
 }

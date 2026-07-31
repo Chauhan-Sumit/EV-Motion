@@ -19,9 +19,10 @@ export function RankedListCard({
         </Link>
       </div>
       {items.map((item) => (
-        <div
+        <Link
           key={item.rank}
-          className="flex items-center gap-2.5 border-b border-border px-[13px] py-2 transition-colors last:border-b-0 hover:bg-primary-tint"
+          href={item.href}
+          className="focus-ring flex items-center gap-2.5 border-b border-border px-[13px] py-2 transition-colors last:border-b-0 hover:bg-primary-tint"
         >
           <span className="w-4 shrink-0 text-center text-[10px] font-bold text-ink-muted">{item.rank}</span>
           <div className="min-w-0 flex-1">
@@ -29,7 +30,7 @@ export function RankedListCard({
             <p className="mt-px text-[9px] text-ink-muted">{item.metaLabel}</p>
           </div>
           <p className="shrink-0 text-[11px] font-bold text-primary">{item.priceLabel}</p>
-        </div>
+        </Link>
       ))}
     </div>
   );

@@ -1,61 +1,200 @@
 # EV Motion — Project Handoff
 
-Project directory: `C:\Users\sumit\ev-wale` (Next.js 16 App Router, TypeScript, Tailwind v4, shadcn/Base UI).
-This file: `C:\Users\sumit\ev-wale\HANDOFF.md`
+**Project directory:** `C:\Users\sumit\ev-wale`
+**Last updated:** 2026-07-31
+**Status:** Feature-complete demo marketplace. Full production-readiness QA cycle (audit → Critical → High → Medium → Low fixes) is complete — see [QA HISTORY](#qa-history) below. Nothing is committed to git yet from this session — see [Known Limitations](#known-limitations).
 
-## Status: complete
+---
 
-All 36 tracked tasks are done. Home page and vehicle detail page (VDP) both match the EV Motion template's second (final) design, wired to our own 36-vehicle dataset. `npx tsc --noEmit` and `npm run build` both pass cleanly (56/56 pages generated). Verified in-browser: a car detail page, a two-wheeler detail page, and a vehicle with no real photo (placeholder fallback path) — no console errors, no broken images, gallery/StickyTabs/accordions all interactive.
+## PROJECT OVERVIEW
 
-## What this project is
+### Project purpose
 
-Started as "EV Wale," a from-scratch EV marketplace demo (cars + 2-wheelers, 12 OEMs, 36 vehicles). The user then supplied a full pre-built Next.js template called **"EV Motion"** (two zip files, see below) and asked to reskin/rebuild our site to match its theme, name, and components exactly, while keeping our richer 36-vehicle dataset and working filter/compare/brand pages.
+EV Motion is a demo Indian electric-vehicle marketplace — a CarWale/BikeWale-style site for browsing, filtering, and comparing electric cars and two-wheelers. It began as an original build ("EV Wale") with its own 36-vehicle dataset, then was reskinned to match a user-supplied Next.js template's exact visual design ("EV Motion" branding), and has since been through a full multi-pass QA audit and remediation cycle to bring it to a genuinely interactive, production-quality state. It has no backend — all data is static TypeScript, and every "submit" action (lead capture, reviews) is a local, honestly-labeled demo interaction.
 
-**Site is named "EV Motion"** everywhere (package.json, metadata, Navbar/Footer branding).
+### Tech stack
 
-## Source template zips (both in Downloads — re-extract if you need to re-read original template code; scratchpad temp extractions from this session will not persist)
+- **Next.js 16** (App Router, Turbopack) — ⚠️ this version has real breaking changes vs. training-data assumptions; see `AGENTS.md` / `node_modules/next/dist/docs/` before writing App Router code. Confirmed: `params`/`searchParams` are `Promise`s that must be `await`ed, and generated `PageProps<'/route/path'>` / `LayoutProps<...>` global types exist and are used instead of hand-written prop shapes.
+- **React 19**, **TypeScript** (strict — `npx tsc --noEmit` is part of the project's quality gate)
+- **Tailwind CSS v4** — theme defined via a `@theme` block in `src/app/globals.css`, not a `tailwind.config.js`
+- **shadcn/ui on Base UI** (not Radix) — see [Architectural Decisions](#architectural-decisions) for the `render`-prop implication
+- **framer-motion** (page transitions, card hover, gallery animations), **lucide-react** (icons), **cmdk** (compare page's vehicle picker command palette)
+- No backend, no database, no auth — 100% static data + client-side interactivity
 
-1. `C:\Users\sumit\Downloads\evmotion-restored.zip` — first template drop. Full homepage + an initial VDP design.
-2. `C:\Users\sumit\Downloads\evmotion-homepage.zip` — second drop, contains a nested `evmotion-restored/` folder. **Diffed against #1: the homepage is byte-identical.** Only the vehicle-detail (model page) components changed — a full VDP redesign. **This is the version now implemented.**
+### Folder structure
 
-Both zips share this shape: `app/`, `components/{home,layout,ui,vehicle-detail}/`, `hooks/`, `lib/`, `lib/data/`, `public/`, `styles/globals.css`, `types/`. Stack: Next 15, React 19, Tailwind v3 (JS config), framer-motion, lucide-react — plain Tailwind utility classes throughout, no shadcn.
+```
+src/
+  app/                          Next.js App Router routes
+    page.tsx                    Homepage
+    layout.tsx                  Root layout — Navbar/Footer, metadataBase, global metadata
+    template.tsx                Wraps every route in PageTransition (framer-motion fade+slide)
+    error.tsx                   Branded runtime-error boundary
+    not-found.tsx                Branded 404 (also used for any unresolved route)
+    sitemap.ts / robots.ts      Generated SEO routes (53 URLs; see SEO section)
+    cars/page.tsx                /cars listing
+    cars/[slug]/page.tsx         Car VDP (static params for all 18 cars)
+    two-wheelers/page.tsx        /two-wheelers listing
+    two-wheelers/[slug]/page.tsx Two-wheeler VDP (static params for all 18)
+    brands/page.tsx              /brands index
+    brands/[oem]/page.tsx        Per-brand page (static params for all 12 OEMs)
+    compare/page.tsx             /compare
+  components/
+    home/                       Homepage-only sections (Hero, SearchCard, TrendingCompactSection, MainLayout + CategoryRow/SponsoredBanner/ListingGrid/BrandCarousel/RankedListCard/SubsidyCalculatorCard, UpcomingSection, CompareSection, WhyEvMotionSection, AdvertiseSection)
+    vehicle-detail/             VDP-only sections (VehicleHero, VehicleGallery, SectionOverview/Variants/Battery/OwnershipTools/CompareSimilar/Colors/Features/Images/Videos/Reviews/Faqs, SectionLatestNews, SectionSimilarElectricCars, VehicleSidebar, StickyTabs, GetBestPriceDialog)
+    vehicles/                   Shared across /cars, /two-wheelers, /brands/[oem], /compare (VehicleCard, VehicleListing, FilterBar, VehicleImage, CompareBoard, CompareTable, VehiclePicker)
+    search/                     VehicleSearchBox (the real search/autocomplete widget) + HighlightedText
+    brands/                     BrandLogo (real logo image with initial-letter fallback)
+    common/                     PlaceholderImage, LeadCaptureDialog (shared lead-capture engine)
+    layout/                     Navbar, Footer, PageTransition
+    ui/                         shadcn/Base UI primitives actually in use (button, checkbox, command, dialog, input, input-group, label, popover, select, sheet, slider, tabs, textarea) plus two small hand-rolled ones (Block, BlockHeading, Container)
+  lib/
+    data/                       cars.ts, two-wheelers.ts, oems.ts (raw Vehicle/Oem records) + index.ts (getOemBySlug, getVehiclesByOem, getAllVehicles, getVehicleBySlug)
+    data/ev-motion/             content.ts, derive.ts, toVehicleDetail.ts — adapters that reshape raw Vehicle data into the homepage/VDP's card-shaped view models
+    search.ts                   Vehicle search/autocomplete logic (see Architectural Decisions)
+    listing-params.ts           Shared URL-param parsing for /cars and /two-wheelers
+    vehicle-labels.ts           Shared LaunchStatus → human label map
+    structured-data.ts          JSON-LD builders (Product, BreadcrumbList)
+    site.ts                     SITE_URL constant (placeholder domain, see Known Limitations)
+    utils.ts                    cn() Tailwind class helper
+  types/                       vehicle.ts, vehicle-detail.ts, ev-motion.ts
+  hooks/                       useCarouselScroll.ts
+```
 
-## Everything built
+### Architecture overview
 
-- Scaffolded Next.js 16 + Tailwind v4 + shadcn/Base UI project at `C:\Users\sumit\ev-wale`.
-- Vehicle data model: `src/types/vehicle.ts`, `src/lib/data/{cars,two-wheelers,oems}.ts` — 18 cars + 18 two-wheelers across 12 OEMs (Tata, MG, Hyundai, Mahindra, BYD, Kia / Ola Electric, Ather, Bajaj, TVS, Hero, Ampere).
-- `/cars`, `/two-wheelers` listing pages with URL-synced filters (`src/components/vehicles/VehicleListing.tsx` + `FilterBar.tsx`), `/brands` + `/brands/[oem]`, `/compare` (multi-vehicle compare tool, up to 4, category-locked, URL-shareable) — **untouched by the EV Motion reskin**, they just inherit the new global theme/fonts/Navbar/Footer.
-- Renamed to EV Motion: `package.json` name, `src/app/layout.tsx` metadata, Inter font.
-- EV Motion **theme** ported into `src/app/globals.css`'s Tailwind v4 `@theme` block: primary green `#1FA83C` (+hover/tint/bright), `ink`/`ink-secondary`/`ink-muted`, `surface`/`surface-secondary`/`surface-dark`, `border`/`border-strong`, `hot`/`info`/`warning`/`error`, custom shadows (`shadow-card`, `shadow-card-hover`, `shadow-popover`), animations (`animate-fade-in`, `animate-pulse-dot`), `.focus-ring`/`.scroll-row`/`.line-clamp-*` utilities. shadcn's own `--primary`/`--background` etc. tokens repointed to the same palette so untouched pages restyle for free.
-- Real image assets copied from the template's `public/`: `public/brand/ev-motion-logo.png`, `public/images/brands/*` (11 of 12 OEM logos — Ampere has none), `public/images/vehicles/*` + `teaser/*`, `public/images/hero/hero-bg.png`, `public/og-image.png`.
-- Real local photos wired onto matching `Vehicle` records' `images.photoUrl` field (in `cars.ts`/`two-wheelers.ts`) — 23 of 36 vehicles have a real local photo; the rest fall back to `PlaceholderImage` (branded gradient + OEM color + name). A few cars also carry individually-verified Wikimedia Commons URLs from an earlier pass (see `photoAttribution` notes in `cars.ts`).
-- `src/components/vehicles/VehicleImage.tsx` — the shared fallback-aware image renderer (`vehicle.images.photoUrl` if present → `next/image`; else → `PlaceholderImage`). **Used everywhere** in the EV Motion home/VDP components instead of a flat `image: string` prop, since not every one of our 36 vehicles has a confirmed real photo (unlike the template's own ~6-vehicle demo dataset).
-- Navbar/Footer (`src/components/layout/Navbar.tsx`, `Footer.tsx`) — logo, nav links (`/scooters`→`/two-wheelers` adapted to our route), search box, dark-mode toggle stub, city/language dropdowns, mobile menu.
-- Shared UI primitives: `src/components/ui/{Block,BlockHeading,Container}.tsx`, `src/hooks/useCarouselScroll.ts`.
-- Home-page data adapters: `src/types/ev-motion.ts` (card-shape types, each carrying `vehicle: Vehicle` + `oemColor`) and `src/lib/data/ev-motion/{content.ts,derive.ts}` — maps our 36-vehicle data into `ListingCardData`, `TrendingCompactItemData`, `CompareCardPairData`, `UpcomingItemData`, `RankedVehicleData`, `BrandCardData`, `CategoryItemData`. Exports: `popularCars`/`popularBikes`, `trendingCarsCompact`/`trendingBikesCompact` (all 36 vehicles), `rankedCars`/`rankedScooters` (top 8 by range), `carBrands`/`bikeBrands` (all 12 OEMs), `upcomingCars`/`upcomingBikes` (real `launchStatus === "upcoming"` vehicles), `carComparisons`/`bikeComparisons` (hand-curated pairs). Shared helpers: `oemColorOf`, `priceLabel`, `estimateEmi` (80%-financed/9.5%-p.a./60-month EMI formula).
-- **Home page** (`src/app/page.tsx`) with every template component: `Hero`, `SearchCard`, `TrendingCompactSection`(+Card), `MainLayout` (`CategoryRow`, `SponsoredBanner`, `ListingGrid`+`ListingCard`, `BrandCarousel`, `RankedListCard`, `SubsidyCalculatorCard`), `UpcomingSection`(+Card), `CompareSection`(+Card), `WhyEvMotionSection`, `AdvertiseSection` — all in `src/components/home/`.
-- **Vehicle Detail Page**, matching the *second* template's redesign exactly:
-  - `src/types/vehicle-detail.ts` — includes `VdpBodySpecs` (`bodyType`, `seatingCapacity`, `driveType`, `bootSpaceLiters`, `connectedCar`) on `VehicleDetail`.
-  - `src/lib/data/ev-motion/toVehicleDetail.ts` — derives `bodySpecs` (boot space by body-type lookup table, seating from our data or "2 Rider" for 2-wheelers, drive type FWD/AWD-if-variant-name-says-so for cars or "Hub Motor (FWD)" for 2-wheelers) plus powerKw/torqueNm/battery chemistry/colour hex/ownership-tool costs/FAQs/realWorldRange, same as before. Also exports `getSimilarVehicleDetails(vehicle)` (resolves `similarSlugs` back to full `VehicleDetail`s) and `vehicleDetailHref(vehicle)` (routes to our flat `/cars/[slug]` or `/two-wheelers/[slug]`, not the template's brand-scoped shape).
-  - Section order: **Overview → Variants → Battery & Charging → Ownership Tools → Compare Similar → Colours → Features → Images → Videos → Reviews → FAQs**, then outside the sidebar-grid, full width: **Latest News**, **Similar Electric Cars**.
-  - New components: `VehicleGallery.tsx` (interactive main image + prev/next arrows + 4-thumbnail strip + "+N" overflow + quick-jump pills, real photo or placeholder via `VehicleImage` for the one populated slot, dashed "coming soon" for the rest), `SectionCompareSimilar.tsx` (spec table vs. up to 2 similar vehicles: image, on-road price Mumbai, rating, range, battery, transmission, first Safety feature, power in bhp, Compare button linking to `/compare?ids=...`), `SectionLatestNews.tsx` (honest empty state), `SectionSimilarElectricCars.tsx` + `SimilarCarCard.tsx` (full-width carousel with a Compare checkbox), `SidebarRealWorldRange.tsx` (moved out of the main column into the sidebar).
-  - Changed components: `VehicleSection` (+`headingAction` prop), `Disclosure` (+`icon` prop), `VehicleHero` (now renders `VehicleGallery`), `SectionOverview` (expand/collapse + 11-item spec grid including bodySpecs fields), `SectionOwnershipTools` (per-tool cards with icons instead of one shared accordion), `SectionFeatures` (flat expandable chip grid, `VISIBLE_COUNT = 6`, no more category grouping), `SectionImages`/`SectionVideos` (slot-count based: "Images (8)"/"Videos (3)" with dashed placeholder tiles), `SectionReviews` (added a static sample rating-summary card — 4.6★/1,245 reviews/star distribution — alongside the still-honest "no reviews yet" real state and working write-review form), `VehicleSidebar` (no longer sticky-positioned; new order: AdSlot → PriceSummary → EmiCalculator → AdSlot → RealWorldRange → sticky AdSlot), `StickyTabs` (`VDP_SECTIONS` updated to match new section order/ids).
-  - Retired/deleted: `SectionRealWorldRange.tsx`, `SectionSimilarVehicles.tsx` (both replaced by the above).
-  - Routes unchanged: `src/app/cars/[slug]/page.tsx`, `src/app/two-wheelers/[slug]/page.tsx` (flat URL shape, not the template's `/cars/[brand]/[model]`).
-- Verified end-to-end in-browser repeatedly (filters, compare, mobile nav, 404, toasts, new VDP gallery/sections, placeholder fallback on an unphotographed vehicle) and `npm run build` passes cleanly.
+This is a **static-data-driven Next.js App Router site**. There is no API layer — every page imports directly from `src/lib/data/*` at build/request time. Pages fall into two render strategies:
+- **Static (SSG)**: homepage, all 36 vehicle VDPs, all 12 brand pages, `/brands` — pre-rendered at build time via `generateStaticParams`.
+- **Dynamic**: `/cars`, `/two-wheelers`, `/compare` — server-rendered per-request because they read `searchParams` for filter/compare state.
 
-## Important gotchas / decisions for whoever continues this
+The homepage and VDPs are the fully bespoke "EV Motion" reskin (see Design system below); `/cars`, `/two-wheelers`, `/brands`, `/brands/[oem]`, and `/compare` were originally left on generic shadcn styling as an explicit scope boundary, but **that boundary was closed during the Medium-priority QA pass** — all pages now share one visual language (see QA History).
 
-- **This shadcn setup uses Base UI, not Radix** — composing a non-Button element (e.g. a `Link`) into a `Button`/`SheetTrigger`/etc. requires the **`render` prop**, not `asChild` (e.g. `<Button render={<Link href="/cars" />} nativeButton={false}>`). Still applies to any shadcn primitive usage in the surviving `/cars`, `/compare`, `/brands` pages.
-- **Next.js 16 breaking-changes note**: `src/app/AGENTS.md` (auto-included via `CLAUDE.md`) warns this Next.js version may differ from training data — `node_modules/next/dist/docs/` has the real docs. Confirmed: `params`/`searchParams` are `Promise`s (must `await`), and there's a global `PageProps<'/route/path'>` / `LayoutProps<...>` helper type (generated by `next dev`/`next build`) used instead of hand-writing `{ params: Promise<{...}> }` — already in use in our route files.
-- **Image licensing**: real vehicle photos come from two sources — (a) the EV Motion template's own bundled asset pack (user-supplied zip, copied into `public/images/vehicles/`), used directly; (b) a handful of individually spot-checked Wikimedia Commons URLs for vehicles the template didn't cover, each verified for actual model match before use (several Wikipedia auto-matches were rejected for showing the wrong car/brand — e.g. MG Comet EV resolving to "Wuling Air EV"). Footer has a Wikimedia Commons attribution line for the vehicles still using those URLs. Never hotlink new manufacturer press photos directly — that was explicitly avoided throughout.
-- **Nothing is committed to git yet** — only commit on the repo is `61b6ef4 Initial commit from Create Next App`; everything described above is uncommitted working-tree changes (`git status --short` currently shows ~20 changed/new paths at the top level, plus many more nested new files under untracked directories). Don't run any destructive git command without checking `git status` first. **If you want this preserved, commit it.**
-- **Dev server port**: has drifted across 3000/3001/3002 over the session as stray `next dev` processes accumulated (each new `npm run dev` call auto-shifts to the next free port and logs the PID of whatever's already running). Check what's actually listening (`curl -s -o /dev/null -w "%{http_code}" http://localhost:PORT`) before assuming a fresh call started on 3000, and consider killing stray processes if this bothers you (`taskkill //F //IM node.exe //T` on Windows nukes all of them, then restart cleanly).
-- Our `/cars`, `/two-wheelers`, `/brands`, `/brands/[oem]`, `/compare` pages are intentionally **not** part of the EV Motion reskin beyond inheriting the global theme/Navbar/Footer — don't rebuild them to match the template unless asked.
-- The bodySpecs `bootSpaceLiters` figures, ownership-tool costs, FAQs, power/torque numbers, and the Reviews rating-summary card are all **computed/illustrative approximations** (documented inline in code comments), not scraped or fabricated-as-real specs — consistent with this being a labeled demo project throughout.
+### Design system overview
 
-## Suggested next steps (nothing blocking, all optional)
+Defined in `src/app/globals.css`'s Tailwind v4 `@theme` block — no separate config file:
+- **Color tokens**: `primary` (green `#1FA83C`, + `-hover`/`-tint`/`-bright` variants), `ink`/`ink-secondary`/`ink-muted` (text), `surface`/`surface-secondary`/`surface-dark` (backgrounds), `border`/`border-strong`, semantic `hot`/`info`/`warning`/`error`.
+- **Shadows/animation**: `shadow-card`, `shadow-card-hover`, `shadow-popover`, `animate-fade-in`, `animate-pulse-dot`.
+- **Utilities**: `.focus-ring` (consistent focus-visible ring used on every interactive element), `.scroll-row` (horizontal-scroll carousel styling), `.line-clamp-*`.
+- **Typography**: Inter (via `next/font/google`), applied through pixel-precise Tailwind arbitrary values (`text-[13px]`, `text-[11px]`, etc.) rather than the default `text-sm`/`text-xs` scale — this precise scale is what the shared components (`VehicleCard`, `FilterBar`, brand/compare pages) were aligned to during the Medium-priority pass.
+- shadcn's own semantic CSS variables (`--primary`, `--background`, etc.) are **repointed to the same palette**, so any shadcn primitive still in use (Select, Slider, Checkbox, Sheet, Tabs, Popover, Command, Dialog) already renders in the correct brand colors without needing to be rewritten.
 
-- Commit the work (nothing is committed yet — see gotcha above).
-- Consider killing stray `next dev` processes and confirming a single clean dev server on port 3000.
-- If continuing to build this out: the two template zips have now been fully ported into working code — there's no further template content to port unless the user supplies a third drop.
+---
+
+## CURRENT IMPLEMENTATION
+
+Everything below is live, interactive, and has been verified in-browser (not just read from source) as of the final QA pass.
+
+**Homepage** (`src/app/page.tsx`) — Hero with background image and tagline, a real search card (Car/Bike toggle + autocomplete search box + "Browse all" + filter-shortcut chips), a trending-vehicles horizontal scroll section, the main grid (category tiles, a sponsored banner with working lead-capture CTAs, popular-vehicle listing grids, a brand carousel, ranked "Top 8 by range" lists, a subsidy calculator that computes a real illustrative result), an upcoming-vehicles section, a compare-pairs section, a "Why EV Motion" feature strip, and an advertiser section with a working lead-capture dialog.
+
+**Search system** — a real, shared `VehicleSearchBox` component (`src/components/search/`) used in three places: the Navbar (desktop + mobile), and the homepage hero. Debounced (180ms) substring matching across all 36 vehicles' brand+model names, plus keyword routing for category terms ("SUV", "Sedan", "Scooter", "Bike", etc.) straight to the real, already-working listing filters — never a fake round-trip. Full keyboard support (↑/↓ to navigate suggestions, Enter to select, Escape to close), match-text highlighting, and a brand-only match surfaces a "View all N {Brand} vehicles" shortcut to that brand's page. See [Architectural Decisions](#architectural-decisions) for why it's built this way instead of a server-side search API.
+
+**Navigation** — Navbar (logo, NEW CARS / SCOOTERS & BIKES links, search, dark-mode toggle, city/language dropdowns, disabled "Login (Soon)" placeholder) and Footer (real links to every working route; anything without a real destination is rendered as inert "Soon"-labeled text, never a clickable dead link). The Navbar is responsive across three tiers: mobile hamburger below 1024px, an icon-only "compact" desktop tier from 1024-1279px (search box narrows, city/language/login collapse to icon-only with preserved `aria-label`s, the decorative ad slot hides), and the full desktop layout from 1280px up.
+
+**Listing pages** (`/cars`, `/two-wheelers`) — `VehicleListing.tsx` + `FilterBar.tsx`, shared across both categories via a `category` prop. Real, URL-synced filtering and sorting (see Filters below), rendered through the shared `VehicleCard` component.
+
+**Vehicle Detail Pages** (`/cars/[slug]`, `/two-wheelers/[slug]`) — one shared template (`VehicleDetailTemplate.tsx`) driving both categories. Section order: Overview → Variants → Battery & Charging → Ownership Tools → Compare Similar → Colours → Features → Images → Videos → Reviews → FAQs, then full-width Latest News and Similar Vehicles. Interactive gallery (prev/next, thumbnail strip, quick-jump pills to Exterior/Interior/Colours/Videos, honest "photo coming soon" placeholders for unphotographed angles), expandable Overview, accordion FAQs, a working write-a-review form, and a real lead-capture dialog behind "Get Best Price."
+
+**Brand pages** (`/brands`, `/brands/[oem]`) — real logo images for 11 of 12 OEMs (Ampere has no logo asset, correctly falls back to an initial-letter avatar via the shared `BrandLogo` component), each brand page correctly scoped to that brand's real vehicles.
+
+**Compare page** (`/compare`) — add up to 4 vehicles (category-locked — can't mix cars and two-wheelers), a real `cmdk`-powered searchable vehicle picker, a live spec comparison table, remove-vehicle controls, URL-shareable via `?ids=`.
+
+**Responsive behaviour** — verified with zero horizontal overflow across an extensive breakpoint sweep (320/360/375/390/414/768/1024/1100/1150/1152/1200/1250/1260/1280/1440/1920px) on every page type. Two real overflow bugs were found and fixed during QA (VDP hero/gallery at mobile widths; the Navbar's utility row at the 1024-1270px band) — both fixed at the CSS root cause (`min-w-0` on the actual overflowing flex/grid items, and a genuine 3-tier responsive redesign of the Navbar), not papered over.
+
+**Filters** — `FilterBar.tsx` supports Body Type / Type, Sort (price asc/desc, range desc), Price Range, Minimum Range, Minimum Battery, Charging Speed (bucketed), Seats (cars only — dynamically shown only when the current vehicle list actually has seating data), and Availability (Available / Just Launched / Upcoming). All facets combine with AND logic, are URL-synced (shareable/bookmarkable), and a "Clear all (N)" control resets everything.
+
+**SEO** — `sitemap.ts` (53 URLs: 5 static routes + 12 brands + 18 car VDPs + 18 two-wheeler VDPs), `robots.ts`, per-route `generateMetadata`/canonical URLs on every route type including dynamic per-brand titles, Open Graph + Twitter Card metadata on the root layout, and `Product` + `BreadcrumbList` JSON-LD on every VDP (`src/lib/structured-data.ts`).
+
+**Accessibility** — a skip-to-content link, `.focus-ring` used consistently on every interactive element, `aria-label`s on icon-only controls (verified to persist correctly even when a control's visible text is responsively hidden, e.g. the Navbar's compact-tier city/language/login buttons), `disabled` attribute (not just visual styling) on genuinely non-functional buttons, semantic heading structure. Not independently audited against WCAG with automated tooling (axe/Lighthouse) or a screen-reader pass — see Known Limitations.
+
+**Performance** — 58 total routes, the large majority statically pre-rendered at build time; only `/cars`, `/two-wheelers`, and `/compare` render per-request (they read `searchParams`). Images go through `next/image`. Total JS bundle ~1.7MB uncompressed, no single chunk over 225KB. No Lighthouse/Core Web Vitals baseline has been run — see Known Limitations.
+
+**Shared components** worth knowing about before changing anything: `VehicleImage` (real photo vs. branded placeholder, used everywhere a vehicle image appears), `PlaceholderImage` (the branded fallback graphic — has a `showLabel` prop, default `false`, because every real usage already shows the vehicle name as separate adjacent text), `BrandLogo`, `LeadCaptureDialog` (the one engine behind all five lead-capture surfaces on the site — Get Best Price, Get Best Quote, Book Test Drive, Notify Me, Get Advertiser Kit), `VehicleSearchBox`, `Container`/`Block`/`BlockHeading`.
+
+**Design tokens** — see [Design system overview](#design-system-overview) above.
+
+---
+
+## QA HISTORY
+
+This project went through a complete, live-browser-verified production-readiness QA cycle (not a code-only review):
+
+| Phase | Issues | Fixed |
+|---|---|---|
+| 🔴 Critical | 4 | 4 |
+| 🟠 High | 6 | 6 |
+| 🟡 Medium | 6 | 6 |
+| 🟢 Low | 5 | 3 fixed in code + 2 resolved via considered "no action needed" decisions |
+| Additional regression found mid-process | 1 (Navbar 1024-1270px overflow) | 1 |
+| **Total** | **22** | **22 — zero remaining** |
+
+Critical fixes included: a real search implementation (search was previously completely non-functional), a working "Get Best Price" lead-capture flow, removal of fabricated review ratings in favor of an honest empty state, and a branded 404 page with all dead footer/nav links either fixed or honestly marked "Soon." High-priority fixes covered the VDP mobile-overflow bug, a placeholder-image bug that double-rendered vehicle names on 13/36 vehicles, filter dropdowns showing raw values instead of labels, missing brand logos, a dozen-plus dead buttons across the homepage, and inconsistent card click behavior. Medium-priority work unified the site's visual design system, added full SEO infrastructure, extended the filter set, and added a branded error boundary. Low-priority work cleaned up 10 unused files and 3 unused npm dependencies and corrected a couple of minor copy/labeling issues.
+
+**Final outcome:** every issue identified across the whole process has a documented resolution. `npx tsc --noEmit`, `npx eslint .`, and `npm run build` are all clean with zero errors or warnings. Full detail, evidence, and file-level changes for every item live in the repo root: `QA_REPORT.md` (the original audit, now annotated with resolution status inline), `CRITICAL_FIX_REPORT.md`, `HIGH_PRIORITY_FIX_REPORT.md`, `REGRESSION_REPORT.md`, `NAVBAR_RESPONSIVE_FIX_REPORT.md`, `MEDIUM_PRIORITY_FIX_REPORT.md`, `LOW_PRIORITY_FIX_REPORT.md`, and `FINAL_QA_REPORT.md` (overall scores: Production Readiness 84/100, UX 88, UI 85, Accessibility 75, SEO 82, Performance 78, Mobile Responsiveness 95, Code Quality 88 — each with its own justification in that file, not just a bare number).
+
+---
+
+## KNOWN LIMITATIONS
+
+These are intentional, considered decisions — not bugs waiting to be fixed:
+
+- **Advertisement slots are static placeholders** (`AdSlot.tsx`, plus the homepage's "Ad Space" box) — labeled "ADVERTISEMENT" with real pixel dimensions but no ad network integration. Kept as-is per explicit product decision; revisit only if real ad monetization becomes in-scope.
+- **No pagination on listing pages** — at 18 vehicles per category, a single page is the right call; adding pagination now would be premature engineering. Revisit if the catalog grows past roughly 30-40 per category.
+- **Reviews and Latest News are honest empty states, not populated content** — every vehicle genuinely has zero reviews and zero news coverage; the UI says so plainly rather than fabricating either. The write-a-review form is fully functional and will show real, dynamically-computed rating summaries the moment a review is submitted (verified — not decorative).
+- **Images/Videos gallery slots are partially placeholder** — 23 of 36 vehicles have one confirmed real photo; the rest (and every vehicle's video slots) show explicitly-labeled "coming soon" placeholders. Section headers accurately reflect real vs. placeholder counts (e.g. "Images (1 of 8)").
+- **No real backend** — every "submit" action (Get Best Price, Book Test Drive, Notify Me, Get Advertiser Kit, Write a Review) is local React state with an honest "Demo form — no data is sent anywhere" disclosure. This is a deliberate scope boundary for a frontend demo, not an oversight.
+- **Placeholder domain for SEO/canonical URLs** — `https://ev-motion.example.com` (`src/lib/site.ts`, overridable via `NEXT_PUBLIC_SITE_URL`), since no real domain has been assigned yet. Swap the env var when one exists; nothing else needs to change.
+- **A handful of shadcn primitives were deliberately left in their generic (non-EV-Motion-themed) styling** — `Tabs` on the Compare page, `Popover`/`Command` in the vehicle picker — a considered choice to avoid rewriting working, accessible components for marginal visual gain, not an oversight.
+- **No independent performance or accessibility lab audit** — no Lighthouse/Core Web Vitals run, no axe-core scan, no manual screen-reader pass. What's documented in the QA reports is verified through live interaction and code inspection, which is a different (and narrower) thing than an automated accessibility/performance audit.
+
+---
+
+## ARCHITECTURAL DECISIONS
+
+**Search architecture** — client-side, not a server API. `src/lib/search.ts` exports a pure `searchVehicles(query)` function that does a scored substring match across the in-memory `Vehicle[]` array (imported directly, no fetch), plus a small keyword table mapping category terms ("SUV", "Scooter", etc.) to the *existing, already-working* listing-filter URLs (`/cars?type=suv`) rather than inventing a second filtering mechanism. This was the right call given the whole dataset (36 vehicles) fits trivially in memory and ships with every page anyway — a server round-trip would add latency for zero benefit at this scale. `VehicleSearchBox` (the UI) is a single shared component used in all three places search appears, so keyboard handling, debouncing, and result rendering can't drift between instances. If the catalog ever grows to the point where in-memory scanning stops being trivial, this is the one place that would need to change to a real index/API — the component boundary was drawn specifically so that swap wouldn't require touching the UI.
+
+**Routing strategy** — flat URL shape throughout: `/cars/[slug]`, `/two-wheelers/[slug]`, `/brands/[oem]`, not nested brand-scoped paths. All dynamic segments use `generateStaticParams` for build-time SSG except the three pages that read `searchParams` (`/cars`, `/two-wheelers`, `/compare`), which are necessarily dynamic. `not-found.tsx` and `error.tsx` are both defined once at the root and apply everywhere.
+
+**Component hierarchy** — three parallel "vertical slices" that share almost nothing at the component level but a lot at the data level: `components/home/*` (homepage only), `components/vehicle-detail/*` (VDP only), and `components/vehicles/*` (the listing/brand/compare pages, i.e. everywhere a vehicle needs to render as a generic card or spec row rather than in a bespoke homepage/VDP layout). This split exists because the homepage and VDP were built to pixel-match a supplied design template, while the listing/brand/compare pages were always meant to be simpler, data-driven views — but during the Medium-priority QA pass, all three slices were brought onto the same design-token system, so the split is now purely organizational, not visual.
+
+**Shared utilities** (`src/lib/`) — anything used by more than one of the three component slices above lives here, not duplicated: `search.ts` (search/autocomplete), `listing-params.ts` (URL-param parsing shared by `/cars` and `/two-wheelers`), `vehicle-labels.ts` (the `LaunchStatus` → human-label map used by both `VehicleCard` and `CompareTable`), `structured-data.ts` (JSON-LD builders), `site.ts` (the SITE_URL constant), and `data/index.ts`'s lookup helpers (`getOemBySlug`, `getVehicleBySlug`, etc.). This consolidation happened incrementally during the QA process specifically because duplicated copies of the same logic were found drifting apart (e.g. `VehicleCard` and `CompareTable` each had their own separate launch-status label map before `vehicle-labels.ts` existed) — treat any new "same logic in two places" as a bug to fix the same way, not a style preference.
+
+**Data flow** — one-directional and static: `src/lib/data/{cars,two-wheelers,oems}.ts` (raw `Vehicle`/`Oem` records) → `src/lib/data/ev-motion/{content,derive,toVehicleDetail}.ts` (adapters that reshape raw vehicles into the specific view-model shapes each home/VDP component expects, e.g. `ListingCardData`, `VehicleDetail`) → components. Nothing fetches at runtime; everything is imported directly. If you need a new derived view (a new card shape, a new spec grid), add a function to `derive.ts` rather than reshaping data inline inside a component.
+
+**State management** — no global state library. Each interactive feature owns its own local `useState`, synced to the URL via `router.replace(..., { scroll: false })` wherever the state should be shareable/bookmarkable (all listing filters, the compare page's selected vehicles). Dialog/dropdown open-state is local to each component. This was sufficient because nothing in the app needs cross-component state that isn't already expressible as "what's in the URL."
+
+**Responsive strategy** — Tailwind's `sm`/`lg`/`xl` breakpoints, no custom breakpoints. The one place a genuinely custom 3-tier strategy was needed (the Navbar, `lg` for "has room for search+icons" turned out to be wrong at 1024-1279px) was solved by adding an `xl:` tier specifically for that component rather than changing the project's global breakpoint conventions — see `NAVBAR_RESPONSIVE_FIX_REPORT.md` for the full reasoning. The general rule applied throughout the QA process: prefer `min-w-0` + flexible sizing + responsive visibility over fixed pixel widths whenever a genuine overflow bug is found, since fixed widths are what caused both real overflow bugs this project had.
+
+---
+
+## FUTURE ROADMAP
+
+Not started, in rough order of how foundational they are:
+
+1. **Real backend + database** — everything currently in `src/lib/data/*` would move to a real data store; this is the prerequisite for almost everything else below.
+2. **Authentication + user accounts** — the Navbar's "Login" button is currently a labeled, disabled placeholder ("Login (Soon)").
+3. **Reviews API** — `SectionReviews.tsx` already has real local-state review submission and dynamically-computed rating summaries; wiring it to a real backend is additive, not a rewrite.
+4. **Dealer portal** — the homepage's "Advertise on EV Motion" section and its lead-capture dialog are the natural entry point; a real dealer-facing portal would sit behind them.
+5. **CMS for editorial content** — "Latest News" is currently an honest empty state on every VDP; a real content pipeline would populate it.
+6. **Favorites / saved vehicles, synced across devices** — needs accounts first.
+7. **Analytics** — no analytics/tracking is wired up anywhere currently.
+8. **Admin dashboard** — for managing the vehicle catalog, brands, and dealer leads once there's a real backend.
+
+---
+
+## PROJECT STATUS
+
+**Not production-ready in the sense of "deploy this and take real customers" — but that gap is entirely the intentional limitations above, not unresolved bugs.** Every interactive feature that exists works correctly, has been live-tested, and the codebase is clean (zero TypeScript errors, zero lint errors/warnings, clean build). What stands between this and a real production marketplace is exactly the Future Roadmap above: a backend, auth, real content pipelines, and independent performance/accessibility lab audits — none of which are QA/bug-fix work, they're net-new features and infrastructure that were never in scope for this pass. As a frontend demo of what a polished, fully-interactive EV marketplace looks like, this is complete and hardened.
+
+---
+
+## How the next Claude session should continue
+
+1. **Read this file, then skim the 8 QA report files in the repo root** (`QA_REPORT.md` → `CRITICAL_FIX_REPORT.md` → `HIGH_PRIORITY_FIX_REPORT.md` → `REGRESSION_REPORT.md` → `NAVBAR_RESPONSIVE_FIX_REPORT.md` → `MEDIUM_PRIORITY_FIX_REPORT.md` → `LOW_PRIORITY_FIX_REPORT.md` → `FINAL_QA_REPORT.md`) if the task touches anything already covered there — they contain the *why* behind non-obvious decisions (e.g. why `loading.tsx` doesn't exist, why some shadcn primitives were deliberately left unrestyled, why the search box is client-side).
+2. **Don't assume the codebase matches an earlier memory of this project.** If anything here looks stale, trust the actual files over this document — re-verify with `git log`, `git status`, and a fresh read of the relevant source before making changes.
+3. **Before changing any shared file** (`src/lib/search.ts`, `vehicle-labels.ts`, `listing-params.ts`, `structured-data.ts`, `VehicleImage.tsx`, `PlaceholderImage.tsx`, `LeadCaptureDialog.tsx`, `VehicleSearchBox.tsx`, `BrandLogo.tsx`), grep for every usage first — each of these is intentionally shared across multiple pages/components specifically to avoid the kind of drift the QA process kept finding and fixing.
+4. **This shadcn setup uses Base UI, not Radix.** Composing a non-Button element (e.g. a `Link`) into a `Button`/`SheetTrigger`/`DialogTrigger`/etc. requires the **`render` prop**, not `asChild` — e.g. `<Button render={<Link href="/cars" />} nativeButton={false}>`.
+5. **Next.js 16 has real breaking changes vs. training-data assumptions** — read `node_modules/next/dist/docs/` before writing new App Router code if anything feels off; `params`/`searchParams` are `Promise`s, and `PageProps<'/route/path'>` is a generated global type, already used throughout `src/app/`.
+6. **Don't add a root `src/app/loading.tsx`** without testing it live first — one was added during this session's Medium-priority pass and caused every route (including fully static ones) to hang permanently on the loading skeleton in this dev environment; it was removed rather than shipped. If you need one, verify it resolves correctly before considering the work done.
+7. **Run the quality gate before calling anything finished**: `npx tsc --noEmit`, `npx eslint .`, `npm run build` — all three are clean as of this handoff; keep them that way.
+8. **If doing UI/responsive work, verify live in a browser at multiple widths**, not just by reading the JSX. Both real overflow bugs this project had (VDP mobile, Navbar 1024-1270px) were invisible in code review and only surfaced through actual viewport testing — the project's screenshot tooling wasn't available in this session's environment, so verification relied on `document.documentElement.scrollWidth`/`clientWidth` comparisons and DOM/console inspection instead; a future session with working screenshot capability should still do the same numeric checks, not rely on visual inspection alone.
+9. **Nothing from this session is committed to git yet.** `git log` shows only 3 commits, none from this session's work (`git status` will show everything from the QA pass as uncommitted). Check with the user before committing, and don't run any destructive git command without checking `git status` first.

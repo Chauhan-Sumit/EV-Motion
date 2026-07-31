@@ -13,27 +13,22 @@ interface LocalReview {
   body: string;
 }
 
-// Sample rating-summary numbers for the summary card — these are
-// placeholder/demo figures (like the "Advertisement" and "Coming Soon" slots
-// elsewhere on this page), not real submitted ratings. The right-hand column
-// below is unchanged and reflects the honest real state: no reviews exist for
-// this vehicle yet.
-const SAMPLE_RATING = 4.6;
-const SAMPLE_REVIEW_COUNT = 1245;
-const SAMPLE_DISTRIBUTION = [
-  { stars: 5, pct: 72 },
-  { stars: 4, pct: 18 },
-  { stars: 3, pct: 6 },
-  { stars: 2, pct: 3 },
-  { stars: 1, pct: 1 },
-];
-
 export function SectionReviews({ vehicle }: { vehicle: VehicleDetail }) {
   const [reviews, setReviews] = useState<LocalReview[]>([]);
   const [formOpen, setFormOpen] = useState(false);
   const [draftRating, setDraftRating] = useState(5);
   const [draftTitle, setDraftTitle] = useState("");
   const [draftBody, setDraftBody] = useState("");
+
+  // Real, derived from actually-submitted reviews only — no fabricated
+  // rating/count is shown until a review genuinely exists.
+  const averageRating = reviews.length
+    ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+    : 0;
+  const distribution = [5, 4, 3, 2, 1].map((stars) => ({
+    stars,
+    count: reviews.filter((r) => r.rating === stars).length,
+  }));
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -53,39 +48,44 @@ export function SectionReviews({ vehicle }: { vehicle: VehicleDetail }) {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,260px)_1fr]">
         <div>
           <div className="rounded-xl border border-border bg-surface p-3.5">
-            <p className="text-3xl font-extrabold text-ink">{SAMPLE_RATING}</p>
-            <div className="mt-1 flex gap-0.5">
-              {[1, 2, 3, 4, 5].map((n) => (
-                <Star
-                  key={n}
-                  size={14}
-                  className={n <= Math.round(SAMPLE_RATING) ? "fill-primary text-primary" : "text-border-strong"}
-                />
-              ))}
-            </div>
-            <p className="mt-1 text-[10px] text-ink-muted">
-              Based on {SAMPLE_REVIEW_COUNT.toLocaleString("en-IN")} reviews
-            </p>
+            {reviews.length > 0 ? (
+              <>
+                <p className="text-3xl font-extrabold text-ink">{averageRating.toFixed(1)}</p>
+                <div className="mt-1 flex gap-0.5">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <Star
+                      key={n}
+                      size={14}
+                      className={n <= Math.round(averageRating) ? "fill-primary text-primary" : "text-border-strong"}
+                    />
+                  ))}
+                </div>
+                <p className="mt-1 text-[10px] text-ink-muted">
+                  Based on {reviews.length} review{reviews.length === 1 ? "" : "s"}
+                </p>
 
-            <ul className="mt-3 space-y-1">
-              {SAMPLE_DISTRIBUTION.map((row) => (
-                <li key={row.stars} className="flex items-center gap-2">
-                  <span className="w-6 shrink-0 text-[10px] text-ink-muted">{row.stars}★</span>
-                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-secondary">
-                    <div className="h-full rounded-full bg-primary" style={{ width: `${row.pct}%` }} />
-                  </div>
-                  <span className="w-7 shrink-0 text-right text-[9px] text-ink-muted">{row.pct}%</span>
-                </li>
-              ))}
-            </ul>
+                <ul className="mt-3 space-y-1">
+                  {distribution.map((row) => (
+                    <li key={row.stars} className="flex items-center gap-2">
+                      <span className="w-6 shrink-0 text-[10px] text-ink-muted">{row.stars}★</span>
+                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-secondary">
+                        <div
+                          className="h-full rounded-full bg-primary"
+                          style={{ width: `${(row.count / reviews.length) * 100}%` }}
+                        />
+                      </div>
+                      <span className="w-7 shrink-0 text-right text-[9px] text-ink-muted">{row.count}</span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <p className="text-[12px] text-ink-secondary">
+                No ratings yet — be the first to review the {vehicle.name}.
+              </p>
+            )}
 
             <div className="mt-3.5 flex flex-col gap-2">
-              <button
-                type="button"
-                className="focus-ring rounded-md border border-primary bg-transparent px-3.5 py-2 text-[11px] font-semibold text-primary transition-colors hover:bg-primary-tint"
-              >
-                Read All Reviews
-              </button>
               <button
                 type="button"
                 onClick={() => setFormOpen((o) => !o)}

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { ChevronsUpDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -31,14 +30,14 @@ export function VehiclePicker({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         render={
-          <Button
-            variant="outline"
-            className="w-full justify-between sm:w-72"
+          <button
+            type="button"
+            className="focus-ring flex w-full items-center justify-between rounded-md border border-border-strong bg-surface px-3.5 py-2.5 text-[13px] font-semibold text-ink-secondary transition-colors hover:border-primary hover:text-primary sm:w-72"
           />
         }
       >
         {placeholder}
-        <ChevronsUpDown className="h-4 w-4 opacity-50" />
+        <ChevronsUpDown size={15} className="opacity-50" />
       </PopoverTrigger>
       <PopoverContent className="w-72 p-0">
         <Command>

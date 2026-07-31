@@ -3,28 +3,22 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Scale, Zap } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
 import { getOemBySlug } from "@/lib/data";
+import { LAUNCH_STATUS_LABEL } from "@/lib/vehicle-labels";
 import { Vehicle } from "@/types/vehicle";
 
-const statusLabel: Record<Vehicle["launchStatus"], string> = {
-  available: "Available",
-  "just-launched": "Just Launched",
-  upcoming: "Upcoming",
-};
-
-const statusVariant: Record<Vehicle["launchStatus"], "default" | "secondary" | "outline"> = {
-  available: "default",
-  "just-launched": "secondary",
-  upcoming: "outline",
+const BADGE_CLASSES: Record<Vehicle["launchStatus"], string> = {
+  available: "bg-primary text-white",
+  "just-launched": "bg-hot text-white",
+  upcoming: "border border-border-strong bg-surface text-ink-secondary",
 };
 
 export function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
   const oem = getOemBySlug(vehicle.oem);
   const color = oem?.color ?? "#0891B2";
   const basePath = vehicle.category === "car" ? "/cars" : "/two-wheelers";
+  const detailHref = `${basePath}/${vehicle.slug}`;
 
   return (
     <motion.div
@@ -32,50 +26,46 @@ export function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
       transition={{ duration: 0.15, ease: "easeOut" }}
       className="h-full"
     >
-      <Card className="h-full gap-0 py-0 overflow-hidden">
-        <Link href={`${basePath}/${vehicle.slug}`} className="block">
-          <div className="aspect-[4/3]">
+      <div className="flex h-full flex-col overflow-hidden rounded-[10px] border border-border bg-surface transition-shadow duration-200 hover:shadow-card-hover">
+        <Link href={detailHref} className="focus-ring flex flex-1 flex-col">
+          <div className="relative h-40 overflow-hidden border-b border-border bg-white">
+            <span
+              className={`absolute left-2 top-2 z-10 rounded-[3px] px-[7px] py-0.5 text-[9px] font-bold uppercase ${BADGE_CLASSES[vehicle.launchStatus]}`}
+            >
+              {LAUNCH_STATUS_LABEL[vehicle.launchStatus]}
+            </span>
             <VehicleImage vehicle={vehicle} color={color} className="h-full w-full" />
           </div>
-        </Link>
-        <CardContent className="flex flex-1 flex-col gap-2 pt-4 pb-4">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <p className="text-xs text-muted-foreground">{vehicle.oemName}</p>
-              <Link href={`${basePath}/${vehicle.slug}`}>
-                <h3 className="font-heading text-base font-semibold leading-snug hover:text-primary">
-                  {vehicle.modelName}
-                </h3>
-              </Link>
+
+          <div className="flex flex-1 flex-col gap-1.5 p-[11px]">
+            <p className="text-[9px] font-semibold uppercase tracking-[0.7px] text-ink-muted">
+              {vehicle.oemName}
+            </p>
+            <h3 className="text-[13px] font-bold leading-snug text-ink">{vehicle.modelName}</h3>
+            <p className="line-clamp-1 text-[11px] text-ink-secondary">{vehicle.tagline}</p>
+
+            <div className="mt-1 flex items-center justify-between text-[12px]">
+              <span className="text-sm font-extrabold text-primary">
+                ₹{vehicle.priceRangeLakh[0].toFixed(2)} - {vehicle.priceRangeLakh[1].toFixed(2)} L
+              </span>
+              <span className="flex items-center gap-1 text-[10px] text-ink-muted">
+                <Zap size={12} className="text-primary" />
+                {vehicle.rangeKm} km
+              </span>
             </div>
-            <Badge variant={statusVariant[vehicle.launchStatus]}>
-              {statusLabel[vehicle.launchStatus]}
-            </Badge>
           </div>
+        </Link>
 
-          <p className="text-sm text-muted-foreground line-clamp-1">
-            {vehicle.tagline}
-          </p>
-
-          <div className="mt-1 flex items-center justify-between text-sm">
-            <span className="font-heading font-semibold text-foreground">
-              ₹{vehicle.priceRangeLakh[0].toFixed(2)} - {vehicle.priceRangeLakh[1].toFixed(2)} L
-            </span>
-            <span className="flex items-center gap-1 text-muted-foreground">
-              <Zap className="h-3.5 w-3.5 text-success" />
-              {vehicle.rangeKm} km
-            </span>
-          </div>
-
+        <div className="border-t border-border px-[11px] py-[7px]">
           <Link
             href={`/compare?ids=${vehicle.slug}`}
-            className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
+            className="focus-ring inline-flex items-center gap-1.5 text-[11px] font-semibold text-primary hover:underline"
           >
-            <Scale className="h-3.5 w-3.5" />
+            <Scale size={13} />
             Add to Compare
           </Link>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </motion.div>
   );
 }

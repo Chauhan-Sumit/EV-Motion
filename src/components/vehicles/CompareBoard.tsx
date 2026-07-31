@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VehiclePicker } from "@/components/vehicles/VehiclePicker";
 import { CompareTable } from "@/components/vehicles/CompareTable";
+import { Container } from "@/components/ui/Container";
 import { getAllVehicles, getVehicleBySlug } from "@/lib/data";
 import { VehicleCategory } from "@/types/vehicle";
 
@@ -61,9 +62,9 @@ export function CompareBoard({ initialSlugs }: { initialSlugs: string[] }) {
   );
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="font-heading text-2xl font-semibold">Compare Vehicles</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
+    <Container className="py-6 sm:py-8">
+      <h1 className="text-xl font-extrabold tracking-tight text-ink sm:text-2xl">Compare Vehicles</h1>
+      <p className="mt-1 text-[12.5px] text-ink-secondary">
         Compare up to {MAX_COMPARE} EV cars or 2-wheelers side by side. Mixing
         categories isn&apos;t supported.
       </p>
@@ -84,7 +85,7 @@ export function CompareBoard({ initialSlugs }: { initialSlugs: string[] }) {
         {selectedSlugs.length < MAX_COMPARE ? (
           <VehiclePicker vehicles={eligibleVehicles} onSelect={handleAdd} />
         ) : (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-[12.5px] text-ink-secondary">
             Maximum of {MAX_COMPARE} vehicles reached. Remove one to add another.
           </p>
         )}
@@ -92,13 +93,13 @@ export function CompareBoard({ initialSlugs }: { initialSlugs: string[] }) {
 
       <div className="mt-8">
         {selectedVehicles.length === 0 ? (
-          <p className="rounded-xl border border-dashed p-10 text-center text-muted-foreground">
+          <p className="rounded-xl border border-dashed border-border-strong bg-surface-secondary p-10 text-center text-[13px] text-ink-secondary">
             No vehicles selected yet. Use the picker above to start comparing.
           </p>
         ) : (
           <CompareTable vehicles={selectedVehicles} onRemove={handleRemove} />
         )}
       </div>
-    </div>
+    </Container>
   );
 }

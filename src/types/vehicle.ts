@@ -55,4 +55,6 @@ export interface Oem {
   country: string;
   categories: VehicleCategory[];
   description: string;
+  /** Public path to the brand's real logo asset. Absent where no asset exists (e.g. Ampere) — render an initial-letter fallback in that case. */
+  logoUrl?: string;
 }

@@ -1,6 +1,7 @@
 import { cars } from "@/lib/data/cars";
 import { twoWheelers } from "@/lib/data/two-wheelers";
 import { oems, getOemBySlug } from "@/lib/data";
+import { vehicleHref } from "@/lib/search";
 import type { Vehicle } from "@/types/vehicle";
 import type {
   BrandCardData,
@@ -10,21 +11,6 @@ import type {
   TrendingCompactItemData,
   UpcomingItemData,
 } from "@/types/ev-motion";
-
-/** Local brand-logo assets copied from the EV Motion template — maps OEM key -> public path. Ampere has no logo asset available. */
-const BRAND_LOGOS: Record<string, string> = {
-  tata: "/images/brands/tata-motors.png",
-  mg: "/images/brands/mg-motors.png",
-  hyundai: "/images/brands/hyundai.png",
-  mahindra: "/images/brands/mahindra.png",
-  byd: "/images/brands/byd.png",
-  kia: "/images/brands/kia.png",
-  "ola-electric": "/images/brands/ola-electric.png",
-  ather: "/images/brands/ather-energy.png",
-  bajaj: "/images/brands/bajaj-chetak.png",
-  tvs: "/images/brands/tvs.png",
-  hero: "/images/brands/hero-electric.png",
-};
 
 export function oemColorOf(vehicle: Vehicle): string {
   return getOemBySlug(vehicle.oem)?.color ?? "#1FA83C";
@@ -91,6 +77,7 @@ export function toRankedVehicle(vehicle: Vehicle, rank: number): RankedVehicleDa
     name: `${vehicle.oemName} ${vehicle.modelName}`,
     metaLabel: `${vehicle.rangeKm} km · ${bodyOrTypeLabel(vehicle)}`,
     priceLabel: priceLabel(vehicle),
+    href: vehicleHref(vehicle),
   };
 }
 
@@ -151,11 +138,11 @@ export const rankedScooters: RankedVehicleData[] = [...twoWheelers]
 
 export const carBrands: BrandCardData[] = oems
   .filter((o) => o.categories.includes("car"))
-  .map((o) => ({ id: o.key, name: o.name, logo: BRAND_LOGOS[o.key] ?? null, color: o.color, slug: o.slug, kind: "car" }));
+  .map((o) => ({ id: o.key, name: o.name, logo: o.logoUrl ?? null, color: o.color, slug: o.slug, kind: "car" }));
 
 export const bikeBrands: BrandCardData[] = oems
   .filter((o) => o.categories.includes("2-wheeler"))
-  .map((o) => ({ id: o.key, name: o.name, logo: BRAND_LOGOS[o.key] ?? null, color: o.color, slug: o.slug, kind: "bike" }));
+  .map((o) => ({ id: o.key, name: o.name, logo: o.logoUrl ?? null, color: o.color, slug: o.slug, kind: "bike" }));
 
 export const upcomingCars: UpcomingItemData[] = cars
   .filter((v) => v.launchStatus === "upcoming")

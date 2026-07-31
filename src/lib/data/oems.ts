@@ -10,6 +10,7 @@ export const oems: Oem[] = [
     categories: ["car"],
     description:
       "India's largest homegrown EV maker, credited with kickstarting mass-market electric adoption with the Nexon EV and Tiago EV.",
+    logoUrl: "/images/brands/tata-motors.png",
   },
   {
     key: "mg",
@@ -20,6 +21,7 @@ export const oems: Oem[] = [
     categories: ["car"],
     description:
       "Early mover in India's EV SUV space with the ZS EV, now expanding into affordable electric hatchbacks and premium SUVs.",
+    logoUrl: "/images/brands/mg-motors.png",
   },
   {
     key: "hyundai",
@@ -30,6 +32,7 @@ export const oems: Oem[] = [
     categories: ["car"],
     description:
       "Global EV technology brought to India through the Kona and Creta EV, with dedicated e-GMP platform models on the way.",
+    logoUrl: "/images/brands/hyundai.png",
   },
   {
     key: "mahindra",
@@ -40,6 +43,7 @@ export const oems: Oem[] = [
     categories: ["car"],
     description:
       "Betting big on its BE and XUV.e born-electric sub-brands, built on a dedicated INGLO skateboard platform.",
+    logoUrl: "/images/brands/mahindra.png",
   },
   {
     key: "byd",
@@ -50,6 +54,7 @@ export const oems: Oem[] = [
     categories: ["car"],
     description:
       "World's largest EV maker bringing Blade Battery tech and premium electric SUVs/sedans to the Indian market.",
+    logoUrl: "/images/brands/byd.png",
   },
   {
     key: "kia",
@@ -60,6 +65,7 @@ export const oems: Oem[] = [
     categories: ["car"],
     description:
       "Design-forward EVs including the futuristic EV6, sharing Hyundai's e-GMP underpinnings with distinct styling.",
+    logoUrl: "/images/brands/kia.png",
   },
   {
     key: "ola-electric",
@@ -70,6 +76,7 @@ export const oems: Oem[] = [
     categories: ["2-wheeler"],
     description:
       "India's largest electric scooter maker by volume, built out of its own Futurefactory, now expanding into motorcycles.",
+    logoUrl: "/images/brands/ola-electric.png",
   },
   {
     key: "ather",
@@ -80,6 +87,7 @@ export const oems: Oem[] = [
     categories: ["2-wheeler"],
     description:
       "Premium electric scooter pioneer known for its smart dashboard, fast charging Ather Grid network and sporty performance.",
+    logoUrl: "/images/brands/ather-energy.png",
   },
   {
     key: "bajaj",
@@ -90,6 +98,7 @@ export const oems: Oem[] = [
     categories: ["2-wheeler"],
     description:
       "Legacy two-wheeler giant behind the Chetak, blending retro styling with modern EV underpinnings.",
+    logoUrl: "/images/brands/bajaj-chetak.png",
   },
   {
     key: "tvs",
@@ -100,6 +109,7 @@ export const oems: Oem[] = [
     categories: ["2-wheeler"],
     description:
       "Maker of the iQube, one of India's best-selling electric scooters, with a rapidly expanding lineup.",
+    logoUrl: "/images/brands/tvs.png",
   },
   {
     key: "hero",
@@ -110,6 +120,7 @@ export const oems: Oem[] = [
     categories: ["2-wheeler"],
     description:
       "Hero MotoCorp's electric arm, now consolidated under the Vida brand for its next-generation scooter lineup.",
+    logoUrl: "/images/brands/hero-electric.png",
   },
   {
     key: "ampere",

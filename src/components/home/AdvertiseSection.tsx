@@ -1,6 +1,7 @@
 import { Phone } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { advertPlans } from "@/lib/data/ev-motion/content";
+import { LeadCaptureDialog } from "@/components/common/LeadCaptureDialog";
 
 export function AdvertiseSection() {
   return (
@@ -48,12 +49,20 @@ export function AdvertiseSection() {
         </div>
 
         <div className="mt-5 flex flex-col items-center gap-2 sm:flex-row">
-          <button
-            type="button"
-            className="focus-ring rounded-md bg-primary px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-primary-hover"
-          >
-            Get Advertiser Kit ›
-          </button>
+          <LeadCaptureDialog
+            triggerLabel="Get Advertiser Kit ›"
+            triggerClassName="focus-ring rounded-md bg-primary px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-primary-hover"
+            dialogTitle="Get the advertiser kit"
+            dialogDescription="Tell us where to send pricing, audience data, and creative specs for advertising on EV Motion."
+            fields={[
+              { key: "name", label: "Your name", type: "text", placeholder: "Full name", validation: "required" },
+              { key: "company", label: "Company", type: "text", placeholder: "Dealership or brand name", validation: "required" },
+              { key: "email", label: "Work email", type: "email", placeholder: "you@company.com", validation: "email" },
+            ]}
+            submitLabel="Send Me the Kit"
+            successTitle="Kit on its way"
+            successDescription="Our advertising team will email the media kit and pricing shortly."
+          />
           <span className="inline-flex items-center gap-1.5 text-[12px] text-ink-secondary">
             <Phone size={12} />
             or call <strong className="text-ink">1800-EV-MOTION</strong>

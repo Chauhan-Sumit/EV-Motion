@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { SITE_URL } from "@/lib/site";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -12,17 +13,33 @@ const inter = Inter({
   display: "swap",
 });
 
+const SITE_NAME = "EV Motion - India's #1 EV Marketplace";
+const SITE_DESCRIPTION =
+  "India's largest electric vehicle marketplace. Compare electric cars, bikes and scooters, find dealers and charging stations.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "EV Motion - India's #1 EV Marketplace",
+    default: SITE_NAME,
     template: "%s | EV Motion",
   },
-  description:
-    "India's largest electric vehicle marketplace. Compare electric cars, bikes and scooters, find dealers and charging stations.",
+  description: SITE_DESCRIPTION,
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
-    title: "EV Motion - India's #1 EV Marketplace",
-    description: "India's largest electric vehicle marketplace.",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
     type: "website",
+    url: "/",
+    siteName: "EV Motion",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "EV Motion" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    images: ["/og-image.png"],
   },
 };
 

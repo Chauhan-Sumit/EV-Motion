@@ -8,12 +8,17 @@ const VISIBLE = 4;
 
 export function SectionImages({ vehicle }: { vehicle: VehicleDetail }) {
   const overflow = TOTAL_SLOTS - VISIBLE;
+  const realCount = vehicle.sourceVehicle.images.photoUrl ? 1 : 0;
 
   return (
     <VehicleSection
       id="images"
-      title={`Images (${TOTAL_SLOTS})`}
-      description="Only one confirmed photo is on file — the remaining slots are ready for real photography."
+      title={`Images (${realCount} of ${TOTAL_SLOTS})`}
+      description={
+        realCount > 0
+          ? "Only one confirmed photo is on file — the remaining slots are ready for real photography."
+          : "No confirmed photos are on file yet — these slots are ready for real photography."
+      }
       headingAction={
         <a href="#images" className="focus-ring text-[11px] font-semibold text-primary">
           View All ›

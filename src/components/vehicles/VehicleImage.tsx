@@ -8,6 +8,8 @@ interface VehicleImageProps {
   className?: string;
   sizes?: string;
   priority?: boolean;
+  /** Forwarded to PlaceholderImage — see its doc comment. Off by default. */
+  showLabel?: boolean;
 }
 
 export function VehicleImage({
@@ -16,6 +18,7 @@ export function VehicleImage({
   className,
   sizes = "(min-width: 1024px) 25vw, 50vw",
   priority = false,
+  showLabel = false,
 }: VehicleImageProps) {
   if (vehicle.images.photoUrl) {
     return (
@@ -39,6 +42,7 @@ export function VehicleImage({
       color={color}
       category={vehicle.category}
       className={className}
+      showLabel={showLabel}
     />
   );
 }

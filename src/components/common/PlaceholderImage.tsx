@@ -8,6 +8,16 @@ interface PlaceholderImageProps {
   color: string;
   category: VehicleCategory;
   className?: string;
+  /**
+   * Renders the vehicle name as visible text inside the placeholder graphic.
+   * Off by default: every card/section that uses this placeholder already
+   * shows the vehicle name as its own adjacent title, so the in-graphic
+   * label was pure duplication (and outright overlapped the icon at small
+   * thumbnail sizes). Only opt in where the placeholder is the sole visual
+   * with no nearby name text at all. The accessible name (role="img" +
+   * aria-label) is unaffected either way.
+   */
+  showLabel?: boolean;
 }
 
 function CarIcon({ className, style }: { className?: string; style?: CSSProperties }) {
@@ -52,6 +62,7 @@ export function PlaceholderImage({
   color,
   category,
   className,
+  showLabel = false,
 }: PlaceholderImageProps) {
   const Icon = category === "car" ? CarIcon : ScooterIcon;
 
@@ -74,12 +85,14 @@ export function PlaceholderImage({
         }}
       />
       <Icon className="relative z-10 h-1/3 w-1/3 min-h-8 min-w-8" style={{ color }} />
-      <span
-        className="relative z-10 mt-2 px-2 text-center text-sm font-heading font-medium"
-        style={{ color }}
-      >
-        {oemName} {modelName}
-      </span>
+      {showLabel ? (
+        <span
+          className="relative z-10 mt-2 px-2 text-center text-sm font-heading font-medium"
+          style={{ color }}
+        >
+          {oemName} {modelName}
+        </span>
+      ) : null}
     </div>
   );
 }

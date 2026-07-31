@@ -55,7 +55,7 @@ export function VehicleGallery({ vehicle }: { vehicle: VehicleDetail }) {
   const overflowCount = slots.length - VISIBLE_THUMBS;
 
   return (
-    <div>
+    <div className="min-w-0">
       {/* Main image with arrows */}
       <div className="relative h-56 overflow-hidden rounded-xl border border-border bg-white sm:h-72 lg:h-[280px]">
         {active.hasImage ? (

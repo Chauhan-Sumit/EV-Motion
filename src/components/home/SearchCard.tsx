@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { MapPin, Search, Zap, Car, IndianRupee, LayoutGrid, Gauge, SlidersHorizontal } from "lucide-react";
+import { MapPin, ListFilter, Zap, Car, IndianRupee, LayoutGrid, Gauge, SlidersHorizontal } from "lucide-react";
+import { VehicleSearchBox } from "@/components/search/VehicleSearchBox";
 
 const FILTER_CHIPS = [
   { label: "Budget", icon: IndianRupee },
@@ -15,11 +16,9 @@ const FILTER_CHIPS = [
 export function SearchCard() {
   const router = useRouter();
   const [mode, setMode] = useState<"car" | "bike">("car");
-  const [query, setQuery] = useState("");
 
-  function handleSearch() {
-    const base = mode === "car" ? "/cars" : "/two-wheelers";
-    router.push(query.trim() ? `${base}?q=${encodeURIComponent(query.trim())}` : base);
+  function browseAll() {
+    router.push(mode === "car" ? "/cars" : "/two-wheelers");
   }
 
   return (
@@ -59,24 +58,20 @@ export function SearchCard() {
             </button>
           </div>
 
-          <div className="flex flex-1 items-center gap-2 rounded-lg border-[1.5px] border-border-strong bg-white px-3.5 py-2.5 focus-within:border-primary">
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              placeholder="Type to select EV name or brand..."
-              className="w-full bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-muted"
-            />
-          </div>
+          <VehicleSearchBox
+            ariaLabel="Search EVs by name or brand"
+            placeholder="Type to select EV name or brand..."
+            size="lg"
+            className="flex-1"
+          />
 
           <button
             type="button"
-            aria-label="Search"
-            onClick={handleSearch}
-            className="focus-ring flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-primary px-5 text-white transition-colors hover:bg-primary-hover"
+            onClick={browseAll}
+            className="focus-ring flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-border-strong px-4 text-[12.5px] font-semibold text-ink-secondary transition-colors hover:border-primary hover:text-primary"
           >
-            <Search size={16} />
+            <ListFilter size={15} />
+            Browse all {mode === "car" ? "cars" : "bikes"}
           </button>
         </div>
 
@@ -85,7 +80,7 @@ export function SearchCard() {
             <button
               key={chip.label}
               type="button"
-              onClick={handleSearch}
+              onClick={browseAll}
               className="focus-ring flex shrink-0 items-center gap-1.5 rounded-full border-[1.5px] border-border-strong px-3.5 py-[7px] text-[11px] font-semibold text-ink-secondary transition-colors hover:border-primary hover:text-primary"
             >
               <chip.icon size={12} />

@@ -1,5 +1,6 @@
 import { Bell, CalendarClock } from "lucide-react";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
+import { LeadCaptureDialog } from "@/components/common/LeadCaptureDialog";
 import type { UpcomingItemData } from "@/types/ev-motion";
 
 export function UpcomingCard({ item }: { item: UpcomingItemData }) {
@@ -19,13 +20,19 @@ export function UpcomingCard({ item }: { item: UpcomingItemData }) {
           {item.launchLabel}
         </p>
         <p className="mb-2.5 text-sm font-extrabold text-primary">{item.expectedPriceLabel}</p>
-        <button
-          type="button"
-          className="focus-ring flex w-full items-center justify-center gap-1.5 rounded-md border-[1.5px] border-primary py-2 text-[11px] font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
-        >
-          <Bell size={12} />
-          Notify Me
-        </button>
+        <LeadCaptureDialog
+          triggerIcon={<Bell size={12} />}
+          triggerLabel="Notify Me"
+          triggerClassName="focus-ring flex w-full items-center justify-center gap-1.5 rounded-md border-[1.5px] border-primary py-2 text-[11px] font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
+          dialogTitle="Get notified at launch"
+          dialogDescription={`We'll email you the moment the ${item.name} launches.`}
+          fields={[
+            { key: "email", label: "Email address", type: "email", placeholder: "you@example.com", validation: "email" },
+          ]}
+          submitLabel="Notify Me"
+          successTitle="You're on the list"
+          successDescription={`We'll email you as soon as the ${item.name} launches.`}
+        />
       </div>
     </article>
   );

@@ -30,6 +30,7 @@ export interface RankedVehicleData {
   name: string;
   metaLabel: string;
   priceLabel: string;
+  href: string;
 }
 
 export interface CategoryItemData {
@@ -37,6 +38,8 @@ export interface CategoryItemData {
   name: string;
   count: string;
   emoji: string;
+  /** Omitted when the category has no real listing to link to yet (e.g. Buses, Chargers) — renders as a disabled tile instead of a dead link. */
+  href?: string;
 }
 
 export interface BrandCardData {

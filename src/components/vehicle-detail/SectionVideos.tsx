@@ -8,7 +8,7 @@ export function SectionVideos({ vehicle }: { vehicle: VehicleDetail }) {
   return (
     <VehicleSection
       id="videos"
-      title={`Videos (${TOTAL_SLOTS})`}
+      title="Videos"
       description={`No videos are on file yet for the ${vehicle.name} — these slots are ready for walkaround and review videos.`}
       headingAction={
         <a href="#videos" className="focus-ring text-[11px] font-semibold text-primary">

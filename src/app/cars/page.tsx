@@ -1,7 +1,17 @@
+import type { Metadata } from "next";
 import { VehicleListing } from "@/components/vehicles/VehicleListing";
 import { cars } from "@/lib/data/cars";
+import { parseListingParams } from "@/lib/listing-params";
+
+export const metadata: Metadata = {
+  title: "Electric Cars in India — Compare Prices, Range & Specs",
+  description: `Browse ${cars.length} electric cars from every major OEM in India. Filter by price, range, battery, body type and brand to find the right EV.`,
+  alternates: { canonical: "/cars" },
+};
 
 const PRICE_BOUNDS: [number, number] = [0, 90];
+const RANGE_BOUNDS: [number, number] = [0, 700];
+const BATTERY_BOUNDS: [number, number] = [0, 100];
 
 const SUB_TYPE_OPTIONS = [
   { value: "all", label: "All Body Types" },
@@ -17,35 +27,18 @@ export default async function CarsPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const params = await searchParams;
-
-  const oemsParam = typeof params.oems === "string" ? params.oems : "";
-  const initialOems = oemsParam ? oemsParam.split(",") : [];
-
-  const budgetParam = typeof params.budget === "string" ? params.budget : "";
-  const [minStr, maxStr] = budgetParam.split("-");
-  const min = Number(minStr);
-  const max = Number(maxStr);
-  const initialPrice: [number, number] =
-    budgetParam && !Number.isNaN(min) && !Number.isNaN(max)
-      ? [min, Math.min(max, PRICE_BOUNDS[1])]
-      : PRICE_BOUNDS;
-
-  const initialSubType = typeof params.type === "string" ? params.type : "all";
-  const initialSort = typeof params.sort === "string" ? params.sort : "price-asc";
+  const initial = parseListingParams(params, PRICE_BOUNDS, RANGE_BOUNDS, BATTERY_BOUNDS);
 
   return (
     <VehicleListing
       category="car"
       vehicles={cars}
       priceBounds={PRICE_BOUNDS}
+      rangeBounds={RANGE_BOUNDS}
+      batteryBounds={BATTERY_BOUNDS}
       subTypeLabel="Body Type"
       subTypeOptions={SUB_TYPE_OPTIONS}
-      initial={{
-        oems: initialOems,
-        price: initialPrice,
-        subType: initialSubType,
-        sort: initialSort,
-      }}
+      initial={initial}
     />
   );
 }

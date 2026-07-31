@@ -6,12 +6,13 @@ const scooterCount = twoWheelers.filter((v) => v.twoWheelerType === "scooter").l
 const motorcycleCount = twoWheelers.filter((v) => v.twoWheelerType === "motorcycle").length;
 
 export const categories: CategoryItemData[] = [
-  { id: "cat-cars", name: "Electric Cars", count: `${cars.length}`, emoji: "🚗" },
-  { id: "cat-scooters", name: "E-Scooters", count: `${scooterCount}`, emoji: "🛺" },
-  { id: "cat-bikes", name: "E-Bikes", count: `${motorcycleCount}`, emoji: "🛵" },
+  { id: "cat-cars", name: "Electric Cars", count: `${cars.length}`, emoji: "🚗", href: "/cars" },
+  { id: "cat-scooters", name: "E-Scooters", count: `${scooterCount}`, emoji: "🛺", href: "/two-wheelers?type=scooter" },
+  { id: "cat-bikes", name: "E-Bikes", count: `${motorcycleCount}`, emoji: "🛵", href: "/two-wheelers?type=motorcycle" },
+  // No listing exists yet for these — left without an href so the tile renders disabled instead of linking nowhere.
   { id: "cat-buses", name: "E-Buses", count: "—", emoji: "🚌" },
   { id: "cat-commercial", name: "Commercial", count: "—", emoji: "🚚" },
-  { id: "cat-chargers", name: "Chargers", count: "890", emoji: "🔌" },
+  { id: "cat-chargers", name: "Chargers", count: "—", emoji: "🔌" },
 ];
 
 export const whyFeatures: WhyFeatureData[] = [

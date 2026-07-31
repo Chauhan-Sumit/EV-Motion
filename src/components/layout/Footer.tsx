@@ -2,7 +2,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 
-const FOOTER_COLUMNS = [
+// Only routes that actually exist are real links. Everything else is named
+// here honestly as "coming soon" (matching the site's existing pattern for
+// unfinished sections, e.g. Latest News / Videos on the VDP) instead of
+// linking to a page that doesn't exist yet.
+const FOOTER_COLUMNS: Array<{
+  title: string;
+  links: Array<{ label: string; href?: string }>;
+}> = [
   {
     title: "Vehicles",
     links: [
@@ -15,20 +22,20 @@ const FOOTER_COLUMNS = [
   {
     title: "Resources",
     links: [
-      { label: "EV Buyers Guide", href: "/guides" },
-      { label: "Charging Stations", href: "/charging" },
-      { label: "Subsidy Calculator", href: "/tools/subsidy-calculator" },
-      { label: "EV News", href: "/news" },
+      { label: "EV Buyers Guide" },
+      { label: "Charging Stations" },
+      { label: "Subsidy Calculator" },
+      { label: "EV News" },
     ],
   },
   {
     title: "Business",
     links: [
-      { label: "Advertise with Us", href: "/advertise", emphasis: true },
-      { label: "Dealer Login", href: "/dealers/login" },
-      { label: "Partnerships", href: "/partnerships" },
-      { label: "Media Kit", href: "/media-kit" },
-      { label: "Contact Sales", href: "/contact" },
+      { label: "Advertise with Us" },
+      { label: "Dealer Login" },
+      { label: "Partnerships" },
+      { label: "Media Kit" },
+      { label: "Contact Sales" },
     ],
   },
 ];
@@ -55,17 +62,27 @@ export function Footer() {
         {FOOTER_COLUMNS.map((col) => (
           <nav key={col.title} aria-label={col.title} className="fcol">
             <h4 className="mb-2.5 text-xs font-bold text-ink">{col.title}</h4>
-            {col.links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`focus-ring mb-1.5 block text-[11px] transition-colors hover:text-primary ${
-                  "emphasis" in link && link.emphasis ? "font-semibold text-primary" : "text-ink-secondary"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {col.links.map((link) =>
+              link.href ? (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className="focus-ring mb-1.5 block text-[11px] text-ink-secondary transition-colors hover:text-primary"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <span
+                  key={link.label}
+                  className="mb-1.5 flex items-center gap-1.5 text-[11px] text-ink-muted"
+                >
+                  {link.label}
+                  <span className="rounded-full bg-surface-secondary px-1.5 py-px text-[8px] font-bold uppercase tracking-wide text-ink-muted">
+                    Soon
+                  </span>
+                </span>
+              ),
+            )}
           </nav>
         ))}
       </Container>
@@ -74,15 +91,9 @@ export function Footer() {
         <Container className="flex flex-col items-center gap-1.5 py-2.5 text-[10px] text-ink-muted sm:flex-row sm:justify-between">
           <span>© 2026 EV Motion India Pvt. Ltd. All rights reserved.</span>
           <span className="flex items-center gap-3">
-            <Link href="/legal/privacy" className="focus-ring hover:text-primary">
-              Privacy Policy
-            </Link>
-            <Link href="/legal/terms" className="focus-ring hover:text-primary">
-              Terms of Use
-            </Link>
-            <Link href="/legal/cookies" className="focus-ring hover:text-primary">
-              Cookie Settings
-            </Link>
+            <span>Privacy Policy (Soon)</span>
+            <span>Terms of Use (Soon)</span>
+            <span>Cookie Settings (Soon)</span>
           </span>
         </Container>
       </div>

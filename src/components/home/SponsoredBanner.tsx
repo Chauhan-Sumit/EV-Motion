@@ -1,10 +1,14 @@
+import Link from "next/link";
 import { Zap } from "lucide-react";
 import { cars } from "@/lib/data/cars";
 import { getOemBySlug } from "@/lib/data";
 import { estimateEmi } from "@/lib/data/ev-motion/derive";
+import { vehicleHref } from "@/lib/search";
+import { LeadCaptureDialog } from "@/components/common/LeadCaptureDialog";
 
 const featured = cars.find((v) => v.slug === "tata-nexon-ev") ?? cars[0];
 const oem = getOemBySlug(featured.oem);
+const featuredName = `${oem?.name ?? ""} ${featured.modelName}`.trim();
 
 export function SponsoredBanner() {
   return (
@@ -32,17 +36,19 @@ export function SponsoredBanner() {
           </div>
 
           <div className="mt-3.5 flex flex-wrap gap-2">
-            <button
-              type="button"
+            <Link
+              href={`${vehicleHref(featured)}#variants`}
               className="focus-ring rounded-md bg-primary px-3.5 py-2 text-[12px] font-semibold text-white transition-colors hover:bg-primary-hover"
             >
               Explore All Variants
-            </button>
+            </Link>
             <button
               type="button"
-              className="focus-ring rounded-md border border-primary bg-transparent px-3.5 py-2 text-[12px] font-semibold text-primary transition-colors hover:bg-primary-tint"
+              disabled
+              title="Brochure download coming soon"
+              className="cursor-not-allowed rounded-md border border-border-strong bg-transparent px-3.5 py-2 text-[12px] font-semibold text-ink-muted opacity-60"
             >
-              Download Brochure
+              Download Brochure (Soon)
             </button>
           </div>
         </div>
@@ -52,18 +58,32 @@ export function SponsoredBanner() {
           <p className="text-2xl font-extrabold text-primary">₹{featured.priceRangeLakh[0].toFixed(2)}L</p>
           <p className="mb-2.5 text-[11px] text-ink-muted">*ex-showroom Delhi</p>
           <div className="flex flex-col gap-1.5">
-            <button
-              type="button"
-              className="focus-ring rounded-md bg-primary px-3.5 py-2 text-[12px] font-semibold text-white transition-colors hover:bg-primary-hover"
-            >
-              Get Best Quote
-            </button>
-            <button
-              type="button"
-              className="focus-ring rounded-md border border-border-strong bg-transparent px-3.5 py-2 text-[12px] font-semibold text-ink transition-colors hover:border-primary hover:text-primary"
-            >
-              Book Test Drive
-            </button>
+            <LeadCaptureDialog
+              triggerLabel="Get Best Quote"
+              triggerClassName="focus-ring rounded-md bg-primary px-3.5 py-2 text-[12px] font-semibold text-white transition-colors hover:bg-primary-hover"
+              dialogTitle="Get the best quote"
+              dialogDescription={`Share your details and a verified ${featuredName} dealer will get in touch with a quote.`}
+              fields={[
+                { key: "name", label: "Your name", type: "text", placeholder: "Full name", validation: "required" },
+                { key: "mobile", label: "Mobile number", type: "tel", placeholder: "10-digit mobile number", validation: "mobile" },
+              ]}
+              submitLabel="Request Best Quote"
+              successTitle="Request received"
+              successDescription={`A verified dealer will contact you about the ${featuredName} shortly.`}
+            />
+            <LeadCaptureDialog
+              triggerLabel="Book Test Drive"
+              triggerClassName="focus-ring rounded-md border border-border-strong bg-transparent px-3.5 py-2 text-[12px] font-semibold text-ink transition-colors hover:border-primary hover:text-primary"
+              dialogTitle="Book a test drive"
+              dialogDescription={`Tell us how to reach you and a dealer will schedule your ${featuredName} test drive.`}
+              fields={[
+                { key: "name", label: "Your name", type: "text", placeholder: "Full name", validation: "required" },
+                { key: "mobile", label: "Mobile number", type: "tel", placeholder: "10-digit mobile number", validation: "mobile" },
+              ]}
+              submitLabel="Request Test Drive"
+              successTitle="Test drive requested"
+              successDescription={`A dealer will call you to schedule your ${featuredName} test drive.`}
+            />
           </div>
         </div>
       </div>

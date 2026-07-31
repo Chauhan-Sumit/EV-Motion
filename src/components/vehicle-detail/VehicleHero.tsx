@@ -3,16 +3,17 @@ import { Star, Scale } from "lucide-react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
 import { Container } from "@/components/ui/Container";
 import { VehicleGallery } from "./VehicleGallery";
+import { GetBestPriceDialog } from "./GetBestPriceDialog";
 
 export function VehicleHero({ vehicle }: { vehicle: VehicleDetail }) {
   const compareHref = `/compare?ids=${vehicle.slug}`;
 
   return (
     <Container className="py-3.5 sm:py-5">
-      <div className="grid gap-3.5 lg:grid-cols-[1.3fr_1fr] lg:gap-6">
+      <div className="grid min-w-0 gap-3.5 lg:grid-cols-[1.3fr_1fr] lg:gap-6">
         <VehicleGallery vehicle={vehicle} />
 
-        <div className="flex flex-col justify-center rounded-xl border border-border bg-surface p-4 sm:p-5">
+        <div className="flex min-w-0 flex-col justify-center rounded-xl border border-border bg-surface p-4 sm:p-5">
           <p className="text-[9px] font-semibold uppercase tracking-[0.7px] text-ink-muted">{vehicle.brand}</p>
           <h1 className="mt-0.5 text-xl font-extrabold tracking-tight text-ink sm:text-2xl">{vehicle.name}</h1>
 
@@ -32,12 +33,7 @@ export function VehicleHero({ vehicle }: { vehicle: VehicleDetail }) {
           </div>
 
           <div className="mt-3.5 flex flex-wrap gap-2">
-            <button
-              type="button"
-              className="focus-ring rounded-md bg-primary px-4 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-primary-hover"
-            >
-              Get Best Price
-            </button>
+            <GetBestPriceDialog vehicleName={vehicle.name} />
             <Link
               href={compareHref}
               className="focus-ring flex items-center gap-1.5 rounded-md border border-primary bg-transparent px-4 py-2.5 text-[13px] font-semibold text-primary transition-colors hover:bg-primary-tint"
