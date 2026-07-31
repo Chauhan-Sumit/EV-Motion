@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { VehicleListing } from "@/components/vehicles/VehicleListing";
 import { twoWheelers } from "@/lib/data/two-wheelers";
 import { parseListingParams } from "@/lib/listing-params";
+import { TWO_WHEELER_FILTER_CONFIG } from "@/lib/vehicle-filter-options";
 
 export const metadata: Metadata = {
   title: "Electric Scooters & Bikes in India — Compare Prices, Range & Specs",
@@ -9,15 +10,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "/two-wheelers" },
 };
 
-const PRICE_BOUNDS: [number, number] = [0, 2];
-const RANGE_BOUNDS: [number, number] = [0, 200];
-const BATTERY_BOUNDS: [number, number] = [0, 5];
-
-const SUB_TYPE_OPTIONS = [
-  { value: "all", label: "All Types" },
-  { value: "scooter", label: "Scooter" },
-  { value: "motorcycle", label: "Motorcycle" },
-];
+const {
+  priceBounds: PRICE_BOUNDS,
+  rangeBounds: RANGE_BOUNDS,
+  batteryBounds: BATTERY_BOUNDS,
+  subTypeLabel: SUB_TYPE_LABEL,
+  subTypeOptions: SUB_TYPE_OPTIONS,
+} = TWO_WHEELER_FILTER_CONFIG;
 
 export default async function TwoWheelersPage({
   searchParams,
@@ -34,7 +33,7 @@ export default async function TwoWheelersPage({
       priceBounds={PRICE_BOUNDS}
       rangeBounds={RANGE_BOUNDS}
       batteryBounds={BATTERY_BOUNDS}
-      subTypeLabel="Type"
+      subTypeLabel={SUB_TYPE_LABEL}
       subTypeOptions={SUB_TYPE_OPTIONS}
       initial={initial}
     />

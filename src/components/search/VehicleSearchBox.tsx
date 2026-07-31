@@ -2,9 +2,9 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, X } from "lucide-react";
+import { Clock, Search, TrendingUp, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { searchVehicles, type LinkSuggestion, type VehicleSuggestion } from "@/lib/search";
+import { searchVehicles, type LinkSuggestion, type SearchScope, type VehicleSuggestion } from "@/lib/search";
 import { oemColorOf } from "@/lib/data/ev-motion/derive";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
 import { HighlightedText } from "./HighlightedText";
@@ -19,9 +19,42 @@ interface VehicleSearchBoxProps {
   size?: "sm" | "lg";
   autoFocus?: boolean;
   className?: string;
+  /** Restricts matching to one vehicle category — passed by the homepage's Car/Bike toggle. Omit for a global (all-category) search box. */
+  categoryScope?: SearchScope;
 }
 
 const DEBOUNCE_MS = 180;
+const RECENT_SEARCH_KEY = "ev-motion:recent-searches";
+const MAX_RECENT_SEARCHES = 5;
+
+// Real terms that resolve to real results in this dataset (vehicle names / category keywords already handled by searchVehicles) — not invented copy.
+const POPULAR_SEARCHES = ["Tata Nexon EV", "SUV", "Ola S1 Pro", "Scooter", "Ather 450X", "Hyundai Creta Electric"];
+
+function loadRecentSearches(): string[] {
+  try {
+    const raw = localStorage.getItem(RECENT_SEARCH_KEY);
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((q): q is string => typeof q === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveRecentSearch(term: string, current: string[]): string[] {
+  const trimmed = term.trim();
+  if (!trimmed) return current;
+  const next = [trimmed, ...current.filter((q) => q.toLowerCase() !== trimmed.toLowerCase())].slice(
+    0,
+    MAX_RECENT_SEARCHES,
+  );
+  try {
+    localStorage.setItem(RECENT_SEARCH_KEY, JSON.stringify(next));
+  } catch {
+    // ignore
+  }
+  return next;
+}
 
 export function VehicleSearchBox({
   ariaLabel,
@@ -29,6 +62,7 @@ export function VehicleSearchBox({
   size = "sm",
   autoFocus,
   className,
+  categoryScope = "all",
 }: VehicleSearchBoxProps) {
   const router = useRouter();
   const listboxId = useId();
@@ -39,6 +73,15 @@ export function VehicleSearchBox({
   const [debouncedValue, setDebouncedValue] = useState("");
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+
+  useEffect(() => {
+    // One-time hydration from localStorage after mount — same rationale as
+    // LocationContext's mount effect (no localStorage on the server, nothing
+    // to subscribe to).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setRecentSearches(loadRecentSearches());
+  }, []);
 
   useEffect(() => {
     clearTimeout(debounceRef.current);
@@ -49,7 +92,7 @@ export function VehicleSearchBox({
     return () => clearTimeout(debounceRef.current);
   }, [value]);
 
-  const outcome = useMemo(() => searchVehicles(debouncedValue), [debouncedValue]);
+  const outcome = useMemo(() => searchVehicles(debouncedValue, 8, categoryScope), [debouncedValue, categoryScope]);
 
   const items: FlatItem[] = useMemo(() => {
     const flat: FlatItem[] = outcome.vehicles.map((suggestion) => ({
@@ -63,7 +106,9 @@ export function VehicleSearchBox({
   }, [outcome]);
 
   const hasQuery = debouncedValue.trim().length > 0;
-  const showPanel = open && hasQuery;
+  const showResultsPanel = open && hasQuery;
+  const showSuggestionsPanel = open && !hasQuery && (recentSearches.length > 0 || POPULAR_SEARCHES.length > 0);
+  const panelVisible = showResultsPanel || showSuggestionsPanel;
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -77,13 +122,21 @@ export function VehicleSearchBox({
 
   function go(href: string) {
     setOpen(false);
+    if (value.trim()) setRecentSearches(saveRecentSearch(value, recentSearches));
     router.push(href);
+  }
+
+  function runQuery(term: string) {
+    setValue(term);
+    setDebouncedValue(term);
+    setActiveIndex(-1);
+    setOpen(true);
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      if (!showPanel) setOpen(true);
+      if (!showResultsPanel) setOpen(true);
       setActiveIndex((i) => (items.length === 0 ? -1 : (i + 1) % items.length));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
@@ -116,7 +169,7 @@ export function VehicleSearchBox({
           type="text"
           role="combobox"
           aria-label={ariaLabel}
-          aria-expanded={showPanel}
+          aria-expanded={panelVisible}
           aria-controls={listboxId}
           aria-activedescendant={activeId}
           aria-autocomplete="list"
@@ -160,7 +213,49 @@ export function VehicleSearchBox({
         </span>
       </div>
 
-      {showPanel ? (
+      {showSuggestionsPanel ? (
+        <div
+          id={listboxId}
+          className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 max-h-[360px] overflow-y-auto rounded-lg border border-border bg-surface p-1.5 shadow-popover animate-fade-in"
+        >
+          {recentSearches.length > 0 ? (
+            <div className="mb-1">
+              <p className="flex items-center gap-1 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.5px] text-ink-muted">
+                <Clock size={11} />
+                Recent Searches
+              </p>
+              {recentSearches.map((term) => (
+                <button
+                  key={term}
+                  type="button"
+                  onClick={() => runQuery(term)}
+                  className="flex w-full items-center rounded-md px-2.5 py-1.5 text-left text-[12.5px] text-ink-secondary transition-colors hover:bg-surface-secondary hover:text-ink"
+                >
+                  {term}
+                </button>
+              ))}
+            </div>
+          ) : null}
+          <div>
+            <p className="flex items-center gap-1 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.5px] text-ink-muted">
+              <TrendingUp size={11} />
+              Popular Searches
+            </p>
+            {POPULAR_SEARCHES.map((term) => (
+              <button
+                key={term}
+                type="button"
+                onClick={() => runQuery(term)}
+                className="flex w-full items-center rounded-md px-2.5 py-1.5 text-left text-[12.5px] text-ink-secondary transition-colors hover:bg-surface-secondary hover:text-ink"
+              >
+                {term}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {showResultsPanel ? (
         <div
           id={listboxId}
           role="listbox"

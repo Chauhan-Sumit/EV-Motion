@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Zap } from "lucide-react";
 import { cars } from "@/lib/data/cars";
@@ -5,12 +7,14 @@ import { getOemBySlug } from "@/lib/data";
 import { estimateEmi } from "@/lib/data/ev-motion/derive";
 import { vehicleHref } from "@/lib/search";
 import { LeadCaptureDialog } from "@/components/common/LeadCaptureDialog";
+import { useLocation } from "@/context/LocationContext";
 
 const featured = cars.find((v) => v.slug === "tata-nexon-ev") ?? cars[0];
 const oem = getOemBySlug(featured.oem);
 const featuredName = `${oem?.name ?? ""} ${featured.modelName}`.trim();
 
 export function SponsoredBanner() {
+  const { city } = useLocation();
   return (
     <div className="overflow-hidden rounded-xl border border-primary/20 bg-primary-tint">
       <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between">
@@ -56,7 +60,7 @@ export function SponsoredBanner() {
         <div className="shrink-0 rounded-lg border border-border bg-surface p-3.5 text-center sm:w-56">
           <p className="text-[11px] text-ink-muted">Starting from</p>
           <p className="text-2xl font-extrabold text-primary">₹{featured.priceRangeLakh[0].toFixed(2)}L</p>
-          <p className="mb-2.5 text-[11px] text-ink-muted">*ex-showroom Delhi</p>
+          <p className="mb-2.5 text-[11px] text-ink-muted">*ex-showroom {city.name}</p>
           <div className="flex flex-col gap-1.5">
             <LeadCaptureDialog
               triggerLabel="Get Best Quote"

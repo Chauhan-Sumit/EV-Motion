@@ -1,4 +1,4 @@
-import type { ChargingBucket } from "@/components/vehicles/FilterBar";
+import type { ChargingBucket } from "@/lib/vehicle-filter-options";
 import type { LaunchStatus } from "@/types/vehicle";
 
 export interface ListingSearchParams {
@@ -59,4 +59,44 @@ export function parseListingParams(
     : [];
 
   return { oems, price, subType, sort, minRange, minBattery, charging, seats, availability };
+}
+
+export interface ListingFilterState {
+  oems: string[];
+  price: [number, number];
+  subType: string;
+  sort: string;
+  minRange: number;
+  minBattery: number;
+  charging: ChargingBucket;
+  seats: number[];
+  availability: LaunchStatus[];
+}
+
+/**
+ * Inverse of `parseListingParams` — the single place that builds a listing
+ * page's query string, so `VehicleListing`'s filter sidebar and the
+ * homepage's filter pickers can't encode the same state two different ways.
+ */
+export function buildListingSearchParams(
+  state: ListingFilterState,
+  priceBounds: [number, number],
+  rangeBounds: [number, number],
+  batteryBounds: [number, number],
+): URLSearchParams {
+  const params = new URLSearchParams();
+
+  if (state.oems.length) params.set("oems", state.oems.join(","));
+  if (state.price[0] !== priceBounds[0] || state.price[1] !== priceBounds[1]) {
+    params.set("budget", `${state.price[0]}-${state.price[1]}`);
+  }
+  if (state.subType !== "all") params.set("type", state.subType);
+  if (state.sort !== "price-asc") params.set("sort", state.sort);
+  if (state.minRange !== rangeBounds[0]) params.set("range", `${state.minRange}`);
+  if (state.minBattery !== batteryBounds[0]) params.set("battery", `${state.minBattery}`);
+  if (state.charging !== "any") params.set("charging", state.charging);
+  if (state.seats.length) params.set("seats", state.seats.join(","));
+  if (state.availability.length) params.set("availability", state.availability.join(","));
+
+  return params;
 }

@@ -17,6 +17,8 @@ import {
   Search,
 } from "lucide-react";
 import { VehicleSearchBox } from "@/components/search/VehicleSearchBox";
+import { LocationSelector } from "@/components/layout/LocationSelector";
+import { useLocation } from "@/context/LocationContext";
 
 const NAV_LINKS: Array<{ label: string; href?: string }> = [
   { label: "NEW CARS", href: "/cars" },
@@ -24,7 +26,6 @@ const NAV_LINKS: Array<{ label: string; href?: string }> = [
   { label: "REVIEWS & NEWS" },
 ];
 
-const CITIES = ["Delhi", "Mumbai", "Bengaluru", "Chennai", "Pune", "Hyderabad"];
 const LANGUAGES = [
   { code: "EN", label: "English" },
   { code: "HI", label: "हिंदी" },
@@ -35,20 +36,18 @@ const ICON_SIZE = 20;
 
 export function Navbar() {
   const pathname = usePathname();
+  const { city } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
-  const [cityOpen, setCityOpen] = useState(false);
+  const [locationOpen, setLocationOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
-  const [city, setCity] = useState("Delhi");
   const [lang, setLang] = useState("EN");
 
-  const cityRef = useRef<HTMLDivElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
-      if (cityRef.current && !cityRef.current.contains(e.target as Node)) setCityOpen(false);
       if (langRef.current && !langRef.current.contains(e.target as Node)) setLangOpen(false);
     }
     document.addEventListener("mousedown", onClickOutside);
@@ -110,12 +109,17 @@ export function Navbar() {
             );
           })}
 
-          {/* Ad slot placeholder — deferred until there's room to spare (≥xl). It's
-              decorative filler with no functional cost when absent, unlike every
-              other item in this row, so it's the one thing that's fully hidden
-              rather than collapsed at the 1024-1279px band. */}
+          {/* Ad slot placeholder — deferred until there's real room to spare.
+              It's decorative filler with no functional cost when absent,
+              unlike every other item in this row, so it's the one thing
+              that's fully hidden rather than collapsed at the 1024-1279px
+              band. Deferred past xl (not just at xl) because a long,
+              real-world city name (e.g. "Thiruvananthapuram") plus this slot
+              together overflow right at 1280px — verified via
+              scrollWidth/clientWidth, same root-cause pattern as the
+              original Navbar overflow bug. */}
           <div
-            className="ml-2 hidden h-9 w-24 shrink-0 items-center justify-center rounded-lg border border-dashed border-border-strong bg-surface-secondary xl:flex"
+            className="ml-2 hidden h-9 w-24 shrink-0 items-center justify-center rounded-lg border border-dashed border-border-strong bg-surface-secondary min-[1400px]:flex"
             aria-hidden="true"
           >
             <span className="text-[10px] font-medium uppercase tracking-wide text-ink-muted">Ad Space</span>
@@ -138,42 +142,20 @@ export function Navbar() {
           </button>
 
           {/* Location — icon-only in the 1024-1279px band (no room for the label),
-              full icon+label pill from xl up */}
-          <div className="relative" ref={cityRef}>
-            <button
-              type="button"
-              onClick={() => setCityOpen((o) => !o)}
-              aria-haspopup="true"
-              aria-expanded={cityOpen}
-              aria-label={`Select city (current: ${city})`}
-              className="focus-ring flex items-center gap-1.5 rounded-full px-2.5 py-2 text-[13px] font-semibold text-ink-secondary transition-colors hover:bg-surface-secondary hover:text-ink xl:px-3"
-            >
-              <MapPin size={ICON_SIZE} />
-              <span className="hidden xl:inline">{city}</span>
-            </button>
-            {cityOpen ? (
-              <div
-                role="menu"
-                className="absolute right-0 top-[calc(100%+10px)] w-44 rounded-lg border border-border bg-surface p-1.5 shadow-popover animate-fade-in"
-              >
-                {CITIES.map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    role="menuitem"
-                    onClick={() => {
-                      setCity(c);
-                      setCityOpen(false);
-                    }}
-                    className="focus-ring flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-xs text-ink-secondary hover:bg-surface-secondary hover:text-ink"
-                  >
-                    {c}
-                    {c === city ? <Check size={14} className="text-primary" /> : null}
-                  </button>
-                ))}
-              </div>
-            ) : null}
-          </div>
+              full icon+label pill from xl up. Fixed max-width + truncate on the
+              label so switching to a longer city name never reflows this row. */}
+          <button
+            type="button"
+            onClick={() => setLocationOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={locationOpen}
+            aria-label={`Select city (current: ${city.name})`}
+            title={city.name}
+            className="focus-ring flex items-center gap-1.5 rounded-full px-2.5 py-2 text-[13px] font-semibold text-ink-secondary transition-colors hover:bg-surface-secondary hover:text-ink xl:px-3"
+          >
+            <MapPin size={ICON_SIZE} className="shrink-0" />
+            <span className="hidden max-w-[88px] truncate xl:inline">{city.name}</span>
+          </button>
 
           {/* Language — icon-only in the 1024-1279px band, full pill from xl up */}
           <div className="relative" ref={langRef}>
@@ -293,21 +275,17 @@ export function Navbar() {
               {isDark ? <Sun size={ICON_SIZE} /> : <Moon size={ICON_SIZE} />}
               {isDark ? "Light theme" : "Dark theme"}
             </button>
-            <div className="flex items-center gap-3 rounded-lg px-2 py-3 text-sm font-medium text-ink-secondary">
-              <MapPin size={ICON_SIZE} />
-              <select
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="w-full bg-transparent outline-none"
-                aria-label="Select city"
-              >
-                {CITIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setMobileOpen(false);
+                setLocationOpen(true);
+              }}
+              className="focus-ring flex items-center gap-3 rounded-lg px-2 py-3 text-left text-sm font-medium text-ink-secondary hover:bg-surface-secondary"
+            >
+              <MapPin size={ICON_SIZE} className="shrink-0" />
+              <span className="truncate">{city.name}</span>
+            </button>
             <div className="flex items-center gap-3 rounded-lg px-2 py-3 text-sm font-medium text-ink-secondary">
               <Globe size={ICON_SIZE} />
               <select
@@ -335,6 +313,8 @@ export function Navbar() {
           </div>
         </div>
       ) : null}
+
+      <LocationSelector open={locationOpen} onOpenChange={setLocationOpen} />
     </header>
   );
 }

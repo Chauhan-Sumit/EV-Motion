@@ -14,6 +14,7 @@ import { ChargingBucket, FilterBar, SubTypeOption } from "@/components/vehicles/
 import { VehicleCard } from "@/components/vehicles/VehicleCard";
 import { Container } from "@/components/ui/Container";
 import { oems } from "@/lib/data";
+import { buildListingSearchParams, type ListingFilterState } from "@/lib/listing-params";
 import { LaunchStatus, Vehicle, VehicleCategory } from "@/types/vehicle";
 
 const ALL_AVAILABILITY: LaunchStatus[] = ["available", "just-launched", "upcoming"];
@@ -84,40 +85,19 @@ export function VehicleListing({
     [vehicles],
   );
 
-  function updateUrl(next: {
-    oems?: string[];
-    price?: [number, number];
-    subType?: string;
-    sort?: string;
-    minRange?: number;
-    minBattery?: number;
-    charging?: ChargingBucket;
-    seats?: number[];
-    availability?: LaunchStatus[];
-  }) {
-    const params = new URLSearchParams();
-    const oemsVal = next.oems ?? selectedOems;
-    const priceVal = next.price ?? priceRange;
-    const subTypeVal = next.subType ?? subType;
-    const sortVal = next.sort ?? sort;
-    const minRangeVal = next.minRange ?? minRange;
-    const minBatteryVal = next.minBattery ?? minBattery;
-    const chargingVal = next.charging ?? charging;
-    const seatsVal = next.seats ?? selectedSeats;
-    const availabilityVal = next.availability ?? selectedAvailability;
-
-    if (oemsVal.length) params.set("oems", oemsVal.join(","));
-    if (priceVal[0] !== priceBounds[0] || priceVal[1] !== priceBounds[1]) {
-      params.set("budget", `${priceVal[0]}-${priceVal[1]}`);
-    }
-    if (subTypeVal !== "all") params.set("type", subTypeVal);
-    if (sortVal !== "price-asc") params.set("sort", sortVal);
-    if (minRangeVal !== rangeBounds[0]) params.set("range", `${minRangeVal}`);
-    if (minBatteryVal !== batteryBounds[0]) params.set("battery", `${minBatteryVal}`);
-    if (chargingVal !== "any") params.set("charging", chargingVal);
-    if (seatsVal.length) params.set("seats", seatsVal.join(","));
-    if (availabilityVal.length) params.set("availability", availabilityVal.join(","));
-
+  function updateUrl(next: Partial<ListingFilterState>) {
+    const state: ListingFilterState = {
+      oems: next.oems ?? selectedOems,
+      price: next.price ?? priceRange,
+      subType: next.subType ?? subType,
+      sort: next.sort ?? sort,
+      minRange: next.minRange ?? minRange,
+      minBattery: next.minBattery ?? minBattery,
+      charging: next.charging ?? charging,
+      seats: next.seats ?? selectedSeats,
+      availability: next.availability ?? selectedAvailability,
+    };
+    const params = buildListingSearchParams(state, priceBounds, rangeBounds, batteryBounds);
     const qs = params.toString();
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }

@@ -13,25 +13,14 @@ import {
 } from "@/components/ui/select";
 import { LAUNCH_STATUS_LABEL } from "@/lib/vehicle-labels";
 import { LaunchStatus, Oem } from "@/types/vehicle";
+import {
+  CHARGING_OPTIONS,
+  SORT_OPTIONS,
+  type ChargingBucket,
+  type SubTypeOption,
+} from "@/lib/vehicle-filter-options";
 
-export interface SubTypeOption {
-  value: string;
-  label: string;
-}
-
-export type ChargingBucket = "any" | "under30" | "under60";
-
-const SORT_OPTIONS: SubTypeOption[] = [
-  { value: "price-asc", label: "Price: Low to High" },
-  { value: "price-desc", label: "Price: High to Low" },
-  { value: "range-desc", label: "Range: High to Low" },
-];
-
-const CHARGING_OPTIONS: { value: ChargingBucket; label: string }[] = [
-  { value: "any", label: "Any charging speed" },
-  { value: "under30", label: "Fast charge under 30 min" },
-  { value: "under60", label: "Fast charge under 60 min" },
-];
+export type { ChargingBucket, SubTypeOption };
 
 function labelFor(options: SubTypeOption[], value: unknown): string {
   return options.find((opt) => opt.value === value)?.label ?? String(value ?? "");

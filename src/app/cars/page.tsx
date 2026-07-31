@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { VehicleListing } from "@/components/vehicles/VehicleListing";
 import { cars } from "@/lib/data/cars";
 import { parseListingParams } from "@/lib/listing-params";
+import { CAR_FILTER_CONFIG } from "@/lib/vehicle-filter-options";
 
 export const metadata: Metadata = {
   title: "Electric Cars in India — Compare Prices, Range & Specs",
@@ -9,17 +10,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "/cars" },
 };
 
-const PRICE_BOUNDS: [number, number] = [0, 90];
-const RANGE_BOUNDS: [number, number] = [0, 700];
-const BATTERY_BOUNDS: [number, number] = [0, 100];
-
-const SUB_TYPE_OPTIONS = [
-  { value: "all", label: "All Body Types" },
-  { value: "hatchback", label: "Hatchback" },
-  { value: "suv", label: "SUV" },
-  { value: "sedan", label: "Sedan" },
-  { value: "muv", label: "MUV" },
-];
+const {
+  priceBounds: PRICE_BOUNDS,
+  rangeBounds: RANGE_BOUNDS,
+  batteryBounds: BATTERY_BOUNDS,
+  subTypeLabel: SUB_TYPE_LABEL,
+  subTypeOptions: SUB_TYPE_OPTIONS,
+} = CAR_FILTER_CONFIG;
 
 export default async function CarsPage({
   searchParams,
@@ -36,7 +33,7 @@ export default async function CarsPage({
       priceBounds={PRICE_BOUNDS}
       rangeBounds={RANGE_BOUNDS}
       batteryBounds={BATTERY_BOUNDS}
-      subTypeLabel="Body Type"
+      subTypeLabel={SUB_TYPE_LABEL}
       subTypeOptions={SUB_TYPE_OPTIONS}
       initial={initial}
     />
