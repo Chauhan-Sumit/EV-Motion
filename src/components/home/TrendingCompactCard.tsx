@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
+import { routeSegmentFor } from "@/lib/data/categories";
 import type { TrendingCompactItemData } from "@/types/ev-motion";
 
 export function TrendingCompactCard({ item }: { item: TrendingCompactItemData }) {
-  const basePath = item.kind === "car" ? "/cars" : "/two-wheelers";
+  const basePath = `/${routeSegmentFor(item.category)}`;
 
   return (
     <Link

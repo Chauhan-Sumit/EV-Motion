@@ -3,14 +3,13 @@
 // VehicleImage (real photo when we have one, branded placeholder otherwise)
 // instead of assuming every one of our 36 vehicles has a literal photo file.
 
-import type { Vehicle } from "@/types/vehicle";
+import type { Vehicle, VehicleCategory } from "@/types/vehicle";
 
-export type EvMotionKind = "car" | "bike";
 export type CardBadge = "New" | "Hot" | "New Launch" | "Bestseller" | "Trending";
 
 export interface ListingCardData {
   id: string;
-  kind: EvMotionKind;
+  category: VehicleCategory;
   brand: string;
   name: string;
   slug: string;
@@ -48,12 +47,12 @@ export interface BrandCardData {
   logo: string | null;
   color: string;
   slug: string;
-  kind: EvMotionKind;
+  category: VehicleCategory;
 }
 
 export interface TrendingCompactItemData {
   id: string;
-  kind: EvMotionKind;
+  category: VehicleCategory;
   name: string;
   vehicle: Vehicle;
   oemColor: string;
@@ -69,14 +68,14 @@ export interface CompareCardSide {
 
 export interface CompareCardPairData {
   id: string;
-  kind: EvMotionKind;
+  category: VehicleCategory;
   vehicleA: CompareCardSide;
   vehicleB: CompareCardSide;
 }
 
 export interface UpcomingItemData {
   id: string;
-  kind: EvMotionKind;
+  category: VehicleCategory;
   brand: string;
   name: string;
   vehicle: Vehicle;

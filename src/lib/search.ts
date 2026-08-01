@@ -1,4 +1,5 @@
 import { getAllVehicles, oems } from "@/lib/data";
+import { routeSegmentFor } from "@/lib/data/categories";
 import type { Vehicle, VehicleCategory } from "@/types/vehicle";
 
 export type SearchScope = VehicleCategory | "all";
@@ -24,7 +25,7 @@ export interface SearchOutcome {
 }
 
 export function vehicleHref(vehicle: Vehicle): string {
-  return vehicle.category === "car" ? `/cars/${vehicle.slug}` : `/two-wheelers/${vehicle.slug}`;
+  return `/${routeSegmentFor(vehicle.category)}/${vehicle.slug}`;
 }
 
 interface CategoryKeyword {
@@ -59,6 +60,34 @@ const CATEGORY_KEYWORDS: CategoryKeyword[] = [
     label: "Electric Motorcycles",
     href: "/two-wheelers?type=motorcycle",
     category: "2-wheeler",
+  },
+  {
+    id: "three-wheeler",
+    keywords: ["3-wheeler", "three-wheeler", "3wheeler", "auto", "autos", "rickshaw", "e-rickshaw"],
+    label: "Electric 3-Wheelers",
+    href: "/commercial?type=three-wheeler-cargo",
+    category: "commercial",
+  },
+  {
+    id: "small-truck",
+    keywords: ["truck", "trucks", "lcv", "pickup"],
+    label: "Electric Small Trucks / LCVs",
+    href: "/commercial?type=small-truck",
+    category: "commercial",
+  },
+  {
+    id: "van",
+    keywords: ["van", "vans"],
+    label: "Electric Vans",
+    href: "/commercial?type=van",
+    category: "commercial",
+  },
+  {
+    id: "bus",
+    keywords: ["bus", "buses"],
+    label: "Electric Buses",
+    href: "/commercial?type=bus",
+    category: "commercial",
   },
 ];
 

@@ -3,10 +3,7 @@
 // alongside so sections can render via our existing VehicleImage component
 // instead of assuming a flat image URL always exists.
 
-import type { EvMotionKind } from "./ev-motion";
-import type { Vehicle } from "./vehicle";
-
-export type VdpCategory = "cars" | "scooters";
+import type { Vehicle, VehicleCategory } from "./vehicle";
 
 export interface VdpQuickSpecs {
   rangeKm: number;
@@ -85,8 +82,7 @@ export interface VdpBodySpecs {
 
 export interface VehicleDetail {
   id: string;
-  category: VdpCategory;
-  kind: EvMotionKind;
+  category: VehicleCategory;
   brand: string;
   brandSlug: string;
   name: string;

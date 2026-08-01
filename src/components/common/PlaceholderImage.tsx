@@ -56,6 +56,30 @@ function ScooterIcon({ className, style }: { className?: string; style?: CSSProp
   );
 }
 
+function CommercialIcon({ className, style }: { className?: string; style?: CSSProperties }) {
+  return (
+    <svg viewBox="0 0 64 64" fill="none" className={className} style={style}>
+      <path
+        d="M6 42V20a3 3 0 0 1 3-3h24a3 3 0 0 1 3 3v22"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M36 28h9l7 8v6a2 2 0 0 1-2 2h-3"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M6 42h3M20 42h13" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+      <circle cx="17" cy="46" r="5" stroke="currentColor" strokeWidth="2.5" />
+      <circle cx="46" cy="46" r="5" stroke="currentColor" strokeWidth="2.5" />
+      <path d="M12 26h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function PlaceholderImage({
   oemName,
   modelName,
@@ -64,7 +88,7 @@ export function PlaceholderImage({
   className,
   showLabel = false,
 }: PlaceholderImageProps) {
-  const Icon = category === "car" ? CarIcon : ScooterIcon;
+  const Icon = category === "car" ? CarIcon : category === "2-wheeler" ? ScooterIcon : CommercialIcon;
 
   return (
     <div

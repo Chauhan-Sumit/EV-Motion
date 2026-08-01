@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
+import { routeSegmentFor } from "@/lib/data/categories";
 import type { CardBadge, ListingCardData } from "@/types/ev-motion";
 
 const BADGE_BG: Record<CardBadge, string> = {
@@ -11,7 +12,7 @@ const BADGE_BG: Record<CardBadge, string> = {
 };
 
 export function ListingCard({ item, priority }: { item: ListingCardData; priority?: boolean }) {
-  const basePath = item.kind === "car" ? "/cars" : "/two-wheelers";
+  const basePath = `/${routeSegmentFor(item.category)}`;
   const detailHref = `${basePath}/${item.slug}`;
 
   return (

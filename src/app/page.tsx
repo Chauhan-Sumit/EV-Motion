@@ -9,10 +9,8 @@ import {
   AdvertiseSection,
 } from "@/components/home";
 import {
-  trendingCarsCompact,
-  trendingBikesCompact,
-  upcomingCars,
-  upcomingBikes,
+  getTrendingByCategory,
+  getUpcomingByCategory,
   carComparisons,
   bikeComparisons,
 } from "@/lib/data/ev-motion/derive";
@@ -35,16 +33,20 @@ export default function HomePage() {
       <Hero />
 
       {/* Compact trending carousels */}
-      <TrendingCompactSection title="Trending Cars" items={trendingCarsCompact} />
-      <TrendingCompactSection title="Trending Scooters & Bikes" items={trendingBikesCompact} />
+      <TrendingCompactSection title="Trending Cars" items={getTrendingByCategory("car")} />
+      <TrendingCompactSection title="Trending Scooters & Bikes" items={getTrendingByCategory("2-wheeler")} />
 
       {/* Browse by Category, Sponsored spotlight, Popular Cars, Popular Bikes,
           Brand carousels + sidebar */}
       <MainLayout />
 
       {/* Upcoming */}
-      <UpcomingSection title="Upcoming Electric Cars" items={upcomingCars} />
-      <UpcomingSection title="Upcoming Electric Bikes & Scooters" items={upcomingBikes} tinted />
+      <UpcomingSection title="Upcoming Electric Cars" items={getUpcomingByCategory("car")} />
+      <UpcomingSection
+        title="Upcoming Electric Bikes & Scooters"
+        items={getUpcomingByCategory("2-wheeler")}
+        tinted
+      />
 
       {/* Compare */}
       <CompareSection title="Compare Electric Cars" pairs={carComparisons} viewAllHref="/compare" />

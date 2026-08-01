@@ -1,6 +1,7 @@
 import type { AdvertPlanData, CategoryItemData, WhyFeatureData } from "@/types/ev-motion";
 import { cars } from "@/lib/data/cars";
 import { twoWheelers } from "@/lib/data/two-wheelers";
+import { commercial } from "@/lib/data/commercial";
 
 const scooterCount = twoWheelers.filter((v) => v.twoWheelerType === "scooter").length;
 const motorcycleCount = twoWheelers.filter((v) => v.twoWheelerType === "motorcycle").length;
@@ -9,9 +10,14 @@ export const categories: CategoryItemData[] = [
   { id: "cat-cars", name: "Electric Cars", count: `${cars.length}`, emoji: "🚗", href: "/cars" },
   { id: "cat-scooters", name: "E-Scooters", count: `${scooterCount}`, emoji: "🛺", href: "/two-wheelers?type=scooter" },
   { id: "cat-bikes", name: "E-Bikes", count: `${motorcycleCount}`, emoji: "🛵", href: "/two-wheelers?type=motorcycle" },
+  {
+    id: "cat-commercial",
+    name: "Commercial EVs",
+    count: commercial.length > 0 ? `${commercial.length}` : "—",
+    emoji: "🚚",
+    href: commercial.length > 0 ? "/commercial" : undefined,
+  },
   // No listing exists yet for these — left without an href so the tile renders disabled instead of linking nowhere.
-  { id: "cat-buses", name: "E-Buses", count: "—", emoji: "🚌" },
-  { id: "cat-commercial", name: "Commercial", count: "—", emoji: "🚚" },
   { id: "cat-chargers", name: "Chargers", count: "—", emoji: "🔌" },
 ];
 

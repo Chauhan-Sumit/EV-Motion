@@ -14,6 +14,7 @@ import { ChargingBucket, FilterBar, SubTypeOption } from "@/components/vehicles/
 import { VehicleCard } from "@/components/vehicles/VehicleCard";
 import { Container } from "@/components/ui/Container";
 import { oems } from "@/lib/data";
+import { categoryConfig } from "@/lib/data/categories";
 import { buildListingSearchParams, type ListingFilterState } from "@/lib/listing-params";
 import { LaunchStatus, Vehicle, VehicleCategory } from "@/types/vehicle";
 
@@ -43,7 +44,8 @@ interface VehicleListingProps {
 function matchesSubType(vehicle: Vehicle, category: VehicleCategory, subType: string) {
   if (subType === "all") return true;
   if (category === "car") return vehicle.bodyType === subType;
-  return vehicle.twoWheelerType === subType;
+  if (category === "2-wheeler") return vehicle.twoWheelerType === subType;
+  return vehicle.commercialType === subType;
 }
 
 function matchesCharging(vehicle: Vehicle, bucket: ChargingBucket) {
@@ -214,7 +216,7 @@ export function VehicleListing({
     <Container className="py-6 sm:py-8">
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-xl font-extrabold tracking-tight text-ink sm:text-2xl">
-          {category === "car" ? "Electric Cars" : "Electric 2-Wheelers"}
+          {categoryConfig(category).label}
         </h1>
         <Sheet>
           <SheetTrigger

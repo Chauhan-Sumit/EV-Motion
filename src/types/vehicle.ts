@@ -1,7 +1,13 @@
-export type VehicleCategory = "car" | "2-wheeler";
+export type VehicleCategory = "car" | "2-wheeler" | "commercial";
 export type LaunchStatus = "available" | "just-launched" | "upcoming";
 export type CarBodyType = "hatchback" | "suv" | "sedan" | "muv";
 export type TwoWheelerType = "scooter" | "motorcycle";
+export type CommercialType =
+  | "three-wheeler-cargo"
+  | "three-wheeler-passenger"
+  | "small-truck"
+  | "van"
+  | "bus";
 
 export interface VehicleVariant {
   id: string;
@@ -30,6 +36,7 @@ export interface Vehicle {
   tagline: string;
   bodyType?: CarBodyType;
   twoWheelerType?: TwoWheelerType;
+  commercialType?: CommercialType;
   priceRangeLakh: [number, number];
   rangeKm: number;
   batteryCapacityKwh: number;

@@ -1,4 +1,4 @@
-import type { Vehicle } from "@/types/vehicle";
+import type { Vehicle, VehicleCategory } from "@/types/vehicle";
 import type {
   VdpBodySpecs,
   VdpFaq,
@@ -8,6 +8,7 @@ import type {
   VehicleDetail,
 } from "@/types/vehicle-detail";
 import { getOemBySlug, getRelatedVehicles, getVehicleBySlug } from "@/lib/data";
+import { routeSegmentFor } from "@/lib/data/categories";
 import { estimateEmi, priceLabel } from "./derive";
 
 /**
@@ -41,7 +42,7 @@ function colorNameToHex(name: string): string {
 const FEATURE_CATEGORY_RULES: [RegExp, string][] = [
   [/airbag|adas|stability|camera|monitor|brake|safety/i, "Safety"],
   [/touchscreen|display|dashboard|app|connect|navigation|android|carplay|ota|update|smart/i, "Technology"],
-  [/seat|sunroof|storage|charging port|usb|sound|comfort|boot/i, "Comfort"],
+  [/seat|sunroof|storage|charging port|usb|sound|comfort|boot|cargo|payload/i, "Comfort"],
   [/mode|accel|launch|regen|top speed|performance|awd|torque/i, "Performance"],
 ];
 
@@ -56,14 +57,15 @@ function chemistryFor(vehicle: Vehicle): string {
   return vehicle.oem === "byd" ? "LFP Blade Battery" : "NMC (Nickel Manganese Cobalt)";
 }
 
+const POWER_MULTIPLIER: Record<VehicleCategory, number> = { car: 2.3, "2-wheeler": 2.0, commercial: 1.5 };
+const TORQUE_MULTIPLIER: Record<VehicleCategory, number> = { car: 2.0, "2-wheeler": 4.0, commercial: 3.0 };
+
 function powerKwFor(vehicle: Vehicle): number {
-  const multiplier = vehicle.category === "car" ? 2.3 : 2.0;
-  return Math.round(vehicle.batteryCapacityKwh * multiplier * 10) / 10;
+  return Math.round(vehicle.batteryCapacityKwh * POWER_MULTIPLIER[vehicle.category] * 10) / 10;
 }
 
 function torqueNmFor(vehicle: Vehicle, powerKw: number): number {
-  const multiplier = vehicle.category === "car" ? 2.0 : 4.0;
-  return Math.round(powerKw * multiplier);
+  return Math.round(powerKw * TORQUE_MULTIPLIER[vehicle.category]);
 }
 
 function fastChargeMinutesFor(vehicle: Vehicle): number {
@@ -77,6 +79,11 @@ const BOOT_SPACE_BY_BODY_TYPE: Record<string, number> = {
   muv: 500,
   scooter: 30,
   motorcycle: 15,
+  "three-wheeler-cargo": 550,
+  "three-wheeler-passenger": 0,
+  "small-truck": 1200,
+  van: 4000,
+  bus: 0,
 };
 
 const BODY_TYPE_LABEL: Record<string, string> = {
@@ -86,18 +93,40 @@ const BODY_TYPE_LABEL: Record<string, string> = {
   muv: "MUV",
   scooter: "Scooter",
   motorcycle: "Motorcycle",
+  "three-wheeler-cargo": "3-Wheeler Cargo",
+  "three-wheeler-passenger": "3-Wheeler Passenger",
+  "small-truck": "Small Truck / LCV",
+  van: "Van",
+  bus: "Bus",
 };
 
 function bodySpecsFor(vehicle: Vehicle): VdpBodySpecs {
-  const isCar = vehicle.category === "car";
-  const bodyKey = (isCar ? vehicle.bodyType : vehicle.twoWheelerType) ?? "suv";
+  const bodyKey =
+    (vehicle.category === "car"
+      ? vehicle.bodyType
+      : vehicle.category === "2-wheeler"
+        ? vehicle.twoWheelerType
+        : vehicle.commercialType) ?? "suv";
   const hasAwdVariant = vehicle.variants.some((v) => /awd/i.test(v.name));
+
+  let seatingCapacity: string;
+  let driveType: string;
+  if (vehicle.category === "car") {
+    seatingCapacity = `${vehicle.seatingCapacity ?? 5} Seater`;
+    driveType = hasAwdVariant ? "AWD" : "FWD";
+  } else if (vehicle.category === "2-wheeler") {
+    seatingCapacity = "2 Rider";
+    driveType = "Hub Motor (FWD)";
+  } else {
+    seatingCapacity = vehicle.seatingCapacity ? `${vehicle.seatingCapacity} Seater` : "Driver + Cargo";
+    driveType = "Rear Hub Motor (RWD)";
+  }
 
   return {
     bodyType: BODY_TYPE_LABEL[bodyKey] ?? bodyKey,
-    seatingCapacity: isCar ? `${vehicle.seatingCapacity ?? 5} Seater` : "2 Rider",
-    driveType: isCar ? (hasAwdVariant ? "AWD" : "FWD") : "Hub Motor (FWD)",
-    bootSpaceLiters: BOOT_SPACE_BY_BODY_TYPE[bodyKey] ?? (isCar ? 350 : 25),
+    seatingCapacity,
+    driveType,
+    bootSpaceLiters: BOOT_SPACE_BY_BODY_TYPE[bodyKey] ?? (vehicle.category === "car" ? 350 : 25),
     connectedCar: true,
   };
 }
@@ -147,34 +176,55 @@ function toFaqs(vehicle: Vehicle, fastChargeMinutes: number): VdpFaq[] {
   return faqs;
 }
 
+const OWNERSHIP_ASSUMPTIONS: Record<VehicleCategory, { dailyKm: number; fuelKmPerL: number; fuelLabel: string }> = {
+  car: { dailyKm: 40, fuelKmPerL: 15, fuelLabel: "car" },
+  "2-wheeler": { dailyKm: 25, fuelKmPerL: 45, fuelLabel: "scooter" },
+  commercial: { dailyKm: 90, fuelKmPerL: 12, fuelLabel: "commercial vehicle" },
+};
+
 function ownershipTools(vehicle: Vehicle): VdpOwnershipTool[] {
   const price = Math.round(vehicle.priceRangeLakh[0] * 100000);
-  const isCar = vehicle.category === "car";
-  const dailyKm = isCar ? 40 : 25;
+  const { dailyKm, fuelKmPerL, fuelLabel } = OWNERSHIP_ASSUMPTIONS[vehicle.category];
   const monthlyKm = dailyKm * 30;
   const unitsPerMonth = (monthlyKm / vehicle.rangeKm) * vehicle.batteryCapacityKwh;
   const electricityCost = Math.round(unitsPerMonth * 8);
-  const petrolEquivalent = Math.round((monthlyKm / (isCar ? 15 : 45)) * 105);
+  const petrolEquivalent = Math.round((monthlyKm / fuelKmPerL) * 105);
   const chargeCost = Math.round(vehicle.batteryCapacityKwh * 8);
   const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
+  const priceDriftMultiplier = vehicle.category === "car" ? 1.03 : vehicle.category === "2-wheeler" ? 1.05 : 1.02;
+
+  const subsidyRows: Record<VehicleCategory, { label: string; value: string }[]> = {
+    car: [
+      { label: "State subsidy (varies by state)", value: "Up to ₹1,50,000 in some states" },
+      { label: "Road tax / registration waiver", value: "Often 100% in EV-friendly states" },
+    ],
+    "2-wheeler": [
+      { label: "State subsidy (varies by state)", value: "Up to ₹30,000 in some states" },
+      { label: "Registration waiver", value: "Often 100% in EV-friendly states" },
+    ],
+    commercial: [
+      { label: "FAME-II / PM E-DRIVE incentive (varies)", value: "Applicable on many commercial EV categories" },
+      { label: "Permit / road tax waiver", value: "Often reduced or waived in EV-friendly states" },
+    ],
+  };
 
   return [
     {
       id: "running-cost",
       title: "Running Cost",
-      summary: `Estimated at ${dailyKm} km/day, ₹8/unit, vs. a comparable petrol ${isCar ? "car" : "scooter"} at ${isCar ? 15 : 45} km/l.`,
+      summary: `Estimated at ${dailyKm} km/day, ₹8/unit, vs. a comparable diesel/petrol ${fuelLabel} at ${fuelKmPerL} km/l.`,
       rows: [
         { label: "Monthly electricity cost", value: inr(electricityCost) },
-        { label: "Equivalent petrol cost", value: inr(petrolEquivalent) },
+        { label: "Equivalent fuel cost", value: inr(petrolEquivalent) },
         { label: "Estimated monthly saving", value: inr(petrolEquivalent - electricityCost) },
       ],
     },
     {
       id: "charging-cost",
       title: "Charging Cost",
-      summary: `A full home charge costs approximately ${inr(chargeCost)}.`,
+      summary: `A full home/depot charge costs approximately ${inr(chargeCost)}.`,
       rows: [
-        { label: "Cost per full charge (home, ₹8/unit)", value: inr(chargeCost) },
+        { label: "Cost per full charge (₹8/unit)", value: inr(chargeCost) },
         { label: "Cost per km", value: `₹${(chargeCost / vehicle.rangeKm).toFixed(2)}` },
       ],
     },
@@ -185,22 +235,14 @@ function ownershipTools(vehicle: Vehicle): VdpOwnershipTool[] {
       rows: [
         { label: "Current price", value: inr(price) },
         { label: "3 months ago (est.)", value: inr(Math.round(price * 1.012)) },
-        { label: "6 months ago (est.)", value: inr(Math.round(price * (isCar ? 1.03 : 1.05))) },
+        { label: "6 months ago (est.)", value: inr(Math.round(price * priceDriftMultiplier)) },
       ],
     },
     {
       id: "subsidy",
       title: "Subsidy Calculator",
       summary: "Estimated only — confirm eligibility and amount with your state EV policy.",
-      rows: isCar
-        ? [
-            { label: "State subsidy (varies by state)", value: "Up to ₹1,50,000 in some states" },
-            { label: "Road tax / registration waiver", value: "Often 100% in EV-friendly states" },
-          ]
-        : [
-            { label: "State subsidy (varies by state)", value: "Up to ₹30,000 in some states" },
-            { label: "Registration waiver", value: "Often 100% in EV-friendly states" },
-          ],
+      rows: subsidyRows[vehicle.category],
     },
   ];
 }
@@ -209,11 +251,12 @@ export function toVehicleDetail(vehicle: Vehicle): VehicleDetail {
   const powerKw = powerKwFor(vehicle);
   const fastChargeMinutes = fastChargeMinutesFor(vehicle);
   const related = getRelatedVehicles(vehicle);
+  const isThreeWheeler =
+    vehicle.commercialType === "three-wheeler-cargo" || vehicle.commercialType === "three-wheeler-passenger";
 
   return {
     id: vehicle.id,
-    category: vehicle.category === "car" ? "cars" : "scooters",
-    kind: vehicle.category === "car" ? "car" : "bike",
+    category: vehicle.category,
     brand: vehicle.oemName,
     brandSlug: vehicle.oem,
     name: vehicle.modelName,
@@ -232,8 +275,8 @@ export function toVehicleDetail(vehicle: Vehicle): VehicleDetail {
       fastChargeMinutes,
       fastChargeFromPct: 10,
       fastChargeToPct: 80,
-      warrantyYears: vehicle.category === "car" ? 8 : 3,
-      warrantyKm: vehicle.category === "car" ? 160000 : 40000,
+      warrantyYears: vehicle.category === "car" ? 8 : vehicle.category === "2-wheeler" ? 3 : 5,
+      warrantyKm: vehicle.category === "car" ? 160000 : vehicle.category === "2-wheeler" ? 40000 : 100000,
     },
     variants: toVariants(vehicle),
     colors: vehicle.colors.map((name, i) => ({ id: `c${i + 1}`, name, hex: colorNameToHex(name) })),
@@ -247,7 +290,7 @@ export function toVehicleDetail(vehicle: Vehicle): VehicleDetail {
       dcFastChargeFromPct: 10,
       dcFastChargeToPct: 80,
       acHomeChargeHours: vehicle.chargingTimeSlowHr,
-      connectorType: vehicle.category === "car" ? "CCS2" : "Type 2 (proprietary)",
+      connectorType: vehicle.category === "2-wheeler" || isThreeWheeler ? "Type 2 (proprietary)" : "CCS2",
     },
     bodySpecs: bodySpecsFor(vehicle),
     realWorldRange: {
@@ -271,7 +314,7 @@ export function getSimilarVehicleDetails(vehicle: VehicleDetail): VehicleDetail[
     .map(toVehicleDetail);
 }
 
-/** Route to a vehicle's detail page, matching our flat `/cars/[slug]` / `/two-wheelers/[slug]` shape. */
+/** Route to a vehicle's detail page — driven by the category registry, not a hardcoded ternary. */
 export function vehicleDetailHref(vehicle: VehicleDetail): string {
-  return `${vehicle.category === "cars" ? "/cars" : "/two-wheelers"}/${vehicle.slug}`;
+  return `/${routeSegmentFor(vehicle.category)}/${vehicle.slug}`;
 }
