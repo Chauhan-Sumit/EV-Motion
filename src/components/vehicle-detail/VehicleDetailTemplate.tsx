@@ -1,6 +1,6 @@
 import type { VehicleDetail } from "@/types/vehicle-detail";
 import { Container } from "@/components/ui/Container";
-import { AdSlot } from "./AdSlot";
+import { AdSlot } from "@/components/common/AdSlot";
 import { VehicleHero } from "./VehicleHero";
 import { QuickSpecsBar } from "./QuickSpecsBar";
 import { StickyTabs } from "./StickyTabs";

@@ -35,6 +35,13 @@ export const cars: Vehicle[] = [
     highlights: ["465 km ARAI range", "Ventilated front seats", "Segment-first sunroof", "15kW DC fast charging"],
     description:
       "The Nexon EV is the model that put mass-market EVs on the map in India, pairing a spacious SUV body with a choice of two battery packs.",
+    specs: {
+      dimensions: { lengthMm: 3994, widthMm: 1811, heightMm: 1616, wheelbaseMm: 2498, groundClearanceMm: 190, bootSpaceLiters: 350, kerbWeightKg: 1437 },
+      safety: { ncapRating: 5, ncapAgency: "Bharat NCAP", airbagsCount: 6, adas: true, abs: true, esc: true, isofix: true },
+      warranty: { batteryYears: 8, batteryKm: 160000 },
+      motor: { peakPowerKw: 106, peakTorqueNm: 215, driveLayout: "FWD", driveModes: ["Eco", "City", "Sport"], regenBraking: true },
+      chargingExtra: { connectorType: "CCS2", v2v: true },
+    },
   },
   {
     id: "car-tata-tiago-ev",
@@ -99,6 +106,13 @@ export const cars: Vehicle[] = [
     highlights: ["502 km ARAI range", "Coupe SUV silhouette", "ADAS Level 2", "JBL sound system"],
     description:
       "Curvv EV moves Tata upmarket with a sleeker coupe-SUV design, longer range and a full suite of driver-assist features.",
+    specs: {
+      dimensions: { lengthMm: 4310, widthMm: 1810, heightMm: 1637, wheelbaseMm: 2560, groundClearanceMm: 186, bootSpaceLiters: 500 },
+      safety: { ncapRating: 5, ncapAgency: "Bharat NCAP", airbagsCount: 6, adas: true, esc: true, hillHoldControl: true, camera360: true, tpms: true },
+      warranty: { batteryYears: 8, batteryKm: 160000 },
+      motor: { peakPowerKw: 123, peakTorqueNm: 215, driveLayout: "FWD", regenBraking: true },
+      chargingExtra: { connectorType: "CCS2" },
+    },
   },
   {
     id: "car-tata-punch-ev",
@@ -249,6 +263,12 @@ export const cars: Vehicle[] = [
     highlights: ["461 km range", "Panoramic sunroof", "360-degree camera"],
     description:
       "ZS EV remains one of the longest-serving electric SUVs in India, known for its comfortable ride and generous feature list.",
+    specs: {
+      dimensions: { lengthMm: 4323, widthMm: 1809, heightMm: 1649, wheelbaseMm: 2585, groundClearanceMm: 177, bootSpaceLiters: 448, kerbWeightKg: 1518 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", airbagsCount: 6, abs: true, esc: true, camera360: true },
+      warranty: { vehicleYears: 3, batteryYears: 8, batteryKm: 150000 },
+      motor: { peakPowerKw: 130, peakTorqueNm: 280, driveLayout: "FWD" },
+    },
   },
   {
     id: "car-mg-comet-ev",
@@ -308,6 +328,16 @@ export const cars: Vehicle[] = [
     highlights: ["Lounge-style reclining rear seats", "Battery subscription option", "449 km range on the Pro's 52.9kWh pack"],
     description:
       "Windsor EV positions itself as an affordable crossover with a flexible battery-ownership model, now also offered with a longer-range Pro pack for buyers who want to own the bigger battery outright.",
+    specs: {
+      dimensions: { lengthMm: 4295, widthMm: 2126, heightMm: 1677, wheelbaseMm: 2700, groundClearanceMm: 186, bootSpaceLiters: 579 },
+      safety: { airbagsCount: 6, adas: true },
+      warranty: { vehicleYears: 3, batteryYears: 8, batteryKm: 160000, motorYears: 8, motorKm: 160000 },
+      motor: { peakPowerKw: 100, peakTorqueNm: 200, motorType: "Permanent Magnet Synchronous", driveLayout: "FWD" },
+      chargingExtra: { connectorType: "CCS2" },
+      tyres: { size: "215/55 R18" },
+      suspension: { front: "MacPherson strut", rear: "Twist beam" },
+      brakes: { front: "disc", rear: "disc" },
+    },
   },
   {
     id: "car-mg-cyberster",
@@ -396,6 +426,13 @@ export const cars: Vehicle[] = [
     highlights: ["452 km range", "Bose premium sound", "Vehicle-to-load support"],
     description:
       "Kona Electric brought Hyundai's global EV know-how to India, with a comfortable ride and strong efficiency figures.",
+    specs: {
+      dimensions: { lengthMm: 4180, widthMm: 1800, heightMm: 1570, wheelbaseMm: 2600, bootSpaceLiters: 332 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP" },
+      warranty: { vehicleYears: 3, batteryYears: 8, batteryKm: 160000 },
+      motor: { peakPowerKw: 100, peakTorqueNm: 395, motorType: "Permanent Magnet Synchronous Motor (PMSM)" },
+      chargingExtra: { v2l: true },
+    },
   },
   {
     id: "car-hyundai-creta-electric",
@@ -459,6 +496,13 @@ export const cars: Vehicle[] = [
     highlights: ["631 km range", "800V ultra-fast charging", "Vehicle-to-load powered picnics", "Flat floor lounge cabin"],
     description:
       "Built on Hyundai's dedicated E-GMP platform, Ioniq 5 pairs 800V ultra-fast charging with striking pixel-inspired design.",
+    specs: {
+      dimensions: { lengthMm: 4655, widthMm: 1890, heightMm: 1605, groundClearanceMm: 163, bootSpaceLiters: 527 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP" },
+      warranty: { batteryYears: 8, batteryKm: 160000 },
+      motor: { peakPowerKw: 160, peakTorqueNm: 350, driveLayout: "RWD", motorType: "Permanent Magnet Synchronous Motor (PMSM)" },
+      chargingExtra: { v2l: true },
+    },
   },
   {
     id: "car-hyundai-ioniq-6",
@@ -580,6 +624,12 @@ export const cars: Vehicle[] = [
     highlights: ["Dedicated INGLO skateboard platform", "682 km range flagship pack", "800V architecture"],
     description:
       "BE 6 is Mahindra's first ground-up electric model, promising sports-car-like performance in a bold coupe-SUV shape.",
+    specs: {
+      dimensions: { lengthMm: 4371, widthMm: 1907, heightMm: 1627, wheelbaseMm: 2775, groundClearanceMm: 207, bootSpaceLiters: 455, kerbWeightKg: 2070 },
+      safety: { ncapRating: 5, ncapAgency: "Bharat NCAP", airbagsCount: 6, adas: true, camera360: true },
+      motor: { peakPowerKw: 213, peakTorqueNm: 380, driveLayout: "RWD", regenBraking: true },
+      chargingExtra: { connectorType: "CCS2" },
+    },
   },
   {
     id: "car-mahindra-xev-9e",
@@ -701,6 +751,13 @@ export const cars: Vehicle[] = [
     highlights: ["Blade Battery fire-safety tech", "Quirky guitar-string door trim", "521 km range"],
     description:
       "Atto 3 was BYD's opening statement in India, showcasing its in-house Blade Battery technology in a quirky, feature-rich SUV.",
+    specs: {
+      dimensions: { lengthMm: 4455, widthMm: 1875, heightMm: 1615, wheelbaseMm: 2720, groundClearanceMm: 175, bootSpaceLiters: 440 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP" },
+      warranty: { vehicleYears: 6, vehicleKm: 150000, batteryYears: 8, batteryKm: 150000, motorYears: 8, motorKm: 150000 },
+      motor: { peakPowerKw: 150, peakTorqueNm: 310, driveLayout: "FWD" },
+      batteryChemistry: "LFP Blade Battery",
+    },
   },
   {
     id: "car-byd-seal",
@@ -854,6 +911,12 @@ export const cars: Vehicle[] = [
     highlights: ["663 km range", "800V ultra-fast charging", "5.2s 0-100 km/h"],
     description:
       "EV6 wraps Hyundai-Kia's E-GMP platform in sharper, sportier styling, aimed at buyers who want an EV that also looks fast standing still.",
+    specs: {
+      dimensions: { lengthMm: 4695, widthMm: 1890, heightMm: 1570, wheelbaseMm: 2900, groundClearanceMm: 178, bootSpaceLiters: 520 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP" },
+      warranty: { batteryYears: 8, batteryKm: 160000 },
+      motor: { peakPowerKw: 239, peakTorqueNm: 604, driveLayout: "AWD", motorType: "Dual Motor AWD" },
+    },
   },
   {
     id: "car-kia-ev9",

@@ -6,7 +6,7 @@ const SIZE_CONFIG: Record<AdSize, { width: number; height: number; label: string
   sticky: { width: 300, height: 600, label: "300 × 600" },
 };
 
-/** The only three ad units the Vehicle Detail Page renders — styled after the Navbar's own "Ad Space" placeholder. */
+/** Shared ad-unit placeholder — used on the Vehicle Detail Page and the Compare page. */
 export function AdSlot({ size, className }: { size: AdSize; className?: string }) {
   const { width, height, label } = SIZE_CONFIG[size];
   const landmarkLabel =

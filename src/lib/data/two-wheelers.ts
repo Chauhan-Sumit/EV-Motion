@@ -32,6 +32,12 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["120 km/h top speed", "10-inch touchscreen dash", "Hypercharger network access"],
     description:
       "S1 Pro remains Ola Electric's performance flagship, chasing motorcycle-like acceleration in a scooter body.",
+    specs: {
+      dimensions: { lengthMm: 1859, widthMm: 712, heightMm: 1160, wheelbaseMm: 1359, groundClearanceMm: 165 },
+      motor: { peakPowerKw: 11, peakTorqueNm: 58, motorType: "Mid-Drive IPM Motor" },
+      tyres: { size: "110/70 R12 (front & rear)" },
+      brakes: { front: "disc", rear: "disc" },
+    },
   },
   {
     id: "tw-ola-s1-x",
@@ -61,6 +67,13 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["Multiple battery sizes to choose from", "Boot space for a full-face helmet", "Low running cost"],
     description:
       "S1 X trims the S1 Pro's price down for everyday commuters, offered in a choice of battery sizes to match your daily distance.",
+    specs: {
+      dimensions: { lengthMm: 1860, widthMm: 850, heightMm: 1298, wheelbaseMm: 1359, groundClearanceMm: 160 },
+      warranty: { batteryYears: 3 },
+      motor: { peakPowerKw: 5.5, motorType: "Mid-Drive IPM Motor" },
+      tyres: { size: "90/90 R12 (front & rear)" },
+      brakes: { front: "disc", rear: "disc" },
+    },
   },
   {
     id: "tw-ola-roadster-x",
@@ -121,6 +134,12 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["7-inch TFT touch dashboard", "Ather Grid fast-charging network", "Warp mode acceleration"],
     description:
       "450X built Ather's reputation for punchy performance and slick software, with a dashboard that still leads the segment.",
+    specs: {
+      dimensions: { lengthMm: 1891, widthMm: 739, heightMm: 1114, wheelbaseMm: 1296, kerbWeightKg: 108 },
+      motor: { peakPowerKw: 6.4, peakTorqueNm: 26, motorType: "PMSM" },
+      tyres: { size: "90/90 R12 front, 100/80 R12 rear" },
+      brakes: { front: "disc", rear: "disc" },
+    },
   },
   {
     id: "tw-ather-rizta",
@@ -203,6 +222,12 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["All-metal body construction", "IP67 rated battery", "Classic Chetak silhouette"],
     description:
       "Chetak Premium revives Bajaj's iconic scooter nameplate with an all-metal body that feels a class above most rivals.",
+    specs: {
+      dimensions: { groundClearanceMm: 160, kerbWeightKg: 134 },
+      motor: { peakPowerKw: 4.2, peakTorqueNm: 20, regenBraking: true },
+      brakes: { front: "drum", rear: "drum" },
+      certifications: ["IP67 battery"],
+    },
   },
   {
     id: "tw-bajaj-chetak-3501",
@@ -282,6 +307,14 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["SmartXonnect connected features", "Navigation-assist dashboard", "Wide dealer service network"],
     description:
       "iQube built TVS into one of the top electric scooter sellers in India, backed by an extensive sales and service network.",
+    specs: {
+      dimensions: { lengthMm: 1805, widthMm: 645, heightMm: 1140, wheelbaseMm: 1301, groundClearanceMm: 157, kerbWeightKg: 110 },
+      warranty: { batteryYears: 3 },
+      motor: { peakPowerKw: 4.4, peakTorqueNm: 140, motorType: "Hub-mounted BLDC" },
+      tyres: { size: "90/90 R12 (front & rear)" },
+      brakes: { front: "disc", rear: "drum" },
+      suspension: { front: "Telescopic", rear: "Hydraulic twin-tube shock absorber" },
+    },
   },
   {
     id: "tw-tvs-iqube-st",
@@ -442,6 +475,13 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["121 km range", "7-inch TFT display", "Reverse mode"],
     description:
       "Nexus is Ampere's flagship model, adding a touch more tech and range over the brand's budget-focused lineup.",
+    specs: {
+      dimensions: { wheelbaseMm: 1319, groundClearanceMm: 170 },
+      warranty: { batteryYears: 5, batteryKm: 75000 },
+      motor: { peakPowerKw: 4, peakTorqueNm: 35 },
+      tyres: { size: "90/90-12 (front & rear)" },
+      brakes: { front: "disc", rear: "drum" },
+    },
   },
   {
     id: "tw-ampere-magnus-ex",

@@ -8,15 +8,12 @@ import { getSimilarVehicleDetails } from "@/lib/data/ev-motion/toVehicleDetail";
 import { VehicleSection } from "./VehicleSection";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
 import { useLocation } from "@/context/LocationContext";
-import { chargesForState, type StateCharges } from "@/lib/data/state-charges";
+import { chargesForState } from "@/lib/data/state-charges";
+import { onRoadPriceBreakdown } from "@/lib/pricing";
+import { buildCompareSlug } from "@/lib/compare/slug";
 
 function formatINR(value: number): string {
   return `₹${value.toLocaleString("en-IN")}`;
-}
-
-/** Ex-showroom + RTO/registration + insurance for the globally-selected city, same method as SidebarPriceSummary. */
-function onRoadPrice(exShowroom: number, charges: StateCharges): number {
-  return exShowroom + Math.round(exShowroom * (charges.registrationPct / 100)) + Math.round(exShowroom * (charges.insurancePct / 100));
 }
 
 function kwToBhp(kw: number): number {
@@ -44,7 +41,7 @@ export function SectionCompareSimilar({ vehicle }: { vehicle: VehicleDetail }) {
         </div>
       ),
     },
-    { label: `On-Road Price, ${city.name}`, render: (v) => <span className="font-bold text-primary">{formatINR(onRoadPrice(v.startingPrice, charges))}</span> },
+    { label: `On-Road Price, ${city.name}`, render: (v) => <span className="font-bold text-primary">{formatINR(onRoadPriceBreakdown(v.startingPrice, charges).onRoad)}</span> },
     { label: "User Rating", render: () => <span className="text-ink-muted">Not yet rated</span> },
     { label: "Mileage / Range", render: (v) => `${v.quickSpecs.rangeKm} km` },
     { label: "Engine / Battery", render: (v) => `${v.quickSpecs.batteryKwh} kWh` },
@@ -96,7 +93,7 @@ export function SectionCompareSimilar({ vehicle }: { vehicle: VehicleDetail }) {
               {columns.map((v) => (
                 <td key={v.slug} className="px-3.5 py-3 text-center">
                   <Link
-                    href={`/compare?ids=${columns.map((c) => c.slug).join(",")}`}
+                    href={`/compare/${buildCompareSlug(columns.map((c) => c.sourceVehicle))}`}
                     className="focus-ring inline-flex items-center gap-1.5 rounded-md border border-primary px-3 py-1.5 text-[11px] font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
                   >
                     <Scale size={12} />

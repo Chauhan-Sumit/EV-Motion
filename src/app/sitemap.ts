@@ -5,6 +5,8 @@ import { commercial } from "@/lib/data/commercial";
 import { oems } from "@/lib/data/oems";
 import { routeSegmentFor } from "@/lib/data/categories";
 import { SITE_URL } from "@/lib/site";
+import { buildCompareSlug } from "@/lib/compare/slug";
+import { carComparisons, bikeComparisons } from "@/lib/data/ev-motion/derive";
 import type { Vehicle } from "@/types/vehicle";
 
 function vehicleRoutes(vehicles: Vehicle[]): MetadataRoute.Sitemap {
@@ -31,9 +33,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
+  const compareRoutes: MetadataRoute.Sitemap = [...carComparisons, ...bikeComparisons].map((pair) => ({
+    url: `${SITE_URL}/compare/${buildCompareSlug([pair.vehicleA.vehicle, pair.vehicleB.vehicle])}`,
+    changeFrequency: "weekly",
+    priority: 0.5,
+  }));
+
   return [
     ...staticRoutes,
     ...brandRoutes,
+    ...compareRoutes,
     ...vehicleRoutes(cars),
     ...vehicleRoutes(twoWheelers),
     ...vehicleRoutes(commercial),

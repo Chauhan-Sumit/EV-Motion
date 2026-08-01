@@ -8,29 +8,36 @@
 
 A static-data Next.js 16 App Router demo of an Indian EV marketplace, styled to match a supplied "EV Motion" design template. It has been through three major work sessions on top of the original build: a full production-readiness QA cycle (audit → Critical → High → Medium → Low fixes, all resolved — see `FINAL_QA_REPORT.md`), a session that replaced every visual-only interaction with real logic and generalized the codebase into a multi-category architecture including **commercial EVs** as a third category, and — most recently — a **production polish pass** (see `PRODUCTION_POLISH_REPORT.md`) that re-audited the whole site end-to-end and fixed a page-wide layout bug plus a root-cause search-navigation bug. No backend, no auth, no database — everything is static TypeScript data plus client-side interactivity.
 
-**Important right now:** the project is mid-expansion from its original 36-vehicle demo into full India-market coverage, one small OEM batch at a time (see `HANDOFF.md`'s "Full-Market Expansion — Batch Log"). **Batches 1-4 are done** — `src/lib/data/cars.ts` has 54 records across 15 car OEMs (Tata, Mahindra, MG, Hyundai, Kia, BYD, BMW, Mercedes-Benz, Audi, Volvo, MINI, Porsche, Lotus, Rolls-Royce, VinFast); `src/lib/data/two-wheelers.ts` has 68 records (54 scooters + 14 motorcycles) across 31 two-wheeler OEMs. Commercial EVs (Batch 5) is not started — **do not start a new batch without being asked**, each batch stops for approval when done. Separately, the commercial-category *architecture* is complete and working; the commercial *data* is not — `src/lib/data/commercial.ts` is an empty array. `src/lib/data/_research-commercial.ts` (earmarked for Batch 5) still contains real, researched-but-unmerged data. `src/lib/data/_research-two-wheelers.ts` no longer exists. **No vehicle has a `photoUrl` any more** — the production polish pass removed every externally-sourced/locally-cached photo to eliminate copyright risk; don't add one back for any Batch 5 records, use the branded placeholder like every other vehicle. See `HANDOFF.md`'s "Known Limitations" and "How the next Claude session should continue" before doing anything with the vehicle database.
+**Important right now:** the project is mid-expansion from its original 36-vehicle demo into full India-market coverage, one small OEM batch at a time (see `HANDOFF.md`'s "Full-Market Expansion — Batch Log"). **Batches 1-4 are done** — `src/lib/data/cars.ts` has 54 records across 15 car OEMs (Tata, Mahindra, MG, Hyundai, Kia, BYD, BMW, Mercedes-Benz, Audi, Volvo, MINI, Porsche, Lotus, Rolls-Royce, VinFast); `src/lib/data/two-wheelers.ts` has 68 records (54 scooters + 14 motorcycles) across 31 two-wheeler OEMs. Commercial EVs (Batch 5) is not started — **do not start a new batch without being asked**, each batch stops for approval when done. Separately, the commercial-category *architecture* is complete and working; the commercial *data* is not — `src/lib/data/commercial.ts` is an empty array. `src/lib/data/_research-commercial.ts` (earmarked for Batch 5) still contains real, researched-but-unmerged data. `src/lib/data/_research-two-wheelers.ts` no longer exists. **No vehicle has a `photoUrl` any more** — the production polish pass removed every externally-sourced/locally-cached photo to eliminate copyright risk; don't add one back for any Batch 5 records, use the branded placeholder like every other vehicle. **A separate, parallel `Vehicle.specs` field** (dimensions/safety/warranty/features/motor/tyres/suspension/brakes — added for the Compare page rebuild) is populated for only 15 pilot vehicles (Batch 6, see `HANDOFF.md`) — every other vehicle has it fully `undefined` and every UI reading it must render "Not officially specified" rather than guess; never backfill it with a formula or estimate the way `toVehicleDetail.ts` does for power/torque. See `HANDOFF.md`'s "Known Limitations" and "How the next Claude session should continue" before doing anything with the vehicle database.
 
 ## Tech stack
 
-Next.js 16 (Turbopack, App Router) · React 19 · TypeScript (strict) · Tailwind CSS v4 (`@theme` block in `src/app/globals.css`, no config file) · shadcn/ui **on Base UI, not Radix** · framer-motion · lucide-react · cmdk. No new dependencies since the original QA cycle.
+Next.js 16 (Turbopack, App Router) · React 19 · TypeScript (strict) · Tailwind CSS v4 (`@theme` block in `src/app/globals.css`, no config file) · shadcn/ui **on Base UI, not Radix** · framer-motion · lucide-react · cmdk · **jspdf + jspdf-autotable** (added for the Compare page's PDF export — the first new dependency since the original QA cycle; see `src/lib/pdf/`).
 
 ## Folder structure (quick reference)
 
 ```
-src/app/                 Routes: /, /cars(+[slug]), /two-wheelers(+[slug]), /commercial(+[slug]), /brands(+[oem]), /compare
+src/app/                 Routes: /, /cars(+[slug]), /two-wheelers(+[slug]), /commercial(+[slug]), /brands(+[oem]), /compare(+[slug])
                           error.tsx, not-found.tsx, sitemap.ts, robots.ts, layout.tsx, template.tsx
 src/components/home/     Homepage-only sections
 src/components/vehicle-detail/  VDP-only sections (now category-aware for cars/2-wheelers/commercial)
-src/components/vehicles/ Shared across /cars, /two-wheelers, /commercial, /brands/[oem], /compare
+src/components/vehicles/ Shared across /cars, /two-wheelers, /commercial, /brands/[oem] (VehicleCard, VehicleListing, FilterBar, VehicleImage)
+src/components/compare/  Compare page — hero/ (CompareHero, VehicleSlotCard, ChangeVehicleModal, WinnerRibbon), sections/ (17 spec sections),
+                          calculators/ (EmiCalculator, ChargingCostCalculator), summary/ (SmartRecommendation, FloatingSummaryPanel),
+                          SpecTable.tsx, CompareStickyNav.tsx, SimilarComparisonsCarousel.tsx — see HANDOFF.md's "Premium Compare Page" section
 src/components/search/   VehicleSearchBox (category-scoped search, typo tolerance, recent/popular)
 src/components/brands/   BrandLogo
-src/components/common/   PlaceholderImage, LeadCaptureDialog, ResponsivePopover (Popover↔Sheet wrapper)
+src/components/common/   AdSlot (promoted from vehicle-detail/, now shared with Compare), PlaceholderImage, LeadCaptureDialog, ResponsivePopover
 src/components/layout/   Navbar (real location control), Footer, PageTransition, LocationSelector
 src/context/             LocationContext — global selected-city state
 src/hooks/                useCarouselScroll, useMediaQuery
 src/lib/data/            Raw Vehicle/Oem records (cars.ts, two-wheelers.ts, commercial.ts, oems.ts) + categories.ts (category registry) + cities.ts (157 cities) + state-charges.ts (RTO/insurance/subsidy rates by state)
 src/lib/data/ev-motion/  Adapters reshaping raw data into home/VDP view-model shapes — category-parameterized, not hardcoded per category
-src/lib/                 search.ts, listing-params.ts, vehicle-filter-options.ts, vehicle-labels.ts, structured-data.ts, site.ts, utils.ts (cn() + formatPriceLakh/formatPriceRangeLakh)
+src/lib/compare/         slug.ts (buildCompareSlug/parseCompareSlug), winnerEngine.ts (generic scoring), metrics.ts (SPEC_ROWS + WINNER_METRICS registry),
+                          prosAndCons.ts, verdict.ts, ratings.ts, recommendation.ts, faqs.ts, similar.ts
+src/lib/pdf/             pdfKit.ts (plain-data jsPDF primitives), generateComparePdf.ts (report assembly), buildComparePdfInput.ts (live-data glue)
+src/lib/                 search.ts, search-history.ts, listing-params.ts, vehicle-filter-options.ts, vehicle-labels.ts, structured-data.ts, site.ts,
+                          pricing.ts (onRoadPriceBreakdown/calculateEmi/estimateMonthlyChargingCost), utils.ts (cn() + formatPriceLakh/formatPriceRangeLakh)
 ```
 
 ## Before you touch anything
@@ -49,6 +56,8 @@ src/lib/                 search.ts, listing-params.ts, vehicle-filter-options.ts
 11. **Quality gate, every time:** `npx tsc --noEmit`, `npx eslint .`, `npm run build` — all three are clean as of this handoff (179 routes). Keep them clean.
 12. **Verify UI/responsive changes live in a browser**, at multiple widths — including the *exact* pixel width you suspect might be tight, not just round breakpoints, and including the *default* state as well as any worst-case content (a page-wide grid-overflow bug was present at the default city, not only with a long one). If screenshot tooling isn't available, compare `document.documentElement.scrollWidth` vs `clientWidth`. Note: this environment's synthetic "Enter" keypress reports `e.key === "Unidentified"`, not `"Enter"` — verify keyboard-nav-dependent behavior via an equivalent click instead of assuming a failed Enter-key test means the app is broken.
 13. **Background research agents can fail on session usage limits.** This happened in a prior session — all 3 parallel data-research agents failed simultaneously, though 2 had already written usable output before failing. Check for partial output files before assuming nothing was produced.
+14. **This repo's `CommandDialog` (`src/components/ui/command.tsx`) only provides the Dialog shell — it does NOT wrap its children in cmdk's `<Command>` store provider**, unlike the upstream shadcn convention some training data assumes. Putting `CommandInput`/`CommandList`/`CommandItem` directly inside `<CommandDialog>` without an explicit `<Command>` wrapper crashes at runtime with `TypeError: Cannot read properties of undefined (reading 'subscribe')` — a real bug hit and fixed while building `ChangeVehicleModal.tsx` during the Compare page rebuild. Always compose `<CommandDialog><Command><CommandInput/>...</Command></CommandDialog>` explicitly.
+15. **The Compare page's winner engine (`src/lib/compare/winnerEngine.ts`) requires at least 2 known values among the compared vehicles to declare a "winner"** for any metric — a single known value with the rest `null`/unresearched does NOT auto-win (there's nothing real for it to have beaten). Found live: with only 15/122 vehicles carrying real `specs` data, a metric known for exactly one of 3 compared vehicles was originally rendering a false "winner" crown. Don't relax this threshold back to 1 without re-introducing that bug.
 
 ## Known intentional limitations (not bugs)
 
@@ -57,6 +66,7 @@ Commercial-EV category has real architecture but zero data (see above). One rese
 ## Where to look for more
 
 - **Full project narrative, architecture rationale, design system, future roadmap:** `HANDOFF.md`
+- **Premium Compare page rebuild — architecture, new components, data-honesty approach, QA evidence:** `COMPARE_PAGE_REPORT.md` and `HANDOFF.md`'s "Premium Compare Page" section
 - **Every fix from the most recent production polish pass, with verification evidence and a qualitative scorecard:** `PRODUCTION_POLISH_REPORT.md`
 - **Every issue ever found in the original QA cycle and how it was fixed, with evidence:** `QA_REPORT.md` and the phase-specific reports (`CRITICAL_FIX_REPORT.md`, `HIGH_PRIORITY_FIX_REPORT.md`, `REGRESSION_REPORT.md`, `NAVBAR_RESPONSIVE_FIX_REPORT.md`, `MEDIUM_PRIORITY_FIX_REPORT.md`, `LOW_PRIORITY_FIX_REPORT.md`)
 - **Overall scores and final production-readiness assessment (as of the original QA cycle):** `FINAL_QA_REPORT.md`

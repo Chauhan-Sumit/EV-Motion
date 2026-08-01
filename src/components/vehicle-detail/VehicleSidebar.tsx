@@ -2,7 +2,7 @@ import type { VehicleDetail } from "@/types/vehicle-detail";
 import { SidebarPriceSummary } from "./SidebarPriceSummary";
 import { SidebarEmiCalculator } from "./SidebarEmiCalculator";
 import { SidebarRealWorldRange } from "./SidebarRealWorldRange";
-import { AdSlot } from "./AdSlot";
+import { AdSlot } from "@/components/common/AdSlot";
 
 /**
  * Scrolls normally with the page (not sticky/pinned) — the first ad slot

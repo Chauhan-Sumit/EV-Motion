@@ -26,6 +26,110 @@ export interface VehicleImages {
   photoAttribution?: string;
 }
 
+export interface VehicleDimensions {
+  lengthMm?: number;
+  widthMm?: number;
+  heightMm?: number;
+  wheelbaseMm?: number;
+  groundClearanceMm?: number;
+  bootSpaceLiters?: number;
+  kerbWeightKg?: number;
+  turningRadiusM?: number;
+}
+
+export interface VehicleSafety {
+  ncapRating?: number;
+  ncapAgency?: string;
+  airbagsCount?: number;
+  adas?: boolean;
+  abs?: boolean;
+  esc?: boolean;
+  hillHoldControl?: boolean;
+  camera360?: boolean;
+  tpms?: boolean;
+  isofix?: boolean;
+  parkingSensors?: "front" | "rear" | "both";
+}
+
+export interface VehicleWarranty {
+  vehicleYears?: number;
+  vehicleKm?: number;
+  batteryYears?: number;
+  batteryKm?: number;
+  motorYears?: number;
+  motorKm?: number;
+  roadsideAssistanceYears?: number;
+}
+
+export interface VehicleFeatures {
+  touchscreenInches?: number;
+  wirelessAndroidAuto?: boolean;
+  wirelessCarPlay?: boolean;
+  otaUpdates?: boolean;
+  connectedCarApp?: boolean;
+  ventilatedSeats?: boolean;
+  sunroofType?: "none" | "electric" | "panoramic";
+  digitalCluster?: boolean;
+  ambientLighting?: boolean;
+  premiumAudioBrand?: string;
+}
+
+export interface VehicleChargingExtra {
+  connectorType?: string;
+  v2l?: boolean;
+  v2v?: boolean;
+  chargingNetworkPartner?: string;
+}
+
+export interface VehicleMotor {
+  motorType?: string;
+  driveLayout?: "FWD" | "RWD" | "AWD";
+  peakPowerKw?: number;
+  peakTorqueNm?: number;
+  driveModes?: string[];
+  regenBraking?: boolean;
+}
+
+export interface VehicleTyres {
+  size?: string;
+  spareType?: "full-size" | "space-saver" | "none" | "puncture-kit";
+}
+
+export interface VehicleSuspension {
+  front?: string;
+  rear?: string;
+}
+
+export interface VehicleBrakes {
+  front?: "disc" | "drum";
+  rear?: "disc" | "drum";
+}
+
+/**
+ * Real, manufacturer/OEM-sourced specifications only — every field optional
+ * at every level, never defaulted or estimated. Absent means "not officially
+ * specified," rendered honestly as such rather than guessed. This is a
+ * stricter, parallel channel to the computed approximations already used by
+ * `toVehicleDetail()` (power/torque formulas, hardcoded warranty years) —
+ * those stay as-is for the VDP; `specs` is used by the Compare page, which
+ * must never fabricate a real vehicle's specifications. Populated for a
+ * researched pilot batch of vehicles only — see HANDOFF.md's "Batch 6"
+ * entry for coverage status and how to extend it.
+ */
+export interface VehicleSpecs {
+  dimensions?: VehicleDimensions;
+  safety?: VehicleSafety;
+  warranty?: VehicleWarranty;
+  features?: VehicleFeatures;
+  chargingExtra?: VehicleChargingExtra;
+  motor?: VehicleMotor;
+  tyres?: VehicleTyres;
+  suspension?: VehicleSuspension;
+  brakes?: VehicleBrakes;
+  batteryChemistry?: string;
+  certifications?: string[];
+}
+
 export interface Vehicle {
   id: string;
   slug: string;
@@ -52,6 +156,8 @@ export interface Vehicle {
   variants: VehicleVariant[];
   highlights: string[];
   description: string;
+  /** Real, sourced-only extended specs — see `VehicleSpecs`. Absent unless researched. */
+  specs?: VehicleSpecs;
 }
 
 export interface Oem {

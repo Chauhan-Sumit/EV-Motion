@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { Scale } from "lucide-react";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
+import { buildCompareSlug } from "@/lib/compare/slug";
 import type { CompareCardPairData } from "@/types/ev-motion";
 
 export function CompareCard({ pair }: { pair: CompareCardPairData }) {
-  const compareHref = `/compare?ids=${pair.vehicleA.vehicle.slug},${pair.vehicleB.vehicle.slug}`;
+  const compareHref = `/compare/${buildCompareSlug([pair.vehicleA.vehicle, pair.vehicleB.vehicle])}`;
 
   return (
     <article className="overflow-hidden rounded-[10px] border border-border bg-surface transition-all duration-200 hover:-translate-y-0.5 hover:border-primary hover:shadow-card-hover">

@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { searchVehicles, type LinkSuggestion, type SearchScope, type VehicleSuggestion } from "@/lib/search";
 import { oemColorOf } from "@/lib/data/ev-motion/derive";
 import { categoryConfig } from "@/lib/data/categories";
+import { loadRecentSearches, saveRecentSearch } from "@/lib/search-history";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
 import { HighlightedText } from "./HighlightedText";
 
@@ -33,38 +34,12 @@ const MAX_RECENT_SEARCHES = 5;
 // Deliberately bare model names ("Nexon EV", not "Tata Nexon EV") — search.ts's substring matcher can't bridge a brand's full legal name
 // (e.g. "Tata Motors", "Ola Electric") sitting between the OEM word and the model word in a query, so a two/three-word "OEM + model" popular
 // term can silently fail to resolve. A bare model name always matches via the exact `model === query` rule regardless of OEM naming.
-const POPULAR_SEARCHES_BY_SCOPE: Record<SearchScope, string[]> = {
+export const POPULAR_SEARCHES_BY_SCOPE: Record<SearchScope, string[]> = {
   car: ["Nexon EV", "SUV", "Creta Electric", "Hatchback", "Windsor EV", "Sedan"],
   "2-wheeler": ["S1 Pro", "Scooter", "450X", "Motorcycle", "iQube", "Chetak Premium"],
   commercial: ["3-Wheeler", "Truck", "Van", "Bus"],
   all: ["Nexon EV", "SUV", "S1 Pro", "Scooter", "450X", "Creta Electric"],
 };
-
-function loadRecentSearches(): string[] {
-  try {
-    const raw = localStorage.getItem(RECENT_SEARCH_KEY);
-    if (!raw) return [];
-    const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.filter((q): q is string => typeof q === "string") : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveRecentSearch(term: string, current: string[]): string[] {
-  const trimmed = term.trim();
-  if (!trimmed) return current;
-  const next = [trimmed, ...current.filter((q) => q.toLowerCase() !== trimmed.toLowerCase())].slice(
-    0,
-    MAX_RECENT_SEARCHES,
-  );
-  try {
-    localStorage.setItem(RECENT_SEARCH_KEY, JSON.stringify(next));
-  } catch {
-    // ignore
-  }
-  return next;
-}
 
 export function VehicleSearchBox({
   ariaLabel,
@@ -90,7 +65,7 @@ export function VehicleSearchBox({
     // LocationContext's mount effect (no localStorage on the server, nothing
     // to subscribe to).
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setRecentSearches(loadRecentSearches());
+    setRecentSearches(loadRecentSearches(RECENT_SEARCH_KEY));
   }, []);
 
   useEffect(() => {
@@ -146,7 +121,7 @@ export function VehicleSearchBox({
   function go(href: string, termToSave?: string) {
     setOpen(false);
     const term = termToSave ?? value;
-    if (term.trim()) setRecentSearches(saveRecentSearch(term, recentSearches));
+    if (term.trim()) setRecentSearches(saveRecentSearch(RECENT_SEARCH_KEY, term, recentSearches, MAX_RECENT_SEARCHES));
     router.push(href);
   }
 
