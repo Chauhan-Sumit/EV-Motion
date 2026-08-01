@@ -392,6 +392,86 @@ export const oems: Oem[] = [
     description:
       "Gujarat-based electric scooter brand offering both licence-free low-speed and higher-speed variants of the same models.",
   },
+  {
+    key: "ultraviolette",
+    slug: "ultraviolette",
+    name: "Ultraviolette Automotive",
+    color: "#C026D3",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Bengaluru performance-EV maker known for the track-capable F77 sportbike and the radar-equipped X47 Crossover.",
+  },
+  {
+    key: "revolt",
+    slug: "revolt",
+    name: "Revolt Motors",
+    color: "#92400E",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Pioneer of the AI-connected electric motorcycle in India, best known for the sound-simulating RV400 and the commuter-focused RV1.",
+  },
+  {
+    key: "oben",
+    slug: "oben",
+    name: "Oben Electric",
+    color: "#1E3A8A",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Bengaluru electric motorcycle maker built around its in-house SmartIQ ride-optimisation software.",
+  },
+  {
+    key: "matter",
+    slug: "matter",
+    name: "Matter",
+    color: "#7C2D12",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Ahmedabad EV maker behind the Aera, the only electric motorcycle in India built with a manual multi-speed gearbox.",
+  },
+  {
+    key: "tork",
+    slug: "tork",
+    name: "Tork Motors",
+    color: "#DC2626",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Pune-founded electric motorcycle pioneer behind the Kratos, one of the earliest performance-focused EV motorcycles sold in India.",
+  },
+  {
+    key: "kabira-mobility",
+    slug: "kabira-mobility",
+    name: "Kabira Mobility",
+    color: "#B45309",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Pune-based electric motorcycle brand focused on higher-speed, longer-range commuter-to-tourer models.",
+  },
+  {
+    key: "raptee",
+    slug: "raptee",
+    name: "Raptee",
+    color: "#0F172A",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Chennai EV maker behind the T30, India's first electric motorcycle built on a high-voltage architecture borrowed from electric cars.",
+  },
+  {
+    key: "royal-enfield",
+    slug: "royal-enfield",
+    name: "Royal Enfield",
+    color: "#B91C1C",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Legacy motorcycle marque's electric debut under the Flying Flea sub-brand, aiming to bring EV power to its classic-styled lineup.",
+  },
 ];
 
 export function getOemBySlug(slug: string): Oem | undefined {
