@@ -42,7 +42,7 @@ export const oems: Oem[] = [
     country: "India",
     categories: ["car"],
     description:
-      "Betting big on its BE and XUV.e born-electric sub-brands, built on a dedicated INGLO skateboard platform.",
+      "Betting big on its BE and XEV born-electric sub-brands, built on a dedicated INGLO skateboard platform.",
     logoUrl: "/images/brands/mahindra.png",
   },
   {
