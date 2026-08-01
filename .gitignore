@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Claude Code local tooling config (auto-generated launch config for the
+# Browser preview tool — local dev convenience, not app code)
+.claude/
