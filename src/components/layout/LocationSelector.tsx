@@ -30,7 +30,12 @@ export function LocationSelector({ open, onOpenChange }: LocationSelectorProps) 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return null;
-    return CITIES.filter((c) => c.name.toLowerCase().includes(q) || c.state.toLowerCase().includes(q));
+    return CITIES.filter(
+      (c) =>
+        c.name.toLowerCase().includes(q) ||
+        c.state.toLowerCase().includes(q) ||
+        (c.district?.toLowerCase().includes(q) ?? false),
+    );
   }, [query]);
 
   function handleSelect(id: string) {

@@ -6,7 +6,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
 import { getOemBySlug } from "@/lib/data";
+import { routeSegmentFor } from "@/lib/data/categories";
 import { LAUNCH_STATUS_LABEL } from "@/lib/vehicle-labels";
+import { formatPriceRangeLakh } from "@/lib/utils";
 import { Vehicle } from "@/types/vehicle";
 
 interface CompareTableProps {
@@ -20,7 +22,7 @@ interface SpecRow {
 }
 
 const rows: SpecRow[] = [
-  { label: "Price", render: (v) => `₹${v.priceRangeLakh[0].toFixed(2)} - ${v.priceRangeLakh[1].toFixed(2)} L` },
+  { label: "Price", render: (v) => formatPriceRangeLakh(v.priceRangeLakh[0], v.priceRangeLakh[1]) },
   { label: "Range", render: (v) => `${v.rangeKm} km` },
   { label: "Battery", render: (v) => `${v.batteryCapacityKwh} kWh` },
   { label: "Fast Charging", render: (v) => (v.chargingTimeFastMin ? `${v.chargingTimeFastMin} min` : "—") },
@@ -32,7 +34,7 @@ const rows: SpecRow[] = [
 ];
 
 export function CompareTable({ vehicles, onRemove }: CompareTableProps) {
-  const basePath = (v: Vehicle) => (v.category === "car" ? "/cars" : "/two-wheelers");
+  const basePath = (v: Vehicle) => `/${routeSegmentFor(v.category)}`;
 
   return (
     <div className="overflow-x-auto">

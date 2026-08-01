@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -8,28 +8,22 @@ import {
   Moon,
   Sun,
   MapPin,
-  Globe,
   User,
   Menu,
   X,
-  ChevronDown,
-  Check,
   Search,
 } from "lucide-react";
 import { VehicleSearchBox } from "@/components/search/VehicleSearchBox";
 import { LocationSelector } from "@/components/layout/LocationSelector";
 import { useLocation } from "@/context/LocationContext";
+import { commercial } from "@/lib/data/commercial";
 
 const NAV_LINKS: Array<{ label: string; href?: string }> = [
   { label: "NEW CARS", href: "/cars" },
   { label: "SCOOTERS & BIKES", href: "/two-wheelers" },
+  // Only linked once real commercial-EV data exists — see src/lib/data/commercial.ts.
+  ...(commercial.length > 0 ? [{ label: "COMMERCIAL EVs", href: "/commercial" }] : []),
   { label: "REVIEWS & NEWS" },
-];
-
-const LANGUAGES = [
-  { code: "EN", label: "English" },
-  { code: "HI", label: "हिंदी" },
-  { code: "TA", label: "தமிழ்" },
 ];
 
 const ICON_SIZE = 20;
@@ -41,18 +35,6 @@ export function Navbar() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
-  const [langOpen, setLangOpen] = useState(false);
-  const [lang, setLang] = useState("EN");
-
-  const langRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function onClickOutside(e: MouseEvent) {
-      if (langRef.current && !langRef.current.contains(e.target as Node)) setLangOpen(false);
-    }
-    document.addEventListener("mousedown", onClickOutside);
-    return () => document.removeEventListener("mousedown", onClickOutside);
-  }, []);
 
   function toggleTheme() {
     setIsDark((prev) => {
@@ -109,17 +91,17 @@ export function Navbar() {
             );
           })}
 
-          {/* Ad slot placeholder — deferred until there's real room to spare.
-              It's decorative filler with no functional cost when absent,
-              unlike every other item in this row, so it's the one thing
-              that's fully hidden rather than collapsed at the 1024-1279px
-              band. Deferred past xl (not just at xl) because a long,
-              real-world city name (e.g. "Thiruvananthapuram") plus this slot
-              together overflow right at 1280px — verified via
-              scrollWidth/clientWidth, same root-cause pattern as the
-              original Navbar overflow bug. */}
+          {/* Ad slot placeholder — decorative filler with no functional cost
+              when absent, unlike every other item in this row, so it's the
+              one thing that's fully hidden rather than collapsed at the
+              1024-1279px band. Shown from xl (1280px) up — the language
+              selector that used to occupy this width has been removed, so
+              the long-city-name + ad-slot overflow that previously forced
+              this past 1280px (verified via scrollWidth/clientWidth) no
+              longer applies; re-verify at exactly 1280px if either element
+              changes width again. */}
           <div
-            className="ml-2 hidden h-9 w-24 shrink-0 items-center justify-center rounded-lg border border-dashed border-border-strong bg-surface-secondary min-[1400px]:flex"
+            className="ml-2 hidden h-9 w-24 shrink-0 items-center justify-center rounded-lg border border-dashed border-border-strong bg-surface-secondary xl:flex"
             aria-hidden="true"
           >
             <span className="text-[10px] font-medium uppercase tracking-wide text-ink-muted">Ad Space</span>
@@ -156,44 +138,6 @@ export function Navbar() {
             <MapPin size={ICON_SIZE} className="shrink-0" />
             <span className="hidden max-w-[88px] truncate xl:inline">{city.name}</span>
           </button>
-
-          {/* Language — icon-only in the 1024-1279px band, full pill from xl up */}
-          <div className="relative" ref={langRef}>
-            <button
-              type="button"
-              onClick={() => setLangOpen((o) => !o)}
-              aria-haspopup="true"
-              aria-expanded={langOpen}
-              aria-label={`Select language (current: ${lang})`}
-              className="focus-ring flex items-center gap-1.5 rounded-full px-2.5 py-2 text-[13px] font-semibold text-ink-secondary transition-colors hover:bg-surface-secondary hover:text-ink xl:px-3"
-            >
-              <Globe size={ICON_SIZE} />
-              <span className="hidden xl:inline">{lang}</span>
-              <ChevronDown size={14} className={`hidden transition-transform xl:block ${langOpen ? "rotate-180" : ""}`} />
-            </button>
-            {langOpen ? (
-              <div
-                role="menu"
-                className="absolute right-0 top-[calc(100%+10px)] w-40 rounded-lg border border-border bg-surface p-1.5 shadow-popover animate-fade-in"
-              >
-                {LANGUAGES.map((l) => (
-                  <button
-                    key={l.code}
-                    type="button"
-                    role="menuitem"
-                    onClick={() => {
-                      setLang(l.code);
-                      setLangOpen(false);
-                    }}
-                    className="focus-ring flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-xs text-ink-secondary hover:bg-surface-secondary hover:text-ink"
-                  >
-                    {l.label}
-                    {l.code === lang ? <Check size={14} className="text-primary" /> : null}
-                  </button>
-                ))}
-              </div>
-            ) : null}
-          </div>
 
           <div className="mx-0.5 h-6 w-px bg-border xl:mx-1" aria-hidden="true" />
 
@@ -286,21 +230,6 @@ export function Navbar() {
               <MapPin size={ICON_SIZE} className="shrink-0" />
               <span className="truncate">{city.name}</span>
             </button>
-            <div className="flex items-center gap-3 rounded-lg px-2 py-3 text-sm font-medium text-ink-secondary">
-              <Globe size={ICON_SIZE} />
-              <select
-                value={lang}
-                onChange={(e) => setLang(e.target.value)}
-                className="w-full bg-transparent outline-none"
-                aria-label="Select language"
-              >
-                {LANGUAGES.map((l) => (
-                  <option key={l.code} value={l.code}>
-                    {l.label}
-                  </option>
-                ))}
-              </select>
-            </div>
             <button
               type="button"
               disabled

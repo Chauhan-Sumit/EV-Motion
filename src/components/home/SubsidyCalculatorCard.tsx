@@ -1,31 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { CITIES } from "@/lib/data/cities";
+import { subsidyMessageForState } from "@/lib/data/state-charges";
+import { useLocation } from "@/context/LocationContext";
+import type { VehicleCategory } from "@/types/vehicle";
 
-const STATES = ["Delhi", "Maharashtra", "Karnataka", "Gujarat"] as const;
+// Every state/UT that appears in the real location system — kept in sync
+// with cities.ts rather than a second, disconnected list.
+const STATES = Array.from(new Set(CITIES.map((c) => c.state))).sort();
+
 const VEHICLE_TYPES = ["Electric Car", "Electric Scooter"] as const;
-
-// Same ballpark ceilings already quoted (not fabricated per-state figures) in
-// the VDP's own Ownership Tools > Subsidy Calculator card — kept in sync so
-// the two calculators never contradict each other.
-const SUBSIDY_CEILING: Record<(typeof VEHICLE_TYPES)[number], string> = {
-  "Electric Car": "up to ₹1,50,000",
-  "Electric Scooter": "up to ₹30,000",
+const VEHICLE_TYPE_TO_CATEGORY: Record<(typeof VEHICLE_TYPES)[number], VehicleCategory> = {
+  "Electric Car": "car",
+  "Electric Scooter": "2-wheeler",
 };
 
 export function SubsidyCalculatorCard() {
-  const [state, setState] = useState<(typeof STATES)[number]>(STATES[0]);
+  const { city } = useLocation();
+  const [state, setState] = useState<string>(city.state);
   const [vehicleType, setVehicleType] = useState<(typeof VEHICLE_TYPES)[number]>(VEHICLE_TYPES[0]);
   const [result, setResult] = useState<string | null>(null);
+  const stateTouched = useRef(false);
+
+  // Keep this in sync with the globally-selected city until the user
+  // explicitly picks a different state themselves — otherwise the dropdown
+  // is stuck on the server's pre-hydration "Delhi" default forever, even
+  // after the real city (from localStorage) loads in.
+  useEffect(() => {
+    if (!stateTouched.current) setState(city.state);
+  }, [city.state]);
 
   function checkSubsidy() {
-    setResult(
-      `${state} buyers of an ${vehicleType.toLowerCase()} may be eligible for a state subsidy ${SUBSIDY_CEILING[vehicleType]}, plus a road tax/registration waiver in many EV-friendly states. Confirm the exact eligibility and amount with ${state}'s official EV policy.`,
-    );
+    setResult(subsidyMessageForState(state, VEHICLE_TYPE_TO_CATEGORY[vehicleType]));
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-surface">
+    <div id="subsidy-calculator" className="scroll-mt-20 overflow-hidden rounded-xl border border-border bg-surface">
       <div className="border-b border-border px-[13px] py-2.5">
         <h3 className="text-xs font-bold text-ink">EV Subsidy Calculator</h3>
       </div>
@@ -38,7 +49,8 @@ export function SubsidyCalculatorCard() {
         <select
           value={state}
           onChange={(e) => {
-            setState(e.target.value as (typeof STATES)[number]);
+            stateTouched.current = true;
+            setState(e.target.value);
             setResult(null);
           }}
           className="focus-ring mb-2 w-full rounded-[5px] border border-border-strong bg-white px-2.5 py-[7px] text-xs text-ink outline-none"

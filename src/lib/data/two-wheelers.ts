@@ -24,8 +24,6 @@ export const twoWheelers: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "/images/vehicles/ola-s1-pro.jpg",
-      photoAttribution: "Photo via EV Motion asset pack",
     },
     variants: [
       { id: "gen2", name: "Gen 2", priceLakh: 1.3, rangeKm: 195, batteryKwh: 4, topSpeedKmph: 120, fastChargeTimeMin: 35 },
@@ -55,8 +53,6 @@ export const twoWheelers: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "/images/vehicles/ola-s1-air.png",
-      photoAttribution: "Photo via EV Motion asset pack (S1 Air shown; same body as S1 X)",
     },
     variants: [
       { id: "2kwh", name: "2 kWh", priceLakh: 0.85, rangeKm: 101, batteryKwh: 2, topSpeedKmph: 85 },
@@ -87,8 +83,6 @@ export const twoWheelers: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "/images/vehicles/ola-roadster-x.png",
-      photoAttribution: "Photo via EV Motion asset pack",
     },
     variants: [
       { id: "roadster-x", name: "Roadster X", priceLakh: 1.05, rangeKm: 171, batteryKwh: 2.5, topSpeedKmph: 105 },
@@ -119,8 +113,6 @@ export const twoWheelers: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "/images/vehicles/ather-450x.jpg",
-      photoAttribution: "Photo via EV Motion asset pack",
     },
     variants: [
       { id: "450x-3kwh", name: "450X 3.7 kWh", priceLakh: 1.4, rangeKm: 150, batteryKwh: 3.7, topSpeedKmph: 90 },
@@ -203,8 +195,6 @@ export const twoWheelers: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "/images/vehicles/bajaj-chetak.png",
-      photoAttribution: "Photo via EV Motion asset pack",
     },
     variants: [
       { id: "urbane", name: "Urbane", priceLakh: 1.15, rangeKm: 113, batteryKwh: 2.9, topSpeedKmph: 63 },
@@ -284,8 +274,6 @@ export const twoWheelers: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "/images/vehicles/tvs-iqube.jpg",
-      photoAttribution: "Photo via EV Motion asset pack",
     },
     variants: [
       { id: "s", name: "S", priceLakh: 1.0, rangeKm: 100, batteryKwh: 2.25, topSpeedKmph: 78 },
@@ -368,8 +356,6 @@ export const twoWheelers: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "/images/vehicles/hero-vida-v2-pro.png",
-      photoAttribution: "Photo via EV Motion asset pack (V2 Pro shown)",
     },
     variants: [
       { id: "plus", name: "Plus", priceLakh: 1.2, rangeKm: 143, batteryKwh: 3.94, topSpeedKmph: 80 },
@@ -398,8 +384,6 @@ export const twoWheelers: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "/images/vehicles/hero-vida-vx2.png",
-      photoAttribution: "Photo via EV Motion asset pack",
     },
     variants: [
       { id: "go", name: "Go", priceLakh: 0.85, rangeKm: 110, batteryKwh: 2.2, topSpeedKmph: 70 },

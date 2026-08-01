@@ -1,3 +1,5 @@
+"use client";
+
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { Scale } from "lucide-react";
@@ -5,14 +7,16 @@ import type { VehicleDetail } from "@/types/vehicle-detail";
 import { getSimilarVehicleDetails } from "@/lib/data/ev-motion/toVehicleDetail";
 import { VehicleSection } from "./VehicleSection";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
+import { useLocation } from "@/context/LocationContext";
+import { chargesForState, type StateCharges } from "@/lib/data/state-charges";
 
 function formatINR(value: number): string {
   return `₹${value.toLocaleString("en-IN")}`;
 }
 
-/** Ex-showroom + RTO/registration + insurance, same method as SidebarPriceSummary. */
-function onRoadPriceMumbai(exShowroom: number): number {
-  return exShowroom + Math.round(exShowroom * 0.02) + Math.round(exShowroom * 0.03);
+/** Ex-showroom + RTO/registration + insurance for the globally-selected city, same method as SidebarPriceSummary. */
+function onRoadPrice(exShowroom: number, charges: StateCharges): number {
+  return exShowroom + Math.round(exShowroom * (charges.registrationPct / 100)) + Math.round(exShowroom * (charges.insurancePct / 100));
 }
 
 function kwToBhp(kw: number): number {
@@ -24,6 +28,8 @@ function firstSafetyFeature(vehicle: VehicleDetail): string {
 }
 
 export function SectionCompareSimilar({ vehicle }: { vehicle: VehicleDetail }) {
+  const { city } = useLocation();
+  const charges = chargesForState(city.state);
   const similar = getSimilarVehicleDetails(vehicle).slice(0, 2);
   const columns = [vehicle, ...similar];
 
@@ -38,7 +44,7 @@ export function SectionCompareSimilar({ vehicle }: { vehicle: VehicleDetail }) {
         </div>
       ),
     },
-    { label: "On-Road Price, Mumbai", render: (v) => <span className="font-bold text-primary">{formatINR(onRoadPriceMumbai(v.startingPrice))}</span> },
+    { label: `On-Road Price, ${city.name}`, render: (v) => <span className="font-bold text-primary">{formatINR(onRoadPrice(v.startingPrice, charges))}</span> },
     { label: "User Rating", render: () => <span className="text-ink-muted">Not yet rated</span> },
     { label: "Mileage / Range", render: (v) => `${v.quickSpecs.rangeKm} km` },
     { label: "Engine / Battery", render: (v) => `${v.quickSpecs.batteryKwh} kWh` },

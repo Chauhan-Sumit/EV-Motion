@@ -1,6 +1,7 @@
 "use client";
 
-import { X } from "lucide-react";
+import { useState } from "react";
+import { Search, X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -93,6 +94,11 @@ export function FilterBar({
   activeFilterCount,
   onClearAll,
 }: FilterBarProps) {
+  const [brandQuery, setBrandQuery] = useState("");
+  const filteredOemOptions = brandQuery.trim()
+    ? oemOptions.filter((oem) => oem.name.toLowerCase().includes(brandQuery.trim().toLowerCase()))
+    : oemOptions;
+
   function toggleOem(key: string, checked: boolean) {
     if (checked) onOemsChange([...selectedOems, key]);
     else onOemsChange(selectedOems.filter((o) => o !== key));
@@ -251,19 +257,44 @@ export function FilterBar({
 
       <div>
         <Label className="text-[10px] font-semibold uppercase tracking-[0.5px] text-ink-muted">Brand</Label>
-        <div className="mt-2 flex flex-col gap-2">
-          {oemOptions.map((oem) => (
-            <label
-              key={oem.key}
-              className="flex items-center gap-2 text-[12.5px] text-ink-secondary"
+        <div className="mt-2 flex items-center gap-2 rounded-md border border-border-strong bg-white px-2.5 py-1.5 focus-within:border-primary">
+          <Search size={13} className="shrink-0 text-ink-muted" />
+          <input
+            type="text"
+            value={brandQuery}
+            onChange={(e) => setBrandQuery(e.target.value)}
+            placeholder="Search brands..."
+            aria-label="Search brands"
+            className="w-full border-none bg-transparent text-[12.5px] text-ink outline-none placeholder:text-ink-muted"
+          />
+          {brandQuery ? (
+            <button
+              type="button"
+              aria-label="Clear brand search"
+              onClick={() => setBrandQuery("")}
+              className="shrink-0 text-ink-muted hover:text-ink"
             >
-              <Checkbox
-                checked={selectedOems.includes(oem.key)}
-                onCheckedChange={(checked) => toggleOem(oem.key, checked === true)}
-              />
-              {oem.name}
-            </label>
-          ))}
+              <X size={12} />
+            </button>
+          ) : null}
+        </div>
+        <div className="mt-2 flex max-h-52 flex-col gap-2 overflow-y-auto">
+          {filteredOemOptions.length === 0 ? (
+            <p className="py-2 text-center text-[12px] text-ink-muted">No brands match &ldquo;{brandQuery}&rdquo;</p>
+          ) : (
+            filteredOemOptions.map((oem) => (
+              <label
+                key={oem.key}
+                className="flex items-center gap-2 text-[12.5px] text-ink-secondary"
+              >
+                <Checkbox
+                  checked={selectedOems.includes(oem.key)}
+                  onCheckedChange={(checked) => toggleOem(oem.key, checked === true)}
+                />
+                {oem.name}
+              </label>
+            ))
+          )}
         </div>
       </div>
     </div>

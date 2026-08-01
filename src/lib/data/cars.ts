@@ -26,8 +26,6 @@ export const cars: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "/images/vehicles/nexon-ev.jpg",
-      photoAttribution: "Photo via EV Motion asset pack",
     },
     variants: [
       { id: "creative-mr", name: "Creative MR", priceLakh: 12.49, rangeKm: 325, batteryKwh: 30, topSpeedKmph: 140, fastChargeTimeMin: 45 },
@@ -61,8 +59,6 @@ export const cars: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/d/d4/2022_Tata_Tiago_EV_IB_XZ%2B_Tech_LR_front_view.png",
-      photoAttribution: "Photo via Wikimedia Commons",
     },
     variants: [
       { id: "xe", name: "XE 24kWh", priceLakh: 7.99, rangeKm: 250, batteryKwh: 19.2, topSpeedKmph: 120 },
@@ -95,8 +91,6 @@ export const cars: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/1/1b/2025_Tata_Curvv_Creative%2B_S_Petrol_%28India%29_front_view.png",
-      photoAttribution: "Photo via Wikimedia Commons (petrol Curvv shown; EV shares body)",
     },
     variants: [
       { id: "creative-45", name: "Creative 45", priceLakh: 14.99, rangeKm: 425, batteryKwh: 45, topSpeedKmph: 160 },
@@ -247,8 +241,6 @@ export const cars: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "/images/vehicles/mg-zs-ev.jpg",
-      photoAttribution: "Photo via EV Motion asset pack",
     },
     variants: [
       { id: "excite", name: "Excite", priceLakh: 18.98, rangeKm: 461, batteryKwh: 50.3, topSpeedKmph: 175 },
@@ -396,8 +388,6 @@ export const cars: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Hyundai_Kona_N_Line_%28SX2%29_DSC_8250.jpg/3840px-Hyundai_Kona_N_Line_%28SX2%29_DSC_8250.jpg",
-      photoAttribution: "Photo via Wikimedia Commons",
     },
     variants: [
       { id: "premium", name: "Premium", priceLakh: 23.84, rangeKm: 452, batteryKwh: 39.2, topSpeedKmph: 167 },
@@ -430,8 +420,6 @@ export const cars: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "/images/vehicles/hyundai-creta-electric.png",
-      photoAttribution: "Photo via EV Motion asset pack",
     },
     variants: [
       { id: "executive", name: "Executive", priceLakh: 17.99, rangeKm: 390, batteryKwh: 42, topSpeedKmph: 160 },
@@ -464,8 +452,6 @@ export const cars: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Hyundai_Ioniq_5_AWD_Techniq-Paket_%E2%80%93_f_31122024.jpg/3840px-Hyundai_Ioniq_5_AWD_Techniq-Paket_%E2%80%93_f_31122024.jpg",
-      photoAttribution: "Photo via Wikimedia Commons",
     },
     variants: [
       { id: "awd", name: "AWD", priceLakh: 46.05, rangeKm: 631, batteryKwh: 72.6, topSpeedKmph: 185, fastChargeTimeMin: 18 },
@@ -554,8 +540,6 @@ export const cars: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "/images/vehicles/mahindra-xuv400-ev.png",
-      photoAttribution: "Photo via EV Motion asset pack",
     },
     variants: [
       { id: "ec-pro", name: "EC Pro", priceLakh: 15.99, rangeKm: 375, batteryKwh: 34.5, topSpeedKmph: 150 },
@@ -588,8 +572,6 @@ export const cars: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "/images/vehicles/mahindra-be-6e.png",
-      photoAttribution: "Photo via EV Motion asset pack",
     },
     variants: [
       { id: "pack-3", name: "Pack Three", priceLakh: 18.9, rangeKm: 556, batteryKwh: 59, topSpeedKmph: 190 },
@@ -711,8 +693,6 @@ export const cars: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/BYD_Atto_3_1X7A6491.jpg/3840px-BYD_Atto_3_1X7A6491.jpg",
-      photoAttribution: "Photo via Wikimedia Commons",
     },
     variants: [
       { id: "dynamic", name: "Dynamic", priceLakh: 24.9, rangeKm: 521, batteryKwh: 60.5, topSpeedKmph: 160 },
@@ -745,8 +725,6 @@ export const cars: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "/images/vehicles/byd-seal.jpg",
-      photoAttribution: "Photo via EV Motion asset pack",
     },
     variants: [
       { id: "dynamic-rwd", name: "Dynamic RWD", priceLakh: 41.0, rangeKm: 650, batteryKwh: 82.5, topSpeedKmph: 180 },
@@ -780,8 +758,6 @@ export const cars: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/2023_BYD_e6_SNF7478L_front.jpg/3840px-2023_BYD_e6_SNF7478L_front.jpg",
-      photoAttribution: "Photo via Wikimedia Commons",
     },
     variants: [
       { id: "standard", name: "Standard", priceLakh: 29.6, rangeKm: 415, batteryKwh: 71.7, topSpeedKmph: 130 },
@@ -871,8 +847,6 @@ export const cars: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "/images/vehicles/kia-ev6.png",
-      photoAttribution: "Photo via EV Motion asset pack",
     },
     variants: [
       { id: "gt-line", name: "GT Line AWD", priceLakh: 65.9, rangeKm: 663, batteryKwh: 77.4, topSpeedKmph: 192, fastChargeTimeMin: 18 },
@@ -904,8 +878,6 @@ export const cars: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e0/Kia_EV9_1X7A2472.jpg",
-      photoAttribution: "Photo via Wikimedia Commons",
     },
     variants: [
       { id: "gt-line-awd", name: "GT Line AWD", priceLakh: 90.0, rangeKm: 561, batteryKwh: 99.8, topSpeedKmph: 200, fastChargeTimeMin: 24 },
@@ -966,8 +938,6 @@ export const cars: Vehicle[] = [
     images: {
       hero: "hero",
       gallery,
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/0/07/2025_Kia_Syros_AY.jpg",
-      photoAttribution: "Photo via Wikimedia Commons",
     },
     variants: [
       { id: "tech-line", name: "Tech Line", priceLakh: 16.5, rangeKm: 460, batteryKwh: 45, topSpeedKmph: 155 },

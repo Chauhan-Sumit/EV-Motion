@@ -24,7 +24,7 @@ const FOOTER_COLUMNS: Array<{
     links: [
       { label: "EV Buyers Guide" },
       { label: "Charging Stations" },
-      { label: "Subsidy Calculator" },
+      { label: "Subsidy Calculator", href: "/#subsidy-calculator" },
       { label: "EV News" },
     ],
   },

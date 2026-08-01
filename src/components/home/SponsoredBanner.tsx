@@ -8,6 +8,7 @@ import { estimateEmi } from "@/lib/data/ev-motion/derive";
 import { vehicleHref } from "@/lib/search";
 import { LeadCaptureDialog } from "@/components/common/LeadCaptureDialog";
 import { useLocation } from "@/context/LocationContext";
+import { formatPriceLakh } from "@/lib/utils";
 
 const featured = cars.find((v) => v.slug === "tata-nexon-ev") ?? cars[0];
 const oem = getOemBySlug(featured.oem);
@@ -59,7 +60,7 @@ export function SponsoredBanner() {
 
         <div className="shrink-0 rounded-lg border border-border bg-surface p-3.5 text-center sm:w-56">
           <p className="text-[11px] text-ink-muted">Starting from</p>
-          <p className="text-2xl font-extrabold text-primary">₹{featured.priceRangeLakh[0].toFixed(2)}L</p>
+          <p className="text-2xl font-extrabold text-primary">{formatPriceLakh(featured.priceRangeLakh[0])}</p>
           <p className="mb-2.5 text-[11px] text-ink-muted">*ex-showroom {city.name}</p>
           <div className="flex flex-col gap-1.5">
             <LeadCaptureDialog

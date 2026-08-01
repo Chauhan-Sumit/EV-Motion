@@ -7,6 +7,7 @@ import { VehiclePicker } from "@/components/vehicles/VehiclePicker";
 import { CompareTable } from "@/components/vehicles/CompareTable";
 import { Container } from "@/components/ui/Container";
 import { getAllVehicles, getVehicleBySlug } from "@/lib/data";
+import { CATEGORIES } from "@/lib/data/categories";
 import { VehicleCategory } from "@/types/vehicle";
 
 const MAX_COMPARE = 4;
@@ -23,7 +24,10 @@ export function CompareBoard({ initialSlugs }: { initialSlugs: string[] }) {
 
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>(
     lockedCategory
-      ? initialVehicles.filter((v) => v.category === lockedCategory).map((v) => v.slug).slice(0, MAX_COMPARE)
+      ? Array.from(new Set(initialVehicles.filter((v) => v.category === lockedCategory).map((v) => v.slug))).slice(
+          0,
+          MAX_COMPARE,
+        )
       : []
   );
   const [category, setCategory] = useState<VehicleCategory>(lockedCategory ?? "car");
@@ -39,6 +43,7 @@ export function CompareBoard({ initialSlugs }: { initialSlugs: string[] }) {
   }
 
   function handleAdd(slug: string) {
+    if (selectedSlugs.includes(slug)) return;
     const next = [...selectedSlugs, slug].slice(0, MAX_COMPARE);
     setSelectedSlugs(next);
     syncUrl(next);
@@ -65,7 +70,7 @@ export function CompareBoard({ initialSlugs }: { initialSlugs: string[] }) {
     <Container className="py-6 sm:py-8">
       <h1 className="text-xl font-extrabold tracking-tight text-ink sm:text-2xl">Compare Vehicles</h1>
       <p className="mt-1 text-[12.5px] text-ink-secondary">
-        Compare up to {MAX_COMPARE} EV cars or 2-wheelers side by side. Mixing
+        Compare up to {MAX_COMPARE} vehicles of the same category side by side. Mixing
         categories isn&apos;t supported.
       </p>
 
@@ -75,8 +80,11 @@ export function CompareBoard({ initialSlugs }: { initialSlugs: string[] }) {
           onValueChange={(value) => handleCategoryChange(value as VehicleCategory)}
         >
           <TabsList>
-            <TabsTrigger value="car">Cars</TabsTrigger>
-            <TabsTrigger value="2-wheeler">2-Wheelers</TabsTrigger>
+            {CATEGORIES.map((cat) => (
+              <TabsTrigger key={cat.key} value={cat.key}>
+                {cat.shortLabel}
+              </TabsTrigger>
+            ))}
           </TabsList>
         </Tabs>
       </div>

@@ -1,8 +1,7 @@
-import { cars } from "@/lib/data/cars";
-import { twoWheelers } from "@/lib/data/two-wheelers";
-import { oems, getOemBySlug } from "@/lib/data";
+import { getVehiclesByCategory, oems, getOemBySlug } from "@/lib/data";
 import { vehicleHref } from "@/lib/search";
-import type { Vehicle } from "@/types/vehicle";
+import { formatPriceLakh, formatPriceRangeLakh } from "@/lib/utils";
+import type { Vehicle, VehicleCategory } from "@/types/vehicle";
 import type {
   BrandCardData,
   CompareCardPairData,
@@ -17,7 +16,7 @@ export function oemColorOf(vehicle: Vehicle): string {
 }
 
 export function priceLabel(vehicle: Vehicle): string {
-  return `₹${vehicle.priceRangeLakh[0].toFixed(2)}L`;
+  return formatPriceLakh(vehicle.priceRangeLakh[0]);
 }
 
 /** Same EMI formula as the ported VehicleHero — 80% financed, 9.5% p.a., 60 months. */
@@ -34,13 +33,20 @@ function emiLabel(vehicle: Vehicle): string {
 
 function bodyOrTypeLabel(vehicle: Vehicle): string {
   if (vehicle.category === "car") return vehicle.bodyType ?? "";
-  return vehicle.twoWheelerType ?? "";
+  if (vehicle.category === "2-wheeler") return vehicle.twoWheelerType ?? "";
+  return vehicle.commercialType ?? "";
 }
+
+const CTA_LABEL: Record<VehicleCategory, string> = {
+  car: "Get Quote",
+  "2-wheeler": "Book Now",
+  commercial: "Enquire Now",
+};
 
 export function toListingCard(vehicle: Vehicle, sponsored = false): ListingCardData {
   return {
     id: vehicle.id,
-    kind: vehicle.category === "car" ? "car" : "bike",
+    category: vehicle.category,
     brand: vehicle.oemName,
     name: vehicle.modelName,
     slug: vehicle.slug,
@@ -54,7 +60,7 @@ export function toListingCard(vehicle: Vehicle, sponsored = false): ListingCardD
     priceLabel: priceLabel(vehicle),
     emiLabel: emiLabel(vehicle),
     locationLabel: "Pan India",
-    ctaLabel: vehicle.category === "car" ? "Get Quote" : "Book Now",
+    ctaLabel: CTA_LABEL[vehicle.category],
     badge: vehicle.launchStatus === "just-launched" ? "New Launch" : undefined,
     sponsored,
   };
@@ -63,7 +69,7 @@ export function toListingCard(vehicle: Vehicle, sponsored = false): ListingCardD
 export function toTrendingCompactItem(vehicle: Vehicle, sponsored = false): TrendingCompactItemData {
   return {
     id: `tc-${vehicle.id}`,
-    kind: vehicle.category === "car" ? "car" : "bike",
+    category: vehicle.category,
     name: `${vehicle.oemName} ${vehicle.modelName}`,
     vehicle,
     oemColor: oemColorOf(vehicle),
@@ -84,74 +90,69 @@ export function toRankedVehicle(vehicle: Vehicle, rank: number): RankedVehicleDa
 export function toUpcomingItem(vehicle: Vehicle): UpcomingItemData {
   return {
     id: `up-${vehicle.id}`,
-    kind: vehicle.category === "car" ? "car" : "bike",
+    category: vehicle.category,
     brand: vehicle.oemName,
     name: vehicle.modelName,
     vehicle,
     oemColor: oemColorOf(vehicle),
     launchLabel: vehicle.launchDate ? `Expected ${vehicle.launchDate}` : "Launch date TBA",
-    expectedPriceLabel: `₹${vehicle.priceRangeLakh[0].toFixed(2)}–${vehicle.priceRangeLakh[1].toFixed(2)}L (est.)`,
+    expectedPriceLabel: `${formatPriceRangeLakh(vehicle.priceRangeLakh[0], vehicle.priceRangeLakh[1], "–")} (est.)`,
   };
 }
 
-function comparePair(id: string, kind: "car" | "bike", slugA: string, slugB: string): CompareCardPairData | null {
-  const pool = kind === "car" ? cars : twoWheelers;
+/**
+ * The card/listing builders below are all parameterized by `VehicleCategory`
+ * rather than hand-written per category (the previous `popularCars`/
+ * `popularBikes`-style twin exports) — so a new category from
+ * `src/lib/data/categories.ts` gets homepage-ready data for free instead of
+ * needing a new pair of consts written by hand.
+ */
+
+export function getPopularByCategory(category: VehicleCategory, limit = 6): ListingCardData[] {
+  return getVehiclesByCategory(category)
+    .filter((v) => v.launchStatus !== "upcoming")
+    .sort((a, b) => a.priceRangeLakh[0] - b.priceRangeLakh[0])
+    .slice(0, limit)
+    .map((v, i) => toListingCard(v, i === 0));
+}
+
+export function getTrendingByCategory(category: VehicleCategory): TrendingCompactItemData[] {
+  return getVehiclesByCategory(category).map((v, i) => toTrendingCompactItem(v, i === 0));
+}
+
+export function getRankedByCategory(category: VehicleCategory, limit = 8): RankedVehicleData[] {
+  return [...getVehiclesByCategory(category)]
+    .sort((a, b) => b.rangeKm - a.rangeKm)
+    .slice(0, limit)
+    .map((v, i) => toRankedVehicle(v, i + 1));
+}
+
+export function getUpcomingByCategory(category: VehicleCategory): UpcomingItemData[] {
+  return getVehiclesByCategory(category).filter((v) => v.launchStatus === "upcoming").map(toUpcomingItem);
+}
+
+export function getBrandsByCategory(category: VehicleCategory): BrandCardData[] {
+  return oems
+    .filter((o) => o.categories.includes(category))
+    .map((o) => ({ id: o.key, name: o.name, logo: o.logoUrl ?? null, color: o.color, slug: o.slug, category }));
+}
+
+function comparePair(id: string, category: VehicleCategory, slugA: string, slugB: string): CompareCardPairData | null {
+  const pool = getVehiclesByCategory(category);
   const a = pool.find((v) => v.slug === slugA);
   const b = pool.find((v) => v.slug === slugB);
   if (!a || !b) return null;
   return {
     id,
-    kind,
+    category,
     vehicleA: { name: `${a.oemName} ${a.modelName}`, vehicle: a, oemColor: oemColorOf(a), priceLabel: priceLabel(a) },
     vehicleB: { name: `${b.oemName} ${b.modelName}`, vehicle: b, oemColor: oemColorOf(b), priceLabel: priceLabel(b) },
   };
 }
 
-export const popularCars: ListingCardData[] = cars
-  .filter((v) => v.launchStatus !== "upcoming")
-  .sort((a, b) => a.priceRangeLakh[0] - b.priceRangeLakh[0])
-  .slice(0, 6)
-  .map((v, i) => toListingCard(v, i === 0));
-
-export const popularBikes: ListingCardData[] = twoWheelers
-  .filter((v) => v.launchStatus !== "upcoming")
-  .sort((a, b) => a.priceRangeLakh[0] - b.priceRangeLakh[0])
-  .slice(0, 6)
-  .map((v, i) => toListingCard(v, i === 0));
-
-export const trendingCarsCompact: TrendingCompactItemData[] = cars.map((v, i) =>
-  toTrendingCompactItem(v, i === 0),
-);
-export const trendingBikesCompact: TrendingCompactItemData[] = twoWheelers.map((v, i) =>
-  toTrendingCompactItem(v, i === 0),
-);
-
-export const rankedCars: RankedVehicleData[] = [...cars]
-  .sort((a, b) => b.rangeKm - a.rangeKm)
-  .slice(0, 8)
-  .map((v, i) => toRankedVehicle(v, i + 1));
-
-export const rankedScooters: RankedVehicleData[] = [...twoWheelers]
-  .sort((a, b) => b.rangeKm - a.rangeKm)
-  .slice(0, 8)
-  .map((v, i) => toRankedVehicle(v, i + 1));
-
-export const carBrands: BrandCardData[] = oems
-  .filter((o) => o.categories.includes("car"))
-  .map((o) => ({ id: o.key, name: o.name, logo: o.logoUrl ?? null, color: o.color, slug: o.slug, kind: "car" }));
-
-export const bikeBrands: BrandCardData[] = oems
-  .filter((o) => o.categories.includes("2-wheeler"))
-  .map((o) => ({ id: o.key, name: o.name, logo: o.logoUrl ?? null, color: o.color, slug: o.slug, kind: "bike" }));
-
-export const upcomingCars: UpcomingItemData[] = cars
-  .filter((v) => v.launchStatus === "upcoming")
-  .map(toUpcomingItem);
-
-export const upcomingBikes: UpcomingItemData[] = twoWheelers
-  .filter((v) => v.launchStatus === "upcoming")
-  .map(toUpcomingItem);
-
+// Curated homepage compare-pairs — hand-picked slugs are fine here (it's
+// editorial homepage content, not a data-coverage guarantee), but the
+// machinery that resolves them (`comparePair`) is category-generic.
 export const carComparisons: CompareCardPairData[] = [
   comparePair("cmp-car-1", "car", "tata-nexon-ev", "mg-zs-ev"),
   comparePair("cmp-car-2", "car", "hyundai-kona-electric", "byd-atto-3"),
@@ -159,7 +160,7 @@ export const carComparisons: CompareCardPairData[] = [
 ].filter((p): p is CompareCardPairData => p !== null);
 
 export const bikeComparisons: CompareCardPairData[] = [
-  comparePair("cmp-bike-1", "bike", "ola-s1-pro", "ather-450x"),
-  comparePair("cmp-bike-2", "bike", "tvs-iqube", "bajaj-chetak-premium"),
-  comparePair("cmp-bike-3", "bike", "ola-s1-x", "ampere-nexus"),
+  comparePair("cmp-bike-1", "2-wheeler", "ola-s1-pro", "ather-450x"),
+  comparePair("cmp-bike-2", "2-wheeler", "tvs-iqube", "bajaj-chetak-premium"),
+  comparePair("cmp-bike-3", "2-wheeler", "ola-s1-x", "ampere-nexus"),
 ].filter((p): p is CompareCardPairData => p !== null);

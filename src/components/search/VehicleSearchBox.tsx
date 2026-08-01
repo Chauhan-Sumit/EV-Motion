@@ -6,6 +6,7 @@ import { Clock, Search, TrendingUp, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { searchVehicles, type LinkSuggestion, type SearchScope, type VehicleSuggestion } from "@/lib/search";
 import { oemColorOf } from "@/lib/data/ev-motion/derive";
+import { categoryConfig } from "@/lib/data/categories";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
 import { HighlightedText } from "./HighlightedText";
 
@@ -28,7 +29,16 @@ const RECENT_SEARCH_KEY = "ev-motion:recent-searches";
 const MAX_RECENT_SEARCHES = 5;
 
 // Real terms that resolve to real results in this dataset (vehicle names / category keywords already handled by searchVehicles) — not invented copy.
-const POPULAR_SEARCHES = ["Tata Nexon EV", "SUV", "Ola S1 Pro", "Scooter", "Ather 450X", "Hyundai Creta Electric"];
+// Scoped to the active category so Bike mode never surfaces car terms and vice versa; "all" is the mixed default for the unscoped Navbar boxes.
+// Deliberately bare model names ("Nexon EV", not "Tata Nexon EV") — search.ts's substring matcher can't bridge a brand's full legal name
+// (e.g. "Tata Motors", "Ola Electric") sitting between the OEM word and the model word in a query, so a two/three-word "OEM + model" popular
+// term can silently fail to resolve. A bare model name always matches via the exact `model === query` rule regardless of OEM naming.
+const POPULAR_SEARCHES_BY_SCOPE: Record<SearchScope, string[]> = {
+  car: ["Nexon EV", "SUV", "Creta Electric", "Hatchback", "Windsor EV", "Sedan"],
+  "2-wheeler": ["S1 Pro", "Scooter", "450X", "Motorcycle", "iQube", "Chetak Premium"],
+  commercial: ["3-Wheeler", "Truck", "Van", "Bus"],
+  all: ["Nexon EV", "SUV", "S1 Pro", "Scooter", "450X", "Creta Electric"],
+};
 
 function loadRecentSearches(): string[] {
   try {
@@ -105,10 +115,23 @@ export function VehicleSearchBox({
     return flat;
   }, [outcome]);
 
+  const popularSearches = POPULAR_SEARCHES_BY_SCOPE[categoryScope];
+
+  // One flat, keyboard-navigable list combining Recent + Popular — recent
+  // terms win on duplicates so the same term isn't offered twice.
+  const suggestionItems = useMemo(() => {
+    const seen = new Set(recentSearches.map((t) => t.toLowerCase()));
+    return [
+      ...recentSearches.map((term) => ({ source: "recent" as const, term })),
+      ...popularSearches.filter((term) => !seen.has(term.toLowerCase())).map((term) => ({ source: "popular" as const, term })),
+    ];
+  }, [recentSearches, popularSearches]);
+
   const hasQuery = debouncedValue.trim().length > 0;
   const showResultsPanel = open && hasQuery;
-  const showSuggestionsPanel = open && !hasQuery && (recentSearches.length > 0 || POPULAR_SEARCHES.length > 0);
+  const showSuggestionsPanel = open && !hasQuery && suggestionItems.length > 0;
   const panelVisible = showResultsPanel || showSuggestionsPanel;
+  const activeList = showResultsPanel ? items.length : suggestionItems.length;
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -120,9 +143,10 @@ export function VehicleSearchBox({
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
 
-  function go(href: string) {
+  function go(href: string, termToSave?: string) {
     setOpen(false);
-    if (value.trim()) setRecentSearches(saveRecentSearch(value, recentSearches));
+    const term = termToSave ?? value;
+    if (term.trim()) setRecentSearches(saveRecentSearch(term, recentSearches));
     router.push(href);
   }
 
@@ -133,24 +157,55 @@ export function VehicleSearchBox({
     setOpen(true);
   }
 
+  /**
+   * Resolve a Recent/Popular term straight to a page. `categoryMatch` goes
+   * first even though `vehicles` is checked first for typed-query Enter
+   * presses elsewhere — it only ever fires on an exact, deliberate keyword
+   * ("suv", "scooter", ...), so it's a stronger signal than a vehicle whose
+   * name merely happens to contain that word as a substring (e.g. "SUV"
+   * matching "Mercedes-Benz Maybach EQS SUV" ahead of the SUV listing page).
+   */
+  function selectSuggestion(term: string) {
+    const resolved = searchVehicles(term, 1, categoryScope);
+    const target = resolved.categoryMatch ?? resolved.vehicles[0] ?? resolved.brandMatch;
+    if (target) {
+      setValue(term);
+      go(target.href, term);
+    } else {
+      runQuery(term);
+    }
+  }
+
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      if (!showResultsPanel) setOpen(true);
-      setActiveIndex((i) => (items.length === 0 ? -1 : (i + 1) % items.length));
+      if (!panelVisible) setOpen(true);
+      setActiveIndex((i) => (activeList === 0 ? -1 : (i + 1) % activeList));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setActiveIndex((i) => (items.length === 0 ? -1 : (i - 1 + items.length) % items.length));
+      setActiveIndex((i) => (activeList === 0 ? -1 : (i - 1 + activeList) % activeList));
     } else if (e.key === "Enter") {
       e.preventDefault();
-      const target = activeIndex >= 0 ? items[activeIndex] : items[0];
-      if (target) go(target.suggestion.href);
+      if (showResultsPanel) {
+        const target = activeIndex >= 0 ? items[activeIndex] : items[0];
+        if (target) go(target.suggestion.href);
+      } else if (showSuggestionsPanel) {
+        const target = activeIndex >= 0 ? suggestionItems[activeIndex] : suggestionItems[0];
+        if (target) selectSuggestion(target.term);
+      }
     } else if (e.key === "Escape") {
       setOpen(false);
     }
   }
 
-  const activeId = activeIndex >= 0 && items[activeIndex] ? `${listboxId}-${items[activeIndex].key}` : undefined;
+  const activeId =
+    activeIndex < 0
+      ? undefined
+      : showResultsPanel && items[activeIndex]
+        ? `${listboxId}-${items[activeIndex].key}`
+        : showSuggestionsPanel && suggestionItems[activeIndex]
+          ? `${listboxId}-${suggestionItems[activeIndex].source}-${suggestionItems[activeIndex].term}`
+          : undefined;
 
   const inputSizeClasses =
     size === "lg"
@@ -181,7 +236,10 @@ export function VehicleSearchBox({
             setValue(e.target.value);
             setOpen(true);
           }}
-          onFocus={() => setOpen(true)}
+          onFocus={() => {
+            setOpen(true);
+            setActiveIndex(-1);
+          }}
           onKeyDown={handleKeyDown}
           className={cn(
             "w-full flex-1 border-none bg-transparent px-2.5 text-ink outline-none placeholder:text-ink-muted",
@@ -216,6 +274,8 @@ export function VehicleSearchBox({
       {showSuggestionsPanel ? (
         <div
           id={listboxId}
+          role="listbox"
+          aria-label={`${ariaLabel} suggestions`}
           className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 max-h-[360px] overflow-y-auto rounded-lg border border-border bg-surface p-1.5 shadow-popover animate-fade-in"
         >
           {recentSearches.length > 0 ? (
@@ -224,16 +284,26 @@ export function VehicleSearchBox({
                 <Clock size={11} />
                 Recent Searches
               </p>
-              {recentSearches.map((term) => (
-                <button
-                  key={term}
-                  type="button"
-                  onClick={() => runQuery(term)}
-                  className="flex w-full items-center rounded-md px-2.5 py-1.5 text-left text-[12.5px] text-ink-secondary transition-colors hover:bg-surface-secondary hover:text-ink"
-                >
-                  {term}
-                </button>
-              ))}
+              {suggestionItems
+                .map((item, index) => ({ item, index }))
+                .filter(({ item }) => item.source === "recent")
+                .map(({ item, index }) => (
+                  <button
+                    key={`recent-${item.term}`}
+                    id={`${listboxId}-recent-${item.term}`}
+                    type="button"
+                    role="option"
+                    aria-selected={index === activeIndex}
+                    onMouseEnter={() => setActiveIndex(index)}
+                    onClick={() => selectSuggestion(item.term)}
+                    className={cn(
+                      "flex w-full items-center rounded-md px-2.5 py-1.5 text-left text-[12.5px] transition-colors",
+                      index === activeIndex ? "bg-primary-tint text-ink" : "text-ink-secondary hover:bg-surface-secondary hover:text-ink",
+                    )}
+                  >
+                    {item.term}
+                  </button>
+                ))}
             </div>
           ) : null}
           <div>
@@ -241,16 +311,26 @@ export function VehicleSearchBox({
               <TrendingUp size={11} />
               Popular Searches
             </p>
-            {POPULAR_SEARCHES.map((term) => (
-              <button
-                key={term}
-                type="button"
-                onClick={() => runQuery(term)}
-                className="flex w-full items-center rounded-md px-2.5 py-1.5 text-left text-[12.5px] text-ink-secondary transition-colors hover:bg-surface-secondary hover:text-ink"
-              >
-                {term}
-              </button>
-            ))}
+            {suggestionItems
+              .map((item, index) => ({ item, index }))
+              .filter(({ item }) => item.source === "popular")
+              .map(({ item, index }) => (
+                <button
+                  key={`popular-${item.term}`}
+                  id={`${listboxId}-popular-${item.term}`}
+                  type="button"
+                  role="option"
+                  aria-selected={index === activeIndex}
+                  onMouseEnter={() => setActiveIndex(index)}
+                  onClick={() => selectSuggestion(item.term)}
+                  className={cn(
+                    "flex w-full items-center rounded-md px-2.5 py-1.5 text-left text-[12.5px] transition-colors",
+                    index === activeIndex ? "bg-primary-tint text-ink" : "text-ink-secondary hover:bg-surface-secondary hover:text-ink",
+                  )}
+                >
+                  {item.term}
+                </button>
+              ))}
           </div>
         </div>
       ) : null}
@@ -292,9 +372,7 @@ export function VehicleSearchBox({
                       <span className="block truncate text-[12.5px] font-semibold text-ink">
                         <HighlightedText text={label} query={debouncedValue} />
                       </span>
-                      <span className="block text-[10.5px] text-ink-muted">
-                        {vehicle.category === "car" ? "Electric Car" : "Electric 2-Wheeler"}
-                      </span>
+                      <span className="block text-[10.5px] text-ink-muted">{categoryConfig(vehicle.category).label}</span>
                     </span>
                   </button>
                 );

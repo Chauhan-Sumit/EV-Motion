@@ -5,7 +5,9 @@ import { motion } from "framer-motion";
 import { Scale, Zap } from "lucide-react";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
 import { getOemBySlug } from "@/lib/data";
+import { routeSegmentFor } from "@/lib/data/categories";
 import { LAUNCH_STATUS_LABEL } from "@/lib/vehicle-labels";
+import { formatPriceRangeLakh } from "@/lib/utils";
 import { Vehicle } from "@/types/vehicle";
 
 const BADGE_CLASSES: Record<Vehicle["launchStatus"], string> = {
@@ -17,7 +19,7 @@ const BADGE_CLASSES: Record<Vehicle["launchStatus"], string> = {
 export function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
   const oem = getOemBySlug(vehicle.oem);
   const color = oem?.color ?? "#0891B2";
-  const basePath = vehicle.category === "car" ? "/cars" : "/two-wheelers";
+  const basePath = `/${routeSegmentFor(vehicle.category)}`;
   const detailHref = `${basePath}/${vehicle.slug}`;
 
   return (
@@ -46,7 +48,7 @@ export function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
 
             <div className="mt-1 flex items-center justify-between text-[12px]">
               <span className="text-sm font-extrabold text-primary">
-                ₹{vehicle.priceRangeLakh[0].toFixed(2)} - {vehicle.priceRangeLakh[1].toFixed(2)} L
+                {formatPriceRangeLakh(vehicle.priceRangeLakh[0], vehicle.priceRangeLakh[1])}
               </span>
               <span className="flex items-center gap-1 text-[10px] text-ink-muted">
                 <Zap size={12} className="text-primary" />

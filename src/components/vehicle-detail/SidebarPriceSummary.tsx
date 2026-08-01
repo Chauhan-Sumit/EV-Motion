@@ -1,18 +1,27 @@
+"use client";
+
 import type { VehicleDetail } from "@/types/vehicle-detail";
+import { useLocation } from "@/context/LocationContext";
+import { chargesForState } from "@/lib/data/state-charges";
 
 function formatINR(value: number): string {
   return `₹${value.toLocaleString("en-IN")}`;
 }
 
 export function SidebarPriceSummary({ vehicle }: { vehicle: VehicleDetail }) {
+  const { city } = useLocation();
   const exShowroom = vehicle.startingPrice;
-  const registration = Math.round(exShowroom * 0.02);
-  const insurance = Math.round(exShowroom * 0.03);
+  const { registrationPct, insurancePct } = chargesForState(city.state);
+  const registration = Math.round(exShowroom * (registrationPct / 100));
+  const insurance = Math.round(exShowroom * (insurancePct / 100));
   const onRoad = exShowroom + registration + insurance;
 
   const rows = [
     { label: "Ex-showroom price", value: exShowroom },
-    { label: "RTO & registration", value: registration },
+    {
+      label: registrationPct === 0 ? "RTO & registration (EV waiver)" : "RTO & registration",
+      value: registration,
+    },
     { label: "Insurance (est.)", value: insurance },
   ];
 
@@ -34,7 +43,7 @@ export function SidebarPriceSummary({ vehicle }: { vehicle: VehicleDetail }) {
           <span className="text-[12px] font-bold text-ink">On-road price</span>
           <span className="text-sm font-extrabold text-primary">{formatINR(onRoad)}</span>
         </div>
-        <p className="mt-2 text-[10px] text-ink-muted">Estimated — varies by state and city.</p>
+        <p className="mt-2 text-[10px] text-ink-muted">Estimated for {city.name}, {city.state} — confirm with your dealer.</p>
       </div>
     </div>
   );
