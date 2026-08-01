@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { MessageSquare, Star } from "lucide-react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
-import { VehicleSection } from "@/components/vehicle-detail/VehicleSection";
+import { CompareSectionCard } from "../CompareSectionCard";
 
 interface LocalReview {
   id: string;
@@ -43,7 +43,7 @@ export function ReviewsSection({ vehicles }: { vehicles: VehicleDetail[] }) {
   }
 
   return (
-    <VehicleSection id="reviews" title="Owner Reviews">
+    <CompareSectionCard id="reviews" title="Owner Reviews" icon={MessageSquare}>
       {vehicles.length > 1 ? (
         <div className="mb-4 flex flex-wrap gap-1.5">
           {vehicles.map((v, i) => (
@@ -169,6 +169,6 @@ export function ReviewsSection({ vehicles }: { vehicles: VehicleDetail[] }) {
           )}
         </div>
       </div>
-    </VehicleSection>
+    </CompareSectionCard>
   );
 }

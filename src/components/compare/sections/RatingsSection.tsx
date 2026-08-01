@@ -1,5 +1,6 @@
+import { Star } from "lucide-react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
-import { VehicleSection } from "@/components/vehicle-detail/VehicleSection";
+import { CompareSectionCard } from "../CompareSectionCard";
 import { computeRatings, type VehicleRatings } from "@/lib/compare/ratings";
 
 const DIMENSIONS: { key: keyof VehicleRatings; label: string }[] = [
@@ -32,14 +33,15 @@ export function RatingsSection({ vehicles }: { vehicles: VehicleDetail[] }) {
   const ratings = computeRatings(vehicles);
 
   return (
-    <VehicleSection
+    <CompareSectionCard
       id="ratings"
       title="Ratings"
       description="Scored relative to the vehicles in this comparison (0-10) — not an absolute or editorial rating."
+      icon={Star}
     >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {vehicles.map((v, i) => (
-          <div key={v.slug} className="rounded-xl border border-border bg-surface p-3.5">
+          <div key={v.slug} className="rounded-xl border border-border bg-surface-secondary/40 p-3.5">
             <p className="text-[12.5px] font-bold text-ink">{v.name}</p>
             <div className="mt-3 space-y-2.5">
               {DIMENSIONS.map((d) => (
@@ -52,6 +54,6 @@ export function RatingsSection({ vehicles }: { vehicles: VehicleDetail[] }) {
           </div>
         ))}
       </div>
-    </VehicleSection>
+    </CompareSectionCard>
   );
 }

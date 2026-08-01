@@ -1,5 +1,6 @@
+import { HelpCircle } from "lucide-react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
-import { VehicleSection } from "@/components/vehicle-detail/VehicleSection";
+import { CompareSectionCard } from "../CompareSectionCard";
 import { Disclosure } from "@/components/vehicle-detail/Disclosure";
 import { computeComparisonFaqs } from "@/lib/compare/faqs";
 
@@ -7,7 +8,7 @@ export function FaqsSection({ vehicles }: { vehicles: VehicleDetail[] }) {
   const comparisonFaqs = computeComparisonFaqs(vehicles);
 
   return (
-    <VehicleSection id="faqs" title="Frequently Asked Questions">
+    <CompareSectionCard id="faqs" title="Frequently Asked Questions" icon={HelpCircle}>
       {comparisonFaqs.length > 0 ? (
         <div className="max-w-2xl overflow-hidden rounded-xl border border-border bg-surface">
           {comparisonFaqs.map((faq) => (
@@ -32,6 +33,6 @@ export function FaqsSection({ vehicles }: { vehicles: VehicleDetail[] }) {
           </div>
         ) : null,
       )}
-    </VehicleSection>
+    </CompareSectionCard>
   );
 }

@@ -8,6 +8,8 @@ export interface SpecRow {
   label: string;
   section: string;
   render: (v: VehicleDetail) => string;
+  /** Optional raw numeric accessor — when present, SpecTable draws a proportional bar (value vs. the highest known value in the row) next to the text instead of just the number. Omit for rows with no meaningful magnitude (Colours, free-text). */
+  barValue?: (v: VehicleDetail) => number | null;
 }
 
 /**
@@ -28,6 +30,9 @@ export interface SpecRow {
  * field needs to be registered, not a new component.
  */
 
+/** Shared sentinel a value's `render()` returns when a manufacturer hasn't published that spec — SpecTable (and any hand-rolled table) detects this exact string to swap in the premium `UnavailableValue` treatment instead of raw text. */
+export const NOT_SPECIFIED = "Not officially specified";
+
 function fmtKm(n: number): string {
   return `${n.toLocaleString("en-IN")} km`;
 }
@@ -43,18 +48,24 @@ function torqueLabel(v: VehicleDetail): string {
 }
 
 export const OVERVIEW_SPEC_ROWS: SpecRow[] = [
-  { key: "battery", label: "Battery", section: "overview", render: (v) => `${v.quickSpecs.batteryKwh} kWh` },
-  { key: "range", label: "Range", section: "overview", render: (v) => fmtKm(v.quickSpecs.rangeKm) },
-  { key: "power", label: "Power", section: "overview", render: powerLabel },
-  { key: "torque", label: "Torque", section: "overview", render: torqueLabel },
+  { key: "battery", label: "Battery", section: "overview", render: (v) => `${v.quickSpecs.batteryKwh} kWh`, barValue: (v) => v.quickSpecs.batteryKwh },
+  { key: "range", label: "Range", section: "overview", render: (v) => fmtKm(v.quickSpecs.rangeKm), barValue: (v) => v.quickSpecs.rangeKm },
+  { key: "power", label: "Power", section: "overview", render: powerLabel, barValue: (v) => v.sourceVehicle.specs?.motor?.peakPowerKw ?? v.quickSpecs.powerKw },
+  { key: "torque", label: "Torque", section: "overview", render: torqueLabel, barValue: (v) => v.sourceVehicle.specs?.motor?.peakTorqueNm ?? v.quickSpecs.torqueNm },
   { key: "topSpeed", label: "Top Speed", section: "overview", render: (v) => `${v.sourceVehicle.topSpeedKmph} km/h` },
   {
     key: "acceleration",
     label: "Acceleration",
     section: "overview",
-    render: (v) => (v.sourceVehicle.accelerationSec0To100 ? `${v.sourceVehicle.accelerationSec0To100}s (0-100)` : "Not officially specified"),
+    render: (v) => (v.sourceVehicle.accelerationSec0To100 ? `${v.sourceVehicle.accelerationSec0To100}s (0-100)` : NOT_SPECIFIED),
   },
-  { key: "fastCharge", label: "Charging Time", section: "overview", render: (v) => `${v.quickSpecs.fastChargeMinutes} min (10-80%)` },
+  {
+    key: "fastCharge",
+    label: "Charging Time",
+    section: "overview",
+    render: (v) => `${v.quickSpecs.fastChargeMinutes} min (10-80%)`,
+    barValue: (v) => v.quickSpecs.fastChargeMinutes,
+  },
   {
     key: "efficiency",
     label: "Efficiency",
@@ -68,82 +79,98 @@ export const PRICE_SPEC_ROWS: SpecRow[] = [
 ];
 
 export const BATTERY_SPEC_ROWS: SpecRow[] = [
-  { key: "battery", label: "Battery Capacity", section: "battery", render: (v) => `${v.quickSpecs.batteryKwh} kWh` },
+  { key: "battery", label: "Battery Capacity", section: "battery", render: (v) => `${v.quickSpecs.batteryKwh} kWh`, barValue: (v) => v.quickSpecs.batteryKwh },
   {
     key: "batteryChemistry",
     label: "Battery Chemistry",
     section: "battery",
-    render: (v) => v.sourceVehicle.specs?.batteryChemistry ?? "Not officially specified",
+    render: (v) => v.sourceVehicle.specs?.batteryChemistry ?? NOT_SPECIFIED,
   },
-  { key: "range", label: "Range", section: "battery", render: (v) => fmtKm(v.quickSpecs.rangeKm) },
+  { key: "range", label: "Range", section: "battery", render: (v) => fmtKm(v.quickSpecs.rangeKm), barValue: (v) => v.quickSpecs.rangeKm },
 ];
 
 export const CHARGING_SPEC_ROWS: SpecRow[] = [
-  { key: "fastCharge", label: "DC Fast Charging (10-80%)", section: "charging", render: (v) => `${v.quickSpecs.fastChargeMinutes} min` },
-  { key: "acCharge", label: "AC Home Charging (full)", section: "charging", render: (v) => `${v.charging.acHomeChargeHours} hr` },
+  {
+    key: "fastCharge",
+    label: "DC Fast Charging (10-80%)",
+    section: "charging",
+    render: (v) => `${v.quickSpecs.fastChargeMinutes} min`,
+    barValue: (v) => v.quickSpecs.fastChargeMinutes,
+  },
+  {
+    key: "acCharge",
+    label: "AC Home Charging (full)",
+    section: "charging",
+    render: (v) => `${v.charging.acHomeChargeHours} hr`,
+    barValue: (v) => v.charging.acHomeChargeHours,
+  },
   {
     key: "connectorType",
     label: "Charging Port",
     section: "charging",
-    render: (v) => v.sourceVehicle.specs?.chargingExtra?.connectorType ?? "Not officially specified",
+    render: (v) => v.sourceVehicle.specs?.chargingExtra?.connectorType ?? NOT_SPECIFIED,
   },
   {
     key: "v2l",
     label: "Vehicle to Load",
     section: "charging",
-    render: (v) => (v.sourceVehicle.specs?.chargingExtra?.v2l === undefined ? "Not officially specified" : v.sourceVehicle.specs?.chargingExtra?.v2l ? "Yes" : "No"),
+    render: (v) => (v.sourceVehicle.specs?.chargingExtra?.v2l === undefined ? NOT_SPECIFIED : v.sourceVehicle.specs?.chargingExtra?.v2l ? "Yes" : "No"),
   },
   {
     key: "v2v",
     label: "Vehicle to Vehicle",
     section: "charging",
-    render: (v) => (v.sourceVehicle.specs?.chargingExtra?.v2v === undefined ? "Not officially specified" : v.sourceVehicle.specs?.chargingExtra?.v2v ? "Yes" : "No"),
+    render: (v) => (v.sourceVehicle.specs?.chargingExtra?.v2v === undefined ? NOT_SPECIFIED : v.sourceVehicle.specs?.chargingExtra?.v2v ? "Yes" : "No"),
   },
   {
     key: "chargingNetwork",
     label: "Charging Network Partner",
     section: "charging",
-    render: (v) => v.sourceVehicle.specs?.chargingExtra?.chargingNetworkPartner ?? "Not officially specified",
+    render: (v) => v.sourceVehicle.specs?.chargingExtra?.chargingNetworkPartner ?? NOT_SPECIFIED,
   },
 ];
 
 export const PERFORMANCE_SPEC_ROWS: SpecRow[] = [
-  { key: "power", label: "Power", section: "performance", render: powerLabel },
-  { key: "torque", label: "Torque", section: "performance", render: torqueLabel },
+  { key: "power", label: "Power", section: "performance", render: powerLabel, barValue: (v) => v.sourceVehicle.specs?.motor?.peakPowerKw ?? v.quickSpecs.powerKw },
+  { key: "torque", label: "Torque", section: "performance", render: torqueLabel, barValue: (v) => v.sourceVehicle.specs?.motor?.peakTorqueNm ?? v.quickSpecs.torqueNm },
   {
     key: "acceleration",
     label: "0-100 km/h",
     section: "performance",
-    render: (v) => (v.sourceVehicle.accelerationSec0To100 ? `${v.sourceVehicle.accelerationSec0To100}s` : "Not officially specified"),
+    render: (v) => (v.sourceVehicle.accelerationSec0To100 ? `${v.sourceVehicle.accelerationSec0To100}s` : NOT_SPECIFIED),
   },
-  { key: "topSpeed", label: "Top Speed", section: "performance", render: (v) => `${v.sourceVehicle.topSpeedKmph} km/h` },
+  {
+    key: "topSpeed",
+    label: "Top Speed",
+    section: "performance",
+    render: (v) => `${v.sourceVehicle.topSpeedKmph} km/h`,
+    barValue: (v) => v.sourceVehicle.topSpeedKmph,
+  },
   {
     key: "driveModes",
     label: "Drive Modes",
     section: "performance",
-    render: (v) => v.sourceVehicle.specs?.motor?.driveModes?.join(", ") || "Not officially specified",
+    render: (v) => v.sourceVehicle.specs?.motor?.driveModes?.join(", ") || NOT_SPECIFIED,
   },
   {
     key: "regenBraking",
     label: "Regenerative Braking",
     section: "performance",
-    render: (v) => (v.sourceVehicle.specs?.motor?.regenBraking === undefined ? "Not officially specified" : v.sourceVehicle.specs?.motor?.regenBraking ? "Yes" : "No"),
+    render: (v) => (v.sourceVehicle.specs?.motor?.regenBraking === undefined ? NOT_SPECIFIED : v.sourceVehicle.specs?.motor?.regenBraking ? "Yes" : "No"),
   },
   {
     key: "motorType",
     label: "Motor Type",
     section: "performance",
-    render: (v) => v.sourceVehicle.specs?.motor?.motorType ?? "Not officially specified",
+    render: (v) => v.sourceVehicle.specs?.motor?.motorType ?? NOT_SPECIFIED,
   },
   {
     key: "driveLayout",
     label: "Drive Layout",
     section: "performance",
-    render: (v) => v.sourceVehicle.specs?.motor?.driveLayout ?? "Not officially specified",
+    render: (v) => v.sourceVehicle.specs?.motor?.driveLayout ?? NOT_SPECIFIED,
   },
 ];
-
-const NOT_SPECIFIED = "Not officially specified";
 
 function yesNo(value: boolean | undefined): string {
   return value === undefined ? NOT_SPECIFIED : value ? "Yes" : "No";

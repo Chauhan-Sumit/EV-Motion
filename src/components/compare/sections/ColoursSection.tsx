@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Check } from "lucide-react";
+import { Check, Palette } from "lucide-react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
-import { VehicleSection } from "@/components/vehicle-detail/VehicleSection";
+import { CompareSectionCard } from "../CompareSectionCard";
+import { UnavailableValue } from "../UnavailableValue";
 
 /** Colour swatches per vehicle — no manufacturer images, clickable selector, matches the honesty-first no-external-imagery policy already used sitewide. */
 export function ColoursSection({ vehicles }: { vehicles: VehicleDetail[] }) {
@@ -12,16 +13,18 @@ export function ColoursSection({ vehicles }: { vehicles: VehicleDetail[] }) {
   );
 
   return (
-    <VehicleSection id="colours" title="Colours" description="Available colour options — swatches only, no manufacturer imagery.">
+    <CompareSectionCard id="colours" title="Colours" description="Available colour options — swatches only, no manufacturer imagery." icon={Palette}>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {vehicles.map((v) => {
           const activeId = selected[v.slug];
           const activeColor = v.colors.find((c) => c.id === activeId) ?? v.colors[0];
           return (
-            <div key={v.slug} className="rounded-xl border border-border bg-surface p-3.5">
+            <div key={v.slug} className="rounded-xl border border-border bg-surface-secondary/40 p-3.5">
               <p className="text-[12px] font-bold text-ink">{v.name}</p>
               {v.colors.length === 0 ? (
-                <p className="mt-2 text-[11.5px] text-ink-muted">Not officially specified</p>
+                <div className="mt-2">
+                  <UnavailableValue />
+                </div>
               ) : (
                 <>
                   <div className="mt-2.5 flex flex-wrap gap-2">
@@ -53,6 +56,6 @@ export function ColoursSection({ vehicles }: { vehicles: VehicleDetail[] }) {
           );
         })}
       </div>
-    </VehicleSection>
+    </CompareSectionCard>
   );
 }

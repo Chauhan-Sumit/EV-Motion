@@ -22,9 +22,12 @@ src/app/                 Routes: /, /cars(+[slug]), /two-wheelers(+[slug]), /com
 src/components/home/     Homepage-only sections
 src/components/vehicle-detail/  VDP-only sections (now category-aware for cars/2-wheelers/commercial)
 src/components/vehicles/ Shared across /cars, /two-wheelers, /commercial, /brands/[oem] (VehicleCard, VehicleListing, FilterBar, VehicleImage)
-src/components/compare/  Compare page — hero/ (CompareHero, VehicleSlotCard, ChangeVehicleModal, WinnerRibbon), sections/ (17 spec sections),
-                          calculators/ (EmiCalculator, ChargingCostCalculator), summary/ (SmartRecommendation, FloatingSummaryPanel),
-                          SpecTable.tsx, CompareStickyNav.tsx, SimilarComparisonsCarousel.tsx — see HANDOFF.md's "Premium Compare Page" section
+src/components/compare/  Compare page — hero/ (CompareHero, VehicleSlotCard, ChangeVehicleModal, WinnerRibbon), sections/ (17 spec sections,
+                          each wrapped in CompareSectionCard not the VDP's VehicleSection), calculators/ (EmiCalculator, ChargingCostCalculator),
+                          summary/ (SmartRecommendation, QuickVerdictCard, CompareSidebar), CompareSectionCard.tsx (Compare-only premium section
+                          shell), SpecTable.tsx + UnavailableRowsToggle.tsx (kept as separate Server/Client components on purpose, see point 16),
+                          UnavailableValue.tsx, ComparisonEndingSection.tsx, CompareStickyNav.tsx, SimilarComparisonsCarousel.tsx — see
+                          HANDOFF.md's "Premium Compare Page" and "Compare Page Premium Polish Pass" sections
 src/components/search/   VehicleSearchBox (category-scoped search, typo tolerance, recent/popular)
 src/components/brands/   BrandLogo
 src/components/common/   AdSlot (promoted from vehicle-detail/, now shared with Compare), PlaceholderImage, LeadCaptureDialog, ResponsivePopover
@@ -33,8 +36,10 @@ src/context/             LocationContext — global selected-city state
 src/hooks/                useCarouselScroll, useMediaQuery
 src/lib/data/            Raw Vehicle/Oem records (cars.ts, two-wheelers.ts, commercial.ts, oems.ts) + categories.ts (category registry) + cities.ts (157 cities) + state-charges.ts (RTO/insurance/subsidy rates by state)
 src/lib/data/ev-motion/  Adapters reshaping raw data into home/VDP view-model shapes — category-parameterized, not hardcoded per category
-src/lib/compare/         slug.ts (buildCompareSlug/parseCompareSlug), winnerEngine.ts (generic scoring), metrics.ts (SPEC_ROWS + WINNER_METRICS registry),
-                          prosAndCons.ts, verdict.ts, ratings.ts, recommendation.ts, faqs.ts, similar.ts
+src/lib/compare/         slug.ts (buildCompareSlug/parseCompareSlug), winnerEngine.ts (generic scoring), metrics.ts (SPEC_ROWS + WINNER_METRICS
+                          registry + NOT_SPECIFIED sentinel + SpecRow.barValue), quickVerdict.ts (Quick Verdict badge engine), recentComparisons.ts
+                          (localStorage history for the ending-section "Recently Compared" rail), prosAndCons.ts, verdict.ts, ratings.ts,
+                          recommendation.ts, faqs.ts, similar.ts
 src/lib/pdf/             pdfKit.ts (plain-data jsPDF primitives), generateComparePdf.ts (report assembly), buildComparePdfInput.ts (live-data glue)
 src/lib/                 search.ts, search-history.ts, listing-params.ts, vehicle-filter-options.ts, vehicle-labels.ts, structured-data.ts, site.ts,
                           pricing.ts (onRoadPriceBreakdown/calculateEmi/estimateMonthlyChargingCost), utils.ts (cn() + formatPriceLakh/formatPriceRangeLakh)
@@ -58,6 +63,7 @@ src/lib/                 search.ts, search-history.ts, listing-params.ts, vehicl
 13. **Background research agents can fail on session usage limits.** This happened in a prior session — all 3 parallel data-research agents failed simultaneously, though 2 had already written usable output before failing. Check for partial output files before assuming nothing was produced.
 14. **This repo's `CommandDialog` (`src/components/ui/command.tsx`) only provides the Dialog shell — it does NOT wrap its children in cmdk's `<Command>` store provider**, unlike the upstream shadcn convention some training data assumes. Putting `CommandInput`/`CommandList`/`CommandItem` directly inside `<CommandDialog>` without an explicit `<Command>` wrapper crashes at runtime with `TypeError: Cannot read properties of undefined (reading 'subscribe')` — a real bug hit and fixed while building `ChangeVehicleModal.tsx` during the Compare page rebuild. Always compose `<CommandDialog><Command><CommandInput/>...</Command></CommandDialog>` explicitly.
 15. **The Compare page's winner engine (`src/lib/compare/winnerEngine.ts`) requires at least 2 known values among the compared vehicles to declare a "winner"** for any metric — a single known value with the rest `null`/unresearched does NOT auto-win (there's nothing real for it to have beaten). Found live: with only 15/122 vehicles carrying real `specs` data, a metric known for exactly one of 3 compared vehicles was originally rendering a false "winner" crown. Don't relax this threshold back to 1 without re-introducing that bug.
+16. **`src/components/compare/SpecTable.tsx` must stay a Server Component — do not add `"use client"` to it.** Every section (`DimensionsSection.tsx`, `SafetySection.tsx`, etc.) is itself a Server Component that imports a `SPEC_ROWS` array from `metrics.ts` and passes it straight into `<SpecTable rows={...}>` — and each `SpecRow` carries `render`/`barValue` **functions**. Next.js's RSC boundary throws `Functions cannot be passed directly to Client Components` the instant a function-bearing prop crosses into a `"use client"` component. This was a real bug hit and fixed during the premium polish pass (SpecTable briefly needed `useState` for the "show unavailable specifications" toggle, got `"use client"` added, and broke every SpecTable-based section at runtime — caught live, not by `tsc`/`eslint`/`build`, none of which type-check RSC serializability). The fix, and the pattern to keep: the toggle's interactive state lives in its own tiny client child, `UnavailableRowsToggle.tsx`, which receives the already-rendered collapsed rows as `children` (a JSX tree, not a function — safe to cross the boundary) rather than receiving `SpecRow[]` itself. Any future interactive addition to SpecTable should follow the same shape: isolate the `"use client"` boundary to a leaf component that takes pre-rendered JSX as children, never one that receives the row/column data objects directly.
 
 ## Known intentional limitations (not bugs)
 

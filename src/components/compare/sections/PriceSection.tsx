@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { MapPin } from "lucide-react";
+import { MapPin, Wallet } from "lucide-react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
-import { VehicleSection } from "@/components/vehicle-detail/VehicleSection";
+import { CompareSectionCard } from "../CompareSectionCard";
 import { LocationSelector } from "@/components/layout/LocationSelector";
 import { useLocation } from "@/context/LocationContext";
 import { chargesForState } from "@/lib/data/state-charges";
@@ -38,10 +38,11 @@ export function PriceSection({ vehicles }: { vehicles: VehicleDetail[] }) {
   ];
 
   return (
-    <VehicleSection
+    <CompareSectionCard
       id="price"
       title="Price Comparison"
       description={`On-road price estimate for ${city.name}, ${city.state}. Change city to see how it affects the breakdown.`}
+      icon={Wallet}
       headingAction={
         <button
           type="button"
@@ -68,8 +69,13 @@ export function PriceSection({ vehicles }: { vehicles: VehicleDetail[] }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
-              <tr key={row.label} className="border-b border-border last:border-b-0">
+            {rows.map((row, rowIndex) => (
+              <tr
+                key={row.label}
+                className={`border-b border-border transition-colors last:border-b-0 hover:bg-primary-tint/15 ${
+                  rowIndex % 2 === 1 ? "bg-surface-secondary/40" : ""
+                }`}
+              >
                 <th scope="row" className="px-3.5 py-3 text-[11.5px] font-semibold text-ink-secondary">
                   {row.label}
                 </th>
@@ -110,6 +116,6 @@ export function PriceSection({ vehicles }: { vehicles: VehicleDetail[] }) {
       </div>
 
       <LocationSelector open={cityPickerOpen} onOpenChange={setCityPickerOpen} />
-    </VehicleSection>
+    </CompareSectionCard>
   );
 }

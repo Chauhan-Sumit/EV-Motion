@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { Container } from "@/components/ui/Container";
 
 export const COMPARE_SECTIONS = [
@@ -23,10 +24,11 @@ export const COMPARE_SECTIONS = [
   { id: "faqs", label: "FAQs" },
 ] as const;
 
-/** Sticky secondary nav below the main Navbar — same scroll-spy pattern as the VDP's StickyTabs, generalized to the Compare page's 17 sections. */
+/** Sticky secondary nav below the main Navbar — scroll-spy pattern generalized from the VDP's StickyTabs, with a spring-animated underline that slides between the active section instead of a hard cut. */
 export function CompareStickyNav() {
   const [active, setActive] = useState<string>(COMPARE_SECTIONS[0].id);
   const observerRef = useRef<IntersectionObserver | null>(null);
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     const elements = COMPARE_SECTIONS.map((s) => document.getElementById(s.id)).filter(
@@ -49,21 +51,31 @@ export function CompareStickyNav() {
   }, []);
 
   return (
-    <div className="sticky top-16 z-40 border-b border-border bg-surface shadow-card">
+    <div className="sticky top-16 z-40 border-b border-border bg-surface/95 shadow-card backdrop-blur supports-[backdrop-filter]:bg-surface/80">
       <Container>
-        <nav aria-label="Comparison sections" className="scroll-row -mx-1 flex gap-1 overflow-x-auto px-1 py-2">
-          {COMPARE_SECTIONS.map((section) => (
-            <a
-              key={section.id}
-              href={`#${section.id}`}
-              aria-current={active === section.id ? "true" : undefined}
-              className={`focus-ring shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 text-[12px] font-semibold transition-colors ${
-                active === section.id ? "bg-primary-tint text-primary" : "text-ink-secondary hover:bg-surface-secondary hover:text-ink"
-              }`}
-            >
-              {section.label}
-            </a>
-          ))}
+        <nav aria-label="Comparison sections" className="scroll-row -mx-1 flex gap-1 overflow-x-auto px-1">
+          {COMPARE_SECTIONS.map((section) => {
+            const isActive = active === section.id;
+            return (
+              <a
+                key={section.id}
+                href={`#${section.id}`}
+                aria-current={isActive ? "true" : undefined}
+                className={`focus-ring relative shrink-0 whitespace-nowrap px-3.5 py-2.5 text-[12px] font-semibold transition-colors ${
+                  isActive ? "text-primary" : "text-ink-secondary hover:text-ink"
+                }`}
+              >
+                {section.label}
+                {isActive ? (
+                  <motion.span
+                    layoutId="compare-nav-underline"
+                    className="absolute inset-x-2.5 -bottom-px h-[2.5px] rounded-full bg-primary"
+                    transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 500, damping: 36 }}
+                  />
+                ) : null}
+              </a>
+            );
+          })}
         </nav>
       </Container>
     </div>

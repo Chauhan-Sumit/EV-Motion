@@ -1,18 +1,24 @@
-import { ThumbsUp, ThumbsDown } from "lucide-react";
+import { Scale, ThumbsUp, ThumbsDown } from "lucide-react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
-import { VehicleSection } from "@/components/vehicle-detail/VehicleSection";
+import { CompareSectionCard } from "../CompareSectionCard";
+import { UnavailableValue } from "../UnavailableValue";
 import { computeProsAndCons } from "@/lib/compare/prosAndCons";
 
 export function ProsConsSection({ vehicles }: { vehicles: VehicleDetail[] }) {
   const results = computeProsAndCons(vehicles);
 
   return (
-    <VehicleSection id="pros-cons" title="Pros & Cons" description="Pros are each model's own highlights; cons are computed, factual losses against the other compared vehicles.">
+    <CompareSectionCard
+      id="pros-cons"
+      title="Pros & Cons"
+      description="Pros are each model's own highlights; cons are computed, factual losses against the other compared vehicles."
+      icon={Scale}
+    >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {vehicles.map((v, i) => {
           const { pros, cons } = results[i];
           return (
-            <div key={v.slug} className="rounded-xl border border-border bg-surface p-3.5">
+            <div key={v.slug} className="rounded-xl border border-border bg-surface-secondary/40 p-3.5">
               <p className="text-[12.5px] font-bold text-ink">{v.name}</p>
 
               <div className="mt-3">
@@ -28,7 +34,9 @@ export function ProsConsSection({ vehicles }: { vehicles: VehicleDetail[] }) {
                     ))}
                   </ul>
                 ) : (
-                  <p className="mt-1.5 text-[11px] text-ink-muted">Not officially specified</p>
+                  <div className="mt-1.5">
+                    <UnavailableValue />
+                  </div>
                 )}
               </div>
 
@@ -52,6 +60,6 @@ export function ProsConsSection({ vehicles }: { vehicles: VehicleDetail[] }) {
           );
         })}
       </div>
-    </VehicleSection>
+    </CompareSectionCard>
   );
 }

@@ -1,16 +1,17 @@
 "use client";
 
+import { HandCoins } from "lucide-react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
-import { VehicleSection } from "@/components/vehicle-detail/VehicleSection";
+import { CompareSectionCard } from "../CompareSectionCard";
+import { UnavailableValue } from "../UnavailableValue";
 import { useLocation } from "@/context/LocationContext";
 import { chargesForState } from "@/lib/data/state-charges";
 import { onRoadPriceBreakdown, estimateMonthlyChargingCost } from "@/lib/pricing";
+import { NOT_SPECIFIED } from "@/lib/compare/metrics";
 
 function formatINR(n: number): string {
   return `₹${Math.round(n).toLocaleString("en-IN")}`;
 }
-
-const NOT_SPECIFIED = "Not officially specified";
 
 /** Ownership cost comparison — every number here is either a real field or a formula-based estimate labeled as such; nothing is invented per-vehicle (maintenance/service/resale genuinely have no source data, so they render honestly rather than guessed). */
 export function OwnershipSection({ vehicles }: { vehicles: VehicleDetail[] }) {
@@ -48,7 +49,12 @@ export function OwnershipSection({ vehicles }: { vehicles: VehicleDetail[] }) {
   ];
 
   return (
-    <VehicleSection id="ownership" title="Ownership Cost" description="Estimated cost of owning each vehicle — some categories (maintenance, resale) have no reliable published data yet and are shown honestly rather than guessed.">
+    <CompareSectionCard
+      id="ownership"
+      title="Ownership Cost"
+      description="Estimated cost of owning each vehicle — some categories (maintenance, resale) have no reliable published data yet and are shown honestly rather than guessed."
+      icon={HandCoins}
+    >
       <div className="overflow-x-auto rounded-xl border border-border">
         <table className="w-full min-w-[480px] border-collapse text-left">
           <thead>
@@ -64,16 +70,24 @@ export function OwnershipSection({ vehicles }: { vehicles: VehicleDetail[] }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
-              <tr key={row.label} className="border-b border-border last:border-b-0">
+            {rows.map((row, rowIndex) => (
+              <tr
+                key={row.label}
+                className={`border-b border-border transition-colors last:border-b-0 hover:bg-primary-tint/15 ${
+                  rowIndex % 2 === 1 ? "bg-surface-secondary/40" : ""
+                }`}
+              >
                 <th scope="row" className="px-3.5 py-3 text-[11.5px] font-semibold text-ink-secondary">
                   {row.label}
                 </th>
-                {vehicles.map((v, i) => (
-                  <td key={v.slug} className="px-3.5 py-3 text-center text-[12px] text-ink">
-                    {row.render(i)}
-                  </td>
-                ))}
+                {vehicles.map((v, i) => {
+                  const value = row.render(i);
+                  return (
+                    <td key={v.slug} className="px-3.5 py-3 text-center text-[12px] text-ink">
+                      {value === NOT_SPECIFIED ? <UnavailableValue /> : value}
+                    </td>
+                  );
+                })}
               </tr>
             ))}
             <tr className="bg-primary-tint/40">
@@ -92,6 +106,6 @@ export function OwnershipSection({ vehicles }: { vehicles: VehicleDetail[] }) {
           </tbody>
         </table>
       </div>
-    </VehicleSection>
+    </CompareSectionCard>
   );
 }
