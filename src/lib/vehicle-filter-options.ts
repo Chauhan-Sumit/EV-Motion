@@ -31,9 +31,9 @@ export interface CategoryFilterConfig {
 
 export const CAR_FILTER_CONFIG: CategoryFilterConfig = {
   category: "car",
-  priceBounds: [0, 130],
-  rangeBounds: [0, 700],
-  batteryBounds: [0, 115],
+  priceBounds: [0, 950],
+  rangeBounds: [0, 900],
+  batteryBounds: [0, 130],
   subTypeLabel: "Body Type",
   subTypeOptions: [
     { value: "all", label: "All Body Types" },

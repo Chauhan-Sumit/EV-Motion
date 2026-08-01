@@ -68,6 +68,96 @@ export const oems: Oem[] = [
     logoUrl: "/images/brands/kia.png",
   },
   {
+    key: "bmw",
+    slug: "bmw",
+    name: "BMW",
+    color: "#0066B1",
+    country: "Germany",
+    categories: ["car"],
+    description:
+      "German performance-luxury EVs spanning the i-badged range, from the compact iX1 to the flagship i7 limousine.",
+  },
+  {
+    key: "mercedes-benz",
+    slug: "mercedes-benz",
+    name: "Mercedes-Benz",
+    color: "#00A19C",
+    country: "Germany",
+    categories: ["car"],
+    description:
+      "Three-pointed-star electric lineup covering the EQ sedans and SUVs plus the fully-electric G-Class and Maybach flagship.",
+  },
+  {
+    key: "audi",
+    slug: "audi",
+    name: "Audi",
+    color: "#BB0A30",
+    country: "Germany",
+    categories: ["car"],
+    description:
+      "Four-rings electric range built around the e-tron sub-brand, from the Q8 e-tron SUV to the GT performance sedan.",
+  },
+  {
+    key: "volvo",
+    slug: "volvo",
+    name: "Volvo",
+    color: "#003057",
+    country: "Sweden",
+    categories: ["car"],
+    description:
+      "Scandinavian safety-first EVs across the EX and EC ranges, positioned as approachable everyday luxury electric cars.",
+  },
+  {
+    key: "mini",
+    slug: "mini",
+    name: "MINI",
+    color: "#0E5C2F",
+    country: "UK / Germany",
+    categories: ["car"],
+    description:
+      "Go-kart handling and retro-modern styling carried into MINI's electric era, from the compact Cooper SE to the Countryman Electric.",
+  },
+  {
+    key: "porsche",
+    slug: "porsche",
+    name: "Porsche",
+    color: "#111111",
+    country: "Germany",
+    categories: ["car"],
+    description:
+      "Sports-car engineering applied to electric power via the Taycan and Macan Electric, both built on 800V architecture.",
+  },
+  {
+    key: "lotus",
+    slug: "lotus",
+    name: "Lotus",
+    color: "#046A38",
+    country: "UK / China",
+    categories: ["car"],
+    description:
+      "British sports-car marque's electric hyper-GT era, headlined by the Eletre SUV and Emeya four-door.",
+  },
+  {
+    key: "rolls-royce",
+    slug: "rolls-royce",
+    name: "Rolls-Royce",
+    color: "#0D1B2A",
+    country: "UK",
+    categories: ["car"],
+    description:
+      "The ultra-luxury marque's first fully-electric model, the Spectre, aimed at self-driving younger high-net-worth buyers.",
+  },
+  {
+    key: "vinfast",
+    slug: "vinfast",
+    name: "VinFast",
+    color: "#E30613",
+    country: "Vietnam",
+    categories: ["car"],
+    description:
+      "Vietnamese newcomer's India entry, offering value-positioned electric SUVs backed by a battery-subscription option.",
+  },
+  {
     key: "ola-electric",
     slug: "ola-electric",
     name: "Ola Electric",
