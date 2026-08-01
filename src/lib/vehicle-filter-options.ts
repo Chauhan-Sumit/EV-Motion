@@ -46,9 +46,9 @@ export const CAR_FILTER_CONFIG: CategoryFilterConfig = {
 
 export const TWO_WHEELER_FILTER_CONFIG: CategoryFilterConfig = {
   category: "2-wheeler",
-  priceBounds: [0, 2],
-  rangeBounds: [0, 200],
-  batteryBounds: [0, 5],
+  priceBounds: [0, 2.5],
+  rangeBounds: [0, 400],
+  batteryBounds: [0, 7],
   subTypeLabel: "Type",
   subTypeOptions: [
     { value: "all", label: "All Types" },

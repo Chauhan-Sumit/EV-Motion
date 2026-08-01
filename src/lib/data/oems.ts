@@ -222,6 +222,176 @@ export const oems: Oem[] = [
     description:
       "Greaves Electric Mobility's value-focused electric scooter brand, popular for affordable daily commuting.",
   },
+  {
+    key: "okinawa",
+    slug: "okinawa",
+    name: "Okinawa Autotech",
+    color: "#0D9488",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Faridabad-based electric scooter maker with one of India's widest dealer networks, spanning entry-level commuters to longer-range models.",
+  },
+  {
+    key: "kinetic-green",
+    slug: "kinetic-green",
+    name: "Kinetic Green",
+    color: "#65A30D",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Revival of the storied Kinetic two-wheeler name, focused on lightweight, low-cost electric scooters and mopeds for short city trips.",
+  },
+  {
+    key: "river-mobility",
+    slug: "river-mobility",
+    name: "River Mobility",
+    color: "#475569",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Bengaluru startup building a single do-it-all scooter engineered around real-world carrying capacity rather than outright performance.",
+  },
+  {
+    key: "bgauss",
+    slug: "bgauss",
+    name: "BGauss",
+    color: "#0369A1",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Manufacturing-first electric scooter brand building its own batteries and motors in-house at its Pune-area facility.",
+  },
+  {
+    key: "pure-ev",
+    slug: "pure-ev",
+    name: "PURE EV",
+    color: "#059669",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "IIT Hyderabad-incubated electric two-wheeler brand focused on affordable, lightweight scooters aimed at first-time EV buyers.",
+  },
+  {
+    key: "bounce-infinity",
+    slug: "bounce-infinity",
+    name: "Bounce Infinity",
+    color: "#CA8A04",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Scooter-rental-turned-manufacturer offering a removable-battery electric scooter designed to keep upfront ownership cost low.",
+  },
+  {
+    key: "simple-energy",
+    slug: "simple-energy",
+    name: "Simple Energy",
+    color: "#DB2777",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Bengaluru EV maker chasing segment-leading claimed range, topped by its second-generation Ultra scooter rated at 400 km IDC range.",
+  },
+  {
+    key: "quantum-energy",
+    slug: "quantum-energy",
+    name: "Quantum Energy",
+    color: "#7C2D12",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Value-focused electric scooter brand offering a wide spread of battery sizes across a single core commuter platform.",
+  },
+  {
+    key: "okaya",
+    slug: "okaya",
+    name: "Okaya",
+    color: "#1D4ED8",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Battery-manufacturing conglomerate's electric scooter arm, leaning on in-house cell production for its Faast and Freedum ranges.",
+  },
+  {
+    key: "odysse",
+    slug: "odysse",
+    name: "Odysse Electric",
+    color: "#7C3AED",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Rajkot-founded electric two-wheeler maker with one of the broadest model counts in the budget-to-mid segment.",
+  },
+  {
+    key: "zelio",
+    slug: "zelio",
+    name: "Zelio E-Mobility",
+    color: "#EA580C",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "High-volume, low-speed electric scooter brand built around licence-free commuting and a wide dealer network in smaller cities.",
+  },
+  {
+    key: "lectrix",
+    slug: "lectrix",
+    name: "Lectrix EV",
+    color: "#4338CA",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Hero Cycles-backed electric scooter brand spanning budget commuters to the higher-spec NDuro range.",
+  },
+  {
+    key: "joy-e-bike",
+    slug: "joy-e-bike",
+    name: "Joy e-bike",
+    color: "#0F766E",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Wardhman Group's electric two-wheeler brand, best known for its licence-free, low-speed Wolf scooter range.",
+  },
+  {
+    key: "komaki",
+    slug: "komaki",
+    name: "Komaki",
+    color: "#B91C1C",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Wide-lineup electric two-wheeler brand spanning budget commuter scooters through to its cruiser-styled Ranger motorcycle.",
+  },
+  {
+    key: "eeve",
+    slug: "eeve",
+    name: "EeVe India",
+    color: "#0891B2",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Budget-focused electric scooter brand aimed at first-time buyers upgrading from a petrol two-wheeler.",
+  },
+  {
+    key: "tunwal",
+    slug: "tunwal",
+    name: "Tunwal E-Motors",
+    color: "#15803D",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "High-volume budget electric scooter maker with one of the largest model counts in the entry-level segment.",
+  },
+  {
+    key: "hop-electric",
+    slug: "hop-electric",
+    name: "Hop Electric",
+    color: "#DB2777",
+    country: "India",
+    categories: ["2-wheeler"],
+    description:
+      "Gujarat-based electric scooter brand offering both licence-free low-speed and higher-speed variants of the same models.",
+  },
 ];
 
 export function getOemBySlug(slug: string): Oem | undefined {
