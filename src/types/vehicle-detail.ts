@@ -90,9 +90,10 @@ export interface VehicleDetail {
   /** The underlying catalog record — used to render photos via VehicleImage. */
   sourceVehicle: Vehicle;
   oemColor: string;
-  priceLabel: string;
+  /** Base (nationwide catalog) ex-showroom price low end — city-agnostic; live/current pricing always goes through `useVehiclePricing`, never this field directly. */
   startingPrice: number;
-  emiLabel: string;
+  /** Ex-showroom price range in lakh, [low, high] across variants — feeds the site-wide centralized pricing system (`src/lib/vehicle-pricing/`). */
+  priceRangeLakh: [number, number];
   overview: string;
   quickSpecs: VdpQuickSpecs;
   variants: VdpVariant[];

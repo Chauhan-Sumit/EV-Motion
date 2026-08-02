@@ -7,9 +7,7 @@ import { VehicleImage } from "@/components/vehicles/VehicleImage";
 import { getOemBySlug } from "@/lib/data";
 import { routeSegmentFor } from "@/lib/data/categories";
 import { formatPriceLakh, formatPriceRangeLakh } from "@/lib/utils";
-import { useLocation } from "@/context/LocationContext";
-import { chargesForState } from "@/lib/data/state-charges";
-import { onRoadPriceBreakdown } from "@/lib/pricing";
+import { useVehiclePricing } from "@/hooks/useVehiclePricing";
 import type { Vehicle } from "@/types/vehicle";
 
 interface VehicleSlotCardProps {
@@ -22,7 +20,14 @@ interface VehicleSlotCardProps {
 
 export function VehicleSlotCard({ vehicle, onChange, onRemove, compareScore }: VehicleSlotCardProps) {
   const reduceMotion = useReducedMotion();
-  const { city } = useLocation();
+  // Hooks must run unconditionally, and `vehicle` can be null (empty slot) —
+  // fall back to a harmless zero-price subject; its output is simply unused
+  // in the empty-slot branch below.
+  const pricing = useVehiclePricing(
+    vehicle
+      ? { id: vehicle.id, name: vehicle.modelName, priceRangeLakh: vehicle.priceRangeLakh }
+      : { id: "", name: "", priceRangeLakh: [0, 0] },
+  );
 
   if (!vehicle) {
     return (
@@ -40,8 +45,7 @@ export function VehicleSlotCard({ vehicle, onChange, onRemove, compareScore }: V
   }
 
   const oem = getOemBySlug(vehicle.oem);
-  const charges = chargesForState(city.state);
-  const onRoad = onRoadPriceBreakdown(vehicle.priceRangeLakh[0] * 100000, charges).onRoad;
+  const onRoad = pricing.breakdown.low.onRoad;
 
   return (
     <motion.div
@@ -93,9 +97,9 @@ export function VehicleSlotCard({ vehicle, onChange, onRemove, compareScore }: V
         </div>
 
         <p className="mt-1.5 text-[19px] font-extrabold text-primary sm:text-[21px]">
-          {formatPriceRangeLakh(vehicle.priceRangeLakh[0], vehicle.priceRangeLakh[1])}
+          {formatPriceRangeLakh(pricing.exShowroomRangeLakh[0], pricing.exShowroomRangeLakh[1])}
         </p>
-        <p className="text-[10.5px] text-ink-muted">Ex-showroom &middot; {city.name}</p>
+        <p className="text-[10.5px] text-ink-muted">Ex-showroom &middot; {pricing.cityName}</p>
         <p className="text-[11.5px] font-semibold text-ink-secondary">Est. on-road: {formatPriceLakh(onRoad / 100000)}</p>
 
         <dl className="mt-2.5 grid grid-cols-3 gap-1.5 border-t border-border pt-3 text-center">

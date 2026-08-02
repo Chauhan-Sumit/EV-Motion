@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Download, Printer, RefreshCw, Share2 } from "lucide-react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
 import { useLocation } from "@/context/LocationContext";
-import { chargesForState } from "@/lib/data/state-charges";
 import { AdSlot } from "@/components/common/AdSlot";
 import { buildComparePdfInput } from "@/lib/pdf/buildComparePdfInput";
 import { generateComparePdf } from "@/lib/pdf/generateComparePdf";
@@ -25,8 +24,7 @@ export function CompareSidebar({ vehicles, sticky = false }: { vehicles: Vehicle
   const [shareStatus, setShareStatus] = useState<"idle" | "copied">("idle");
 
   function handleDownloadPdf() {
-    const charges = chargesForState(city.state);
-    const input = buildComparePdfInput(vehicles, charges, `${city.name}, ${city.state}`);
+    const input = buildComparePdfInput(vehicles, city, `${city.name}, ${city.state}`);
     generateComparePdf(input);
   }
 

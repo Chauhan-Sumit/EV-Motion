@@ -1,24 +1,29 @@
 "use client";
 
 import type { VehicleDetail } from "@/types/vehicle-detail";
-import { useLocation } from "@/context/LocationContext";
-import { chargesForState } from "@/lib/data/state-charges";
-import { onRoadPriceBreakdown } from "@/lib/pricing";
+import { useVehiclePricing } from "@/hooks/useVehiclePricing";
 
 function formatINR(value: number): string {
   return `₹${value.toLocaleString("en-IN")}`;
 }
 
+/**
+ * Every row here comes from the centralized `useVehiclePricing` snapshot —
+ * the same one `VehiclePriceCard`, `SidebarEmiCalculator`, and
+ * `SectionCompareSimilar` read — so this card can never drift from the rest
+ * of the page's pricing. Uses the low end of the vehicle's price range,
+ * matching `startingPrice`'s existing "from" framing elsewhere on the VDP.
+ */
 export function SidebarPriceSummary({ vehicle }: { vehicle: VehicleDetail }) {
-  const { city } = useLocation();
-  const charges = chargesForState(city.state);
-  const breakdown = onRoadPriceBreakdown(vehicle.startingPrice, charges);
-  const { exShowroom, registration, registrationLabel, insurance, onRoad } = breakdown;
+  const pricing = useVehiclePricing(vehicle);
+  const { exShowroom, registration, roadTax, insurance, otherCharges, onRoad } = pricing.breakdown.low;
 
   const rows = [
     { label: "Ex-showroom price", value: exShowroom },
-    { label: registrationLabel, value: registration },
+    { label: "Registration / RTO", value: registration },
+    { label: "Road Tax", value: roadTax },
     { label: "Insurance (est.)", value: insurance },
+    { label: "Other Charges (est.)", value: otherCharges },
   ];
 
   return (
@@ -36,10 +41,12 @@ export function SidebarPriceSummary({ vehicle }: { vehicle: VehicleDetail }) {
           ))}
         </dl>
         <div className="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3">
-          <span className="text-[12px] font-bold text-ink">On-road price</span>
+          <span className="text-[12px] font-bold text-ink">Estimated On-road price</span>
           <span className="text-sm font-extrabold text-primary">{formatINR(onRoad)}</span>
         </div>
-        <p className="mt-2 text-[10px] text-ink-muted">Estimated for {city.name}, {city.state} — confirm with your dealer.</p>
+        <p className="mt-2 text-[10px] text-ink-muted">
+          Estimated for {pricing.cityName}, {pricing.stateName} — confirm with your dealer.
+        </p>
       </div>
     </div>
   );

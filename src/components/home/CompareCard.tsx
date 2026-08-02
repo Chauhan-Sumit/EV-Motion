@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Scale } from "lucide-react";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
 import { buildCompareSlug } from "@/lib/compare/slug";
+import { VehiclePriceText } from "@/components/pricing/VehiclePriceText";
+import { vehiclePricingSubject } from "@/lib/vehicle-pricing";
 import type { CompareCardPairData } from "@/types/ev-motion";
 
 export function CompareCard({ pair }: { pair: CompareCardPairData }) {
@@ -15,7 +17,9 @@ export function CompareCard({ pair }: { pair: CompareCardPairData }) {
             <VehicleImage vehicle={pair.vehicleA.vehicle} color={pair.vehicleA.oemColor} sizes="140px" className="h-full w-full" />
           </div>
           <p className="line-clamp-2 text-[11px] font-semibold text-ink">{pair.vehicleA.name}</p>
-          <p className="text-[10px] font-bold text-ink-secondary">{pair.vehicleA.priceLabel}</p>
+          <p className="text-[10px] font-bold text-ink-secondary">
+            <VehiclePriceText vehicle={vehiclePricingSubject(pair.vehicleA.vehicle)} variant="from" />
+          </p>
         </div>
 
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-tint text-[10px] font-extrabold text-primary">
@@ -27,7 +31,9 @@ export function CompareCard({ pair }: { pair: CompareCardPairData }) {
             <VehicleImage vehicle={pair.vehicleB.vehicle} color={pair.vehicleB.oemColor} sizes="140px" className="h-full w-full" />
           </div>
           <p className="line-clamp-2 text-[11px] font-semibold text-ink">{pair.vehicleB.name}</p>
-          <p className="text-[10px] font-bold text-ink-secondary">{pair.vehicleB.priceLabel}</p>
+          <p className="text-[10px] font-bold text-ink-secondary">
+            <VehiclePriceText vehicle={vehiclePricingSubject(pair.vehicleB.vehicle)} variant="from" />
+          </p>
         </div>
       </div>
 

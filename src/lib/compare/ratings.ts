@@ -1,5 +1,5 @@
 import type { VehicleDetail } from "@/types/vehicle-detail";
-import { onRoadPriceBreakdown, estimateMonthlyChargingCost } from "@/lib/pricing";
+import { calculatePriceBreakdown, estimateMonthlyChargingCost } from "@/lib/vehicle-pricing";
 import { chargesForState } from "@/lib/data/state-charges";
 import { DEFAULT_CITY } from "@/lib/data/cities";
 
@@ -57,7 +57,7 @@ export function computeRatings(vehicles: VehicleDetail[]): VehicleRatings[] {
 
   const charges = chargesForState(DEFAULT_CITY.state);
   const fiveYearCost = vehicles.map((v) => {
-    const onRoad = onRoadPriceBreakdown(v.startingPrice, charges).onRoad;
+    const onRoad = calculatePriceBreakdown(v.startingPrice, charges).onRoad;
     const annualCharging = estimateMonthlyChargingCost(v.sourceVehicle) * 12;
     return onRoad + annualCharging * 5;
   });

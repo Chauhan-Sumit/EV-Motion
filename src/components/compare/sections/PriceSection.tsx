@@ -6,35 +6,39 @@ import type { VehicleDetail } from "@/types/vehicle-detail";
 import { CompareSectionCard } from "../CompareSectionCard";
 import { LocationSelector } from "@/components/layout/LocationSelector";
 import { useLocation } from "@/context/LocationContext";
-import { chargesForState } from "@/lib/data/state-charges";
-import { onRoadPriceBreakdown } from "@/lib/pricing";
+import { getVehiclePricingSnapshot } from "@/lib/vehicle-pricing";
 import { computeWinners } from "@/lib/compare/winnerEngine";
 import { WINNER_METRICS } from "@/lib/compare/metrics";
 import { EmiCalculator } from "../calculators/EmiCalculator";
-
-const FASTAG_FEE = 600;
-const OTHER_CHARGES = 1500;
 
 function formatINR(value: number): string {
   return `₹${Math.round(value).toLocaleString("en-IN")}`;
 }
 
-/** Price comparison — the page's flagship section: city-aware on-road breakdown per vehicle, plus a working EMI calculator. */
+/**
+ * Price comparison — the page's flagship section. Every figure comes from
+ * `getVehiclePricingSnapshot`, the same centralized function the VDP and
+ * every other pricing widget site-wide uses — so the ex-showroom price
+ * itself (not just the on-road extras) is city-adjusted, and there's no
+ * separate FASTag/logistics constant duplicated here.
+ */
 export function PriceSection({ vehicles }: { vehicles: VehicleDetail[] }) {
   const { city } = useLocation();
   const [cityPickerOpen, setCityPickerOpen] = useState(false);
-  const charges = chargesForState(city.state);
-  const breakdowns = vehicles.map((v) => onRoadPriceBreakdown(v.startingPrice, charges));
-  const totals = breakdowns.map((b) => b.onRoad + FASTAG_FEE + OTHER_CHARGES);
+  const snapshots = vehicles.map((v) =>
+    getVehiclePricingSnapshot({ vehicleId: v.id, vehicleName: v.name, exShowroomRangeLakh: v.priceRangeLakh, city }),
+  );
+  const breakdowns = snapshots.map((s) => s.breakdown.low);
+  const totals = breakdowns.map((b) => b.onRoad);
 
   const priceWinner = computeWinners(vehicles, WINNER_METRICS.filter((m) => m.key === "price")).metricResults[0];
 
   const rows: { label: string; values: number[] }[] = [
     { label: "Ex-showroom Price", values: breakdowns.map((b) => b.exShowroom) },
-    { label: breakdowns[0]?.registrationLabel ?? "RTO & Registration", values: breakdowns.map((b) => b.registration) },
+    { label: "Registration / RTO", values: breakdowns.map((b) => b.registration) },
+    { label: "Road Tax", values: breakdowns.map((b) => b.roadTax) },
     { label: "Insurance (est.)", values: breakdowns.map((b) => b.insurance) },
-    { label: "FASTag (est.)", values: vehicles.map(() => FASTAG_FEE) },
-    { label: "Logistics & Handling (est.)", values: vehicles.map(() => OTHER_CHARGES) },
+    { label: "Other Charges (est.)", values: breakdowns.map((b) => b.otherCharges) },
   ];
 
   return (
@@ -107,8 +111,8 @@ export function PriceSection({ vehicles }: { vehicles: VehicleDetail[] }) {
       </div>
 
       <p className="mt-2 text-[10.5px] text-ink-muted">
-        Estimated for {city.name}, {city.state} — confirm with your dealer. Ex-showroom price is the same nationwide;
-        RTO/registration and insurance vary by state.
+        Estimated for {city.name}, {city.state} — confirm with your dealer. Ex-showroom price, registration, road tax,
+        and insurance all vary by city.
       </p>
 
       <div className="mt-5">

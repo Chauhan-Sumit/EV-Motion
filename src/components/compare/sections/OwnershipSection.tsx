@@ -5,8 +5,7 @@ import type { VehicleDetail } from "@/types/vehicle-detail";
 import { CompareSectionCard } from "../CompareSectionCard";
 import { UnavailableValue } from "../UnavailableValue";
 import { useLocation } from "@/context/LocationContext";
-import { chargesForState } from "@/lib/data/state-charges";
-import { onRoadPriceBreakdown, estimateMonthlyChargingCost } from "@/lib/pricing";
+import { getVehiclePricingSnapshot, estimateMonthlyChargingCost } from "@/lib/vehicle-pricing";
 import { NOT_SPECIFIED } from "@/lib/compare/metrics";
 
 function formatINR(n: number): string {
@@ -16,13 +15,15 @@ function formatINR(n: number): string {
 /** Ownership cost comparison — every number here is either a real field or a formula-based estimate labeled as such; nothing is invented per-vehicle (maintenance/service/resale genuinely have no source data, so they render honestly rather than guessed). */
 export function OwnershipSection({ vehicles }: { vehicles: VehicleDetail[] }) {
   const { city } = useLocation();
-  const charges = chargesForState(city.state);
+  const snapshots = vehicles.map((v) =>
+    getVehiclePricingSnapshot({ vehicleId: v.id, vehicleName: v.name, exShowroomRangeLakh: v.priceRangeLakh, city }),
+  );
 
   const annualCharging = vehicles.map((v) => estimateMonthlyChargingCost(v.sourceVehicle, 8) * 12);
-  const annualInsurance = vehicles.map((v) => onRoadPriceBreakdown(v.startingPrice, charges).insurance);
-  const roadTax = vehicles.map((v) => onRoadPriceBreakdown(v.startingPrice, charges).registration);
-  const fiveYearCost = vehicles.map(
-    (v, i) => onRoadPriceBreakdown(v.startingPrice, charges).onRoad + annualCharging[i] * 5 + annualInsurance[i] * 4,
+  const annualInsurance = snapshots.map((s) => s.breakdown.low.insurance);
+  const roadTax = snapshots.map((s) => s.breakdown.low.registration + s.breakdown.low.roadTax);
+  const fiveYearCost = snapshots.map(
+    (s, i) => s.breakdown.low.onRoad + annualCharging[i] * 5 + annualInsurance[i] * 4,
   );
 
   const fiveYearWinnerIndex = (() => {

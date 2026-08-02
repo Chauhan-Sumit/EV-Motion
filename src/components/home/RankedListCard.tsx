@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { VehiclePriceText } from "@/components/pricing/VehiclePriceText";
+import { vehiclePricingSubject } from "@/lib/vehicle-pricing";
 import type { RankedVehicleData } from "@/types/ev-motion";
 
 export function RankedListCard({
@@ -29,7 +31,9 @@ export function RankedListCard({
             <p className="truncate text-[11px] font-semibold text-ink">{item.name}</p>
             <p className="mt-px text-[9px] text-ink-muted">{item.metaLabel}</p>
           </div>
-          <p className="shrink-0 text-[11px] font-bold text-primary">{item.priceLabel}</p>
+          <p className="shrink-0 text-[11px] font-bold text-primary">
+            <VehiclePriceText vehicle={vehiclePricingSubject(item.vehicle)} variant="from" />
+          </p>
         </Link>
       ))}
     </div>

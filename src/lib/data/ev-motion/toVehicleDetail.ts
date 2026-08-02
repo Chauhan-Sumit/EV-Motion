@@ -9,7 +9,6 @@ import type {
 } from "@/types/vehicle-detail";
 import { getOemBySlug, getRelatedVehicles, getVehicleBySlug } from "@/lib/data";
 import { routeSegmentFor } from "@/lib/data/categories";
-import { estimateEmi, priceLabel } from "./derive";
 
 /**
  * Fields our Vehicle data doesn't model (power/torque, colour hex, warranty,
@@ -263,9 +262,8 @@ export function toVehicleDetail(vehicle: Vehicle): VehicleDetail {
     slug: vehicle.slug,
     sourceVehicle: vehicle,
     oemColor: getOemBySlug(vehicle.oem)?.color ?? "#1FA83C",
-    priceLabel: priceLabel(vehicle),
     startingPrice: Math.round(vehicle.priceRangeLakh[0] * 100000),
-    emiLabel: `EMI ₹${Math.round(estimateEmi(vehicle)).toLocaleString("en-IN")}/mo`,
+    priceRangeLakh: vehicle.priceRangeLakh,
     overview: vehicle.description,
     quickSpecs: {
       rangeKm: vehicle.rangeKm,

@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
+import { useVehiclePricing } from "@/hooks/useVehiclePricing";
+import { calculateEmi } from "@/lib/vehicle-pricing";
 
 function formatINR(value: number): string {
   return `₹${value.toLocaleString("en-IN")}`;
@@ -10,20 +12,26 @@ function formatINR(value: number): string {
 const TENURES = [12, 24, 36, 48, 60] as const;
 const INTEREST_RATE = 9.5;
 
-function calcEmi(principal: number, annualRate: number, months: number): number {
-  const r = annualRate / 12 / 100;
-  if (r === 0) return principal / months;
-  return (principal * r * Math.pow(1 + r, months)) / (Math.pow(1 + r, months) - 1);
-}
-
+/**
+ * Principal is based on the centralized on-road price (low end) from
+ * `useVehiclePricing` — the same snapshot `VehiclePriceCard`/`SidebarPriceSummary`
+ * use — so changing the selected city recomputes the EMI too, not just the
+ * price display above it. Previously this calculator was based on a flat
+ * `vehicle.startingPrice` that never varied by city, which was a real gap
+ * against "every pricing widget updates when the city changes."
+ */
 export function SidebarEmiCalculator({ vehicle }: { vehicle: VehicleDetail }) {
-  const price = vehicle.startingPrice;
+  const pricing = useVehiclePricing(vehicle);
+  const price = pricing.breakdown.low.onRoad;
   const [downPct, setDownPct] = useState(20);
   const [tenure, setTenure] = useState<(typeof TENURES)[number]>(36);
 
   const downPayment = Math.round((price * downPct) / 100);
   const principal = price - downPayment;
-  const emi = useMemo(() => Math.round(calcEmi(principal, INTEREST_RATE, tenure)), [principal, tenure]);
+  const { emi } = useMemo(
+    () => calculateEmi({ principal, annualRatePct: INTEREST_RATE, tenureMonths: tenure }),
+    [principal, tenure],
+  );
 
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-surface">
@@ -64,9 +72,11 @@ export function SidebarEmiCalculator({ vehicle }: { vehicle: VehicleDetail }) {
 
         <div className="mt-3 rounded-lg bg-primary-tint p-3">
           <p className="text-[10px] text-ink-secondary">Estimated monthly EMI</p>
-          <p className="text-lg font-extrabold text-primary">{formatINR(emi)}</p>
+          <p className="text-lg font-extrabold text-primary">{formatINR(Math.round(emi))}</p>
         </div>
-        <p className="mt-2 text-[10px] text-ink-muted">Indicative at {INTEREST_RATE}% p.a. Actual rate depends on your lender.</p>
+        <p className="mt-2 text-[10px] text-ink-muted">
+          Based on the estimated on-road price for {pricing.cityName}, at {INTEREST_RATE}% p.a. Actual rate depends on your lender.
+        </p>
       </div>
     </div>
   );

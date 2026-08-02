@@ -16,8 +16,6 @@ export interface ListingCardData {
   vehicle: Vehicle;
   oemColor: string;
   specs: string[];
-  priceLabel: string;
-  emiLabel: string;
   locationLabel: string;
   ctaLabel: string;
   badge?: CardBadge;
@@ -27,8 +25,8 @@ export interface ListingCardData {
 export interface RankedVehicleData {
   rank: number;
   name: string;
+  vehicle: Vehicle;
   metaLabel: string;
-  priceLabel: string;
   href: string;
 }
 
@@ -63,7 +61,6 @@ export interface CompareCardSide {
   name: string;
   vehicle: Vehicle;
   oemColor: string;
-  priceLabel: string;
 }
 
 export interface CompareCardPairData {

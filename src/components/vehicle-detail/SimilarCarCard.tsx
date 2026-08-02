@@ -5,6 +5,8 @@ import Link from "next/link";
 import type { VehicleDetail } from "@/types/vehicle-detail";
 import { vehicleDetailHref } from "@/lib/data/ev-motion/toVehicleDetail";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
+import { VehiclePriceText } from "@/components/pricing/VehiclePriceText";
+import { VehicleEmiText } from "@/components/pricing/VehicleEmiText";
 
 export function SimilarCarCard({ vehicle }: { vehicle: VehicleDetail }) {
   const [compareChecked, setCompareChecked] = useState(false);
@@ -21,8 +23,12 @@ export function SimilarCarCard({ vehicle }: { vehicle: VehicleDetail }) {
         <Link href={href} className="focus-ring text-[13px] font-bold text-ink hover:text-primary">
           {vehicle.name}
         </Link>
-        <p className="text-sm font-extrabold text-primary">{vehicle.priceLabel}</p>
-        <p className="text-[10px] text-ink-muted">{vehicle.emiLabel}</p>
+        <p className="text-sm font-extrabold text-primary">
+          <VehiclePriceText vehicle={vehicle} variant="from" />
+        </p>
+        <p className="text-[10px] text-ink-muted">
+          <VehicleEmiText vehicle={vehicle} />
+        </p>
 
         <label htmlFor={checkboxId} className="mt-auto flex items-center gap-1.5 pt-2 text-[11px] text-ink-secondary">
           <input

@@ -4,10 +4,10 @@ import Link from "next/link";
 import { Zap } from "lucide-react";
 import { cars } from "@/lib/data/cars";
 import { getOemBySlug } from "@/lib/data";
-import { estimateEmi } from "@/lib/data/ev-motion/derive";
 import { vehicleHref } from "@/lib/search";
 import { LeadCaptureDialog } from "@/components/common/LeadCaptureDialog";
-import { useLocation } from "@/context/LocationContext";
+import { useVehiclePricing } from "@/hooks/useVehiclePricing";
+import { vehiclePricingSubject } from "@/lib/vehicle-pricing";
 import { formatPriceLakh } from "@/lib/utils";
 
 const featured = cars.find((v) => v.slug === "tata-nexon-ev") ?? cars[0];
@@ -15,7 +15,7 @@ const oem = getOemBySlug(featured.oem);
 const featuredName = `${oem?.name ?? ""} ${featured.modelName}`.trim();
 
 export function SponsoredBanner() {
-  const { city } = useLocation();
+  const pricing = useVehiclePricing(vehiclePricingSubject(featured));
   return (
     <div className="overflow-hidden rounded-xl border border-primary/20 bg-primary-tint">
       <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between">
@@ -60,8 +60,8 @@ export function SponsoredBanner() {
 
         <div className="shrink-0 rounded-lg border border-border bg-surface p-3.5 text-center sm:w-56">
           <p className="text-[11px] text-ink-muted">Starting from</p>
-          <p className="text-2xl font-extrabold text-primary">{formatPriceLakh(featured.priceRangeLakh[0])}</p>
-          <p className="mb-2.5 text-[11px] text-ink-muted">*ex-showroom {city.name}</p>
+          <p className="text-2xl font-extrabold text-primary">{formatPriceLakh(pricing.exShowroomRangeLakh[0])}</p>
+          <p className="mb-2.5 text-[11px] text-ink-muted">*ex-showroom {pricing.cityName}</p>
           <div className="flex flex-col gap-1.5">
             <LeadCaptureDialog
               triggerLabel="Get Best Quote"
@@ -95,7 +95,7 @@ export function SponsoredBanner() {
 
       <div className="flex items-center justify-between border-t border-primary/20 px-5 py-2 text-[11px] text-ink-secondary">
         <span>Pan India delivery</span>
-        <strong className="text-primary">EMI from ₹{Math.round(estimateEmi(featured)).toLocaleString("en-IN")}/mo</strong>
+        <strong className="text-primary">EMI from ₹{Math.round(pricing.emiFromPerMonth).toLocaleString("en-IN")}/mo</strong>
       </div>
     </div>
   );

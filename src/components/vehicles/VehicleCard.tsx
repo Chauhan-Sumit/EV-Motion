@@ -7,7 +7,8 @@ import { VehicleImage } from "@/components/vehicles/VehicleImage";
 import { getOemBySlug } from "@/lib/data";
 import { routeSegmentFor } from "@/lib/data/categories";
 import { LAUNCH_STATUS_LABEL } from "@/lib/vehicle-labels";
-import { formatPriceRangeLakh } from "@/lib/utils";
+import { VehiclePriceText } from "@/components/pricing/VehiclePriceText";
+import { vehiclePricingSubject } from "@/lib/vehicle-pricing";
 import { Vehicle } from "@/types/vehicle";
 
 const BADGE_CLASSES: Record<Vehicle["launchStatus"], string> = {
@@ -48,7 +49,7 @@ export function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
 
             <div className="mt-1 flex items-center justify-between text-[12px]">
               <span className="text-sm font-extrabold text-primary">
-                {formatPriceRangeLakh(vehicle.priceRangeLakh[0], vehicle.priceRangeLakh[1])}
+                <VehiclePriceText vehicle={vehiclePricingSubject(vehicle)} />
               </span>
               <span className="flex items-center gap-1 text-[10px] text-ink-muted">
                 <Zap size={12} className="text-primary" />

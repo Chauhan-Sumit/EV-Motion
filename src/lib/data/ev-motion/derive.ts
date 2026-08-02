@@ -1,6 +1,6 @@
 import { getVehiclesByCategory, oems, getOemBySlug } from "@/lib/data";
 import { vehicleHref } from "@/lib/search";
-import { formatPriceLakh, formatPriceRangeLakh } from "@/lib/utils";
+import { formatPriceRangeLakh } from "@/lib/utils";
 import type { Vehicle, VehicleCategory } from "@/types/vehicle";
 import type {
   BrandCardData,
@@ -13,22 +13,6 @@ import type {
 
 export function oemColorOf(vehicle: Vehicle): string {
   return getOemBySlug(vehicle.oem)?.color ?? "#1FA83C";
-}
-
-export function priceLabel(vehicle: Vehicle): string {
-  return formatPriceLakh(vehicle.priceRangeLakh[0]);
-}
-
-/** Same EMI formula as the ported VehicleHero — 80% financed, 9.5% p.a., 60 months. */
-export function estimateEmi(vehicle: Vehicle): number {
-  const principal = vehicle.priceRangeLakh[0] * 100000 * 0.8;
-  const monthlyRate = 0.095 / 12;
-  const months = 60;
-  return (principal * monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
-}
-
-function emiLabel(vehicle: Vehicle): string {
-  return `EMI ₹${Math.round(estimateEmi(vehicle)).toLocaleString("en-IN")}/mo`;
 }
 
 function bodyOrTypeLabel(vehicle: Vehicle): string {
@@ -57,8 +41,6 @@ export function toListingCard(vehicle: Vehicle, sponsored = false): ListingCardD
       `${vehicle.batteryCapacityKwh}kWh`,
       bodyOrTypeLabel(vehicle),
     ].filter(Boolean),
-    priceLabel: priceLabel(vehicle),
-    emiLabel: emiLabel(vehicle),
     locationLabel: "Pan India",
     ctaLabel: CTA_LABEL[vehicle.category],
     badge: vehicle.launchStatus === "just-launched" ? "New Launch" : undefined,
@@ -81,8 +63,8 @@ export function toRankedVehicle(vehicle: Vehicle, rank: number): RankedVehicleDa
   return {
     rank,
     name: `${vehicle.oemName} ${vehicle.modelName}`,
+    vehicle,
     metaLabel: `${vehicle.rangeKm} km · ${bodyOrTypeLabel(vehicle)}`,
-    priceLabel: priceLabel(vehicle),
     href: vehicleHref(vehicle),
   };
 }
@@ -145,8 +127,8 @@ function comparePair(id: string, category: VehicleCategory, slugA: string, slugB
   return {
     id,
     category,
-    vehicleA: { name: `${a.oemName} ${a.modelName}`, vehicle: a, oemColor: oemColorOf(a), priceLabel: priceLabel(a) },
-    vehicleB: { name: `${b.oemName} ${b.modelName}`, vehicle: b, oemColor: oemColorOf(b), priceLabel: priceLabel(b) },
+    vehicleA: { name: `${a.oemName} ${a.modelName}`, vehicle: a, oemColor: oemColorOf(a) },
+    vehicleB: { name: `${b.oemName} ${b.modelName}`, vehicle: b, oemColor: oemColorOf(b) },
   };
 }
 

@@ -2,7 +2,7 @@
 
 import { Award, BatteryCharging, Crown, Gauge, IndianRupee, Trophy, Users, Waypoints, type LucideIcon } from "lucide-react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
-import { estimateMonthlyChargingCost } from "@/lib/pricing";
+import { estimateMonthlyChargingCost } from "@/lib/vehicle-pricing";
 import { computeQuickVerdict } from "@/lib/compare/quickVerdict";
 
 const ICONS: Record<string, LucideIcon> = {

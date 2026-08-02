@@ -1,6 +1,6 @@
 import type { VehicleDetail } from "@/types/vehicle-detail";
-import type { StateCharges } from "@/lib/data/state-charges";
-import { onRoadPriceBreakdown, estimateMonthlyChargingCost } from "@/lib/pricing";
+import type { City } from "@/lib/data/cities";
+import { getVehiclePricingSnapshot, estimateMonthlyChargingCost } from "@/lib/vehicle-pricing";
 import { formatPriceLakh } from "@/lib/utils";
 import { computeWinners } from "@/lib/compare/winnerEngine";
 import {
@@ -23,16 +23,20 @@ function formatINR(n: number): string {
   return `₹${Math.round(n).toLocaleString("en-IN")}`;
 }
 
-/** Glue between live Compare page data (VehicleDetail[], city charges) and the plain-data ComparePdfInput the PDF kit consumes — reuses the same SPEC_ROWS render() functions the web UI uses, so the PDF can never drift from what's on screen. */
-export function buildComparePdfInput(vehicles: VehicleDetail[], charges: StateCharges, cityLabel: string): ComparePdfInput {
+/** Glue between live Compare page data (VehicleDetail[], selected city) and the plain-data ComparePdfInput the PDF kit consumes — reuses the same SPEC_ROWS render() functions the web UI uses, and the same centralized `getVehiclePricingSnapshot` every other pricing widget calls, so the PDF can never drift from what's on screen. */
+export function buildComparePdfInput(vehicles: VehicleDetail[], city: City, cityLabel: string): ComparePdfInput {
+  const snapshots = vehicles.map((v) =>
+    getVehiclePricingSnapshot({ vehicleId: v.id, vehicleName: v.name, exShowroomRangeLakh: v.priceRangeLakh, city }),
+  );
+
   const priceRows: ComparePdfRowGroup[] = [
-    { label: "Ex-showroom Price", values: vehicles.map((v) => formatPriceLakh(v.startingPrice / 100000)) },
-    { label: "On-Road Price (est.)", values: vehicles.map((v) => formatINR(onRoadPriceBreakdown(v.startingPrice, charges).onRoad)) },
+    { label: "Ex-showroom Price", values: snapshots.map((s) => formatPriceLakh(s.exShowroomRangeLakh[0])) },
+    { label: "On-Road Price (est.)", values: snapshots.map((s) => formatINR(s.breakdown.low.onRoad)) },
   ];
 
   const ownershipRows: ComparePdfRowGroup[] = [
     { label: "Annual Charging Cost (est.)", values: vehicles.map((v) => formatINR(estimateMonthlyChargingCost(v.sourceVehicle) * 12)) },
-    { label: "Annual Insurance (est.)", values: vehicles.map((v) => formatINR(onRoadPriceBreakdown(v.startingPrice, charges).insurance)) },
+    { label: "Annual Insurance (est.)", values: snapshots.map((s) => formatINR(s.breakdown.low.insurance)) },
   ];
 
   const { categoriesWon } = computeWinners(vehicles, WINNER_METRICS);

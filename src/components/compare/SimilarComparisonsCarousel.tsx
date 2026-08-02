@@ -3,9 +3,10 @@ import { Container } from "@/components/ui/Container";
 import { BlockHeading } from "@/components/ui/BlockHeading";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
 import { getOemBySlug } from "@/lib/data";
-import { formatPriceLakh } from "@/lib/utils";
 import { buildCompareSlug } from "@/lib/compare/slug";
 import { buildSimilarComparisons } from "@/lib/compare/similar";
+import { VehiclePriceText } from "@/components/pricing/VehiclePriceText";
+import { vehiclePricingSubject } from "@/lib/vehicle-pricing";
 import type { Vehicle } from "@/types/vehicle";
 
 export function SimilarComparisonsCarousel({ vehicles }: { vehicles: Vehicle[] }) {
@@ -36,7 +37,8 @@ export function SimilarComparisonsCarousel({ vehicles }: { vehicles: Vehicle[] }
                 {a.modelName} vs {b.modelName}
               </p>
               <p className="mt-0.5 text-[10.5px] text-ink-muted">
-                {formatPriceLakh(a.priceRangeLakh[0])} · {formatPriceLakh(b.priceRangeLakh[0])}
+                <VehiclePriceText vehicle={vehiclePricingSubject(a)} variant="from" /> ·{" "}
+                <VehiclePriceText vehicle={vehiclePricingSubject(b)} variant="from" />
               </p>
             </Link>
           ))}

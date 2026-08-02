@@ -17,18 +17,28 @@ export interface StateCharges {
   insurancePct: number;
   /** Whether this state currently layers a direct purchase subsidy on top of its registration waiver. */
   hasPurchaseSubsidy: boolean;
+  /**
+   * State road tax/cess, as a % of ex-showroom price — a separate line item from
+   * `registrationPct`'s RTO fee, added for the Vehicle Detail Page's itemized
+   * price breakdown (see `src/lib/pricing/`). Additive field: existing consumers
+   * reading only `registrationPct`/`insurancePct`/`hasPurchaseSubsidy` (Compare
+   * page, homepage Subsidy Calculator) are unaffected by its presence.
+   */
+  roadTaxPct: number;
+  /** Flat estimated standard charges (handling, logistics, smart card/FASTag) added to every on-road estimate, regardless of state. Same additive-only note as `roadTaxPct` above. */
+  otherChargesFlat: number;
 }
 
-const DEFAULT_CHARGES: StateCharges = { registrationPct: 4, insurancePct: 3, hasPurchaseSubsidy: false };
+const DEFAULT_CHARGES: StateCharges = { registrationPct: 4, insurancePct: 3, hasPurchaseSubsidy: false, roadTaxPct: 2, otherChargesFlat: 8500 };
 
 /** States with a full/near-full EV road-tax or registration waiver. */
-const WAIVER_STATES: StateCharges = { registrationPct: 0, insurancePct: 3, hasPurchaseSubsidy: false };
+const WAIVER_STATES: StateCharges = { registrationPct: 0, insurancePct: 3, hasPurchaseSubsidy: false, roadTaxPct: 0, otherChargesFlat: 8500 };
 
 /** States that layer a direct purchase subsidy on top of the waiver — the app's existing ceiling figures apply here. */
-const SUBSIDY_STATES: StateCharges = { registrationPct: 0, insurancePct: 3, hasPurchaseSubsidy: true };
+const SUBSIDY_STATES: StateCharges = { registrationPct: 0, insurancePct: 3, hasPurchaseSubsidy: true, roadTaxPct: 0, otherChargesFlat: 8500 };
 
 /** A few larger states offer a partial (not full) EV registration concession rather than a full waiver. */
-const PARTIAL_WAIVER_STATES: StateCharges = { registrationPct: 1.5, insurancePct: 3, hasPurchaseSubsidy: false };
+const PARTIAL_WAIVER_STATES: StateCharges = { registrationPct: 1.5, insurancePct: 3, hasPurchaseSubsidy: false, roadTaxPct: 1, otherChargesFlat: 8500 };
 
 export const STATE_CHARGES: Record<string, StateCharges> = {
   // Direct purchase subsidy + registration waiver

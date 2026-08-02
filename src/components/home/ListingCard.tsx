@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
 import { routeSegmentFor } from "@/lib/data/categories";
+import { VehiclePriceText } from "@/components/pricing/VehiclePriceText";
+import { VehicleEmiText } from "@/components/pricing/VehicleEmiText";
+import { vehiclePricingSubject } from "@/lib/vehicle-pricing";
 import type { CardBadge, ListingCardData } from "@/types/ev-motion";
 
 const BADGE_BG: Record<CardBadge, string> = {
@@ -56,8 +59,12 @@ export function ListingCard({ item, priority }: { item: ListingCardData; priorit
           ))}
         </div>
 
-        <p className="mb-0.5 text-sm font-extrabold text-primary">{item.priceLabel}</p>
-        <p className="text-[10px] text-ink-muted">{item.emiLabel}</p>
+        <p className="mb-0.5 text-sm font-extrabold text-primary">
+          <VehiclePriceText vehicle={vehiclePricingSubject(item.vehicle)} variant="from" />
+        </p>
+        <p className="text-[10px] text-ink-muted">
+          <VehicleEmiText vehicle={vehiclePricingSubject(item.vehicle)} />
+        </p>
       </div>
 
       <div className="flex items-center justify-between border-t border-border px-[11px] py-[7px]">

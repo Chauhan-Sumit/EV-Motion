@@ -8,8 +8,7 @@ import { getSimilarVehicleDetails } from "@/lib/data/ev-motion/toVehicleDetail";
 import { VehicleSection } from "./VehicleSection";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
 import { useLocation } from "@/context/LocationContext";
-import { chargesForState } from "@/lib/data/state-charges";
-import { onRoadPriceBreakdown } from "@/lib/pricing";
+import { getVehiclePricingSnapshot } from "@/lib/vehicle-pricing";
 import { buildCompareSlug } from "@/lib/compare/slug";
 
 function formatINR(value: number): string {
@@ -26,7 +25,6 @@ function firstSafetyFeature(vehicle: VehicleDetail): string {
 
 export function SectionCompareSimilar({ vehicle }: { vehicle: VehicleDetail }) {
   const { city } = useLocation();
-  const charges = chargesForState(city.state);
   const similar = getSimilarVehicleDetails(vehicle).slice(0, 2);
   const columns = [vehicle, ...similar];
 
@@ -41,7 +39,18 @@ export function SectionCompareSimilar({ vehicle }: { vehicle: VehicleDetail }) {
         </div>
       ),
     },
-    { label: `On-Road Price, ${city.name}`, render: (v) => <span className="font-bold text-primary">{formatINR(onRoadPriceBreakdown(v.startingPrice, charges).onRoad)}</span> },
+    {
+      label: `On-Road Price, ${city.name}`,
+      render: (v) => {
+        const onRoad = getVehiclePricingSnapshot({
+          vehicleId: v.id,
+          vehicleName: v.name,
+          exShowroomRangeLakh: v.priceRangeLakh,
+          city,
+        }).breakdown.low.onRoad;
+        return <span className="font-bold text-primary">{formatINR(onRoad)}</span>;
+      },
+    },
     { label: "User Rating", render: () => <span className="text-ink-muted">Not yet rated</span> },
     { label: "Mileage / Range", render: (v) => `${v.quickSpecs.rangeKm} km` },
     { label: "Engine / Battery", render: (v) => `${v.quickSpecs.batteryKwh} kWh` },

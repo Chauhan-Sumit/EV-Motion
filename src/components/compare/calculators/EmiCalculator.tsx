@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
-import { calculateEmi } from "@/lib/pricing";
+import { calculateEmi } from "@/lib/vehicle-pricing";
+import { useVehiclePricing } from "@/hooks/useVehiclePricing";
 
 function formatINR(value: number): string {
   return `₹${Math.round(value).toLocaleString("en-IN")}`;
@@ -16,7 +17,8 @@ export function EmiCalculator({ vehicles }: { vehicles: VehicleDetail[] }) {
   const [tenureMonths, setTenureMonths] = useState(60);
 
   const vehicle = vehicles[vehicleIndex] ?? vehicles[0];
-  const price = vehicle.startingPrice;
+  const pricing = useVehiclePricing(vehicle);
+  const price = pricing.breakdown.low.onRoad;
   const downPayment = Math.round(price * (downPaymentPct / 100));
   const principal = price - downPayment;
 
