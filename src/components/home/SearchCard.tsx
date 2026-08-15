@@ -66,7 +66,7 @@ export function SearchCard() {
   }
 
   return (
-    <div className="mx-auto max-w-[1440px]">
+    <div className="w-full">
       <div className="rounded-2xl border border-border bg-surface p-5 shadow-popover sm:p-6">
         <div className="mb-3.5 flex items-center justify-between gap-3">
           <h2 className="text-base font-bold text-ink">Find Your Right EV</h2>

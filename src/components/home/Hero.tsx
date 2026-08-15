@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { SearchCard } from "./SearchCard";
 
 export function Hero() {
   return (
@@ -38,11 +37,6 @@ export function Hero() {
             Compare EV cars, bikes and scooters from every major OEM in one place
           </p>
         </div>
-      </div>
-
-      {/* Search card — overlaps the hero/content boundary */}
-      <div className="relative z-10 -mt-[52px] px-3.5 sm:px-9">
-        <SearchCard />
       </div>
     </section>
   );

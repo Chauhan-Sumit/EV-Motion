@@ -19,9 +19,24 @@ export interface VehicleVariant {
   fastChargeTimeMin?: number;
 }
 
+/**
+ * `photoUrl`/`gallery` are the only fields that trigger a real photo —
+ * `VehicleImage`/`VehicleGallery` fall back to the branded placeholder
+ * whenever they're absent, so it's always safe to leave them unset.
+ * Values are ImageKit paths: either relative (resolved against
+ * NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT / `IMAGEKIT_URL_ENDPOINT` in
+ * src/lib/imagekit.ts, e.g. "/vehicles/tata-nexon-ev/hero.jpg") or a full
+ * `https://ik.imagekit.io/...` URL. Never hand-write a non-ImageKit external
+ * URL here — see CLAUDE.md's photo-sourcing note. `hero`/`gallery`'s string
+ * contents themselves are otherwise unused labels/legacy fields kept for
+ * shape compatibility; only `gallery`'s *length and ImageKit paths* matter
+ * once populated.
+ */
 export interface VehicleImages {
   hero: string;
+  /** Additional real ImageKit paths shown after the primary photo — see VehicleGallery. Empty until sourced. */
   gallery: string[];
+  /** The vehicle's primary/hero photo — an ImageKit path. Absent renders the branded placeholder. */
   photoUrl?: string;
   photoAttribution?: string;
 }

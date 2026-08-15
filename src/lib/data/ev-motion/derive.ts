@@ -1,10 +1,11 @@
-import { getVehiclesByCategory, oems, getOemBySlug } from "@/lib/data";
+import { getAllVehicles, getVehiclesByCategory, oems, getOemBySlug } from "@/lib/data";
 import { vehicleHref } from "@/lib/search";
 import { formatPriceRangeLakh } from "@/lib/utils";
 import type { Vehicle, VehicleCategory } from "@/types/vehicle";
 import type {
   BrandCardData,
   CompareCardPairData,
+  HighlightItemData,
   ListingCardData,
   RankedVehicleData,
   TrendingCompactItemData,
@@ -140,6 +141,28 @@ export const carComparisons: CompareCardPairData[] = [
   comparePair("cmp-car-2", "car", "hyundai-kona-electric", "byd-atto-3"),
   comparePair("cmp-car-3", "car", "kia-ev6", "hyundai-ioniq-5"),
 ].filter((p): p is CompareCardPairData => p !== null);
+
+/**
+ * Homepage "Key Highlights" sidebar — every entry is derived from the real
+ * dataset (no invented stats like a fake "12 offers today"), consistent with
+ * this project's "real data, honest empty states" convention.
+ */
+export function getHomeHighlights(): HighlightItemData[] {
+  const all = getAllVehicles();
+  const trending = getTrendingByCategory("car")[0];
+  const newLaunchCount = all.filter((v) => v.launchStatus === "just-launched").length;
+  const [highestRange] = getRankedByCategory("car", 1);
+  const bestSeller = getPopularByCategory("car", 1)[0];
+
+  const items: HighlightItemData[] = [];
+  if (trending) items.push({ id: "trending", label: "Trending Now", value: trending.name, href: vehicleHref(trending.vehicle) });
+  items.push({ id: "newLaunches", label: "New Launches", value: `${newLaunchCount} This Week` });
+  if (highestRange) items.push({ id: "highestRange", label: "Highest Range", value: highestRange.name, href: highestRange.href });
+  if (bestSeller) items.push({ id: "bestSeller", label: "Best Seller", value: `${bestSeller.brand} ${bestSeller.name}`, href: vehicleHref(bestSeller.vehicle) });
+  items.push({ id: "totalListed", label: "EVs Listed", value: `${all.length}+ Vehicles` });
+
+  return items;
+}
 
 export const bikeComparisons: CompareCardPairData[] = [
   comparePair("cmp-bike-1", "2-wheeler", "ola-s1-pro", "ather-450x"),

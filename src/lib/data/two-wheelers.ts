@@ -1,6 +1,9 @@
 import { Vehicle } from "@/types/vehicle";
 
-const gallery = ["front-three-quarter", "side-profile", "dashboard"];
+// No real gallery photos sourced yet — see VehicleImages doc comment in
+// src/types/vehicle.ts. Populate with real ImageKit paths per vehicle once
+// photography is prepared; VehicleGallery renders them automatically.
+const gallery: string[] = [];
 
 export const twoWheelers: Vehicle[] = [
   {

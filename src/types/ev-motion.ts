@@ -96,3 +96,11 @@ export interface WhyFeatureData {
   title: string;
   description: string;
 }
+
+/** `icon` is a lookup key resolved to a lucide icon inside KeyHighlightsCard — keeps this data layer icon-library-agnostic. */
+export interface HighlightItemData {
+  id: "trending" | "newLaunches" | "highestRange" | "bestSeller" | "totalListed";
+  label: string;
+  value: string;
+  href?: string;
+}

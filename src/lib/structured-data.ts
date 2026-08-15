@@ -1,9 +1,17 @@
+import { buildSrc } from "@imagekit/next";
 import type { Vehicle } from "@/types/vehicle";
 import { SITE_URL } from "@/lib/site";
+import { IMAGEKIT_URL_ENDPOINT } from "@/lib/imagekit";
 import { routeSegmentFor } from "@/lib/data/categories";
 
 function absoluteUrl(path: string): string {
   return path.startsWith("http") ? path : `${SITE_URL}${path}`;
+}
+
+/** vehicle.images.photoUrl/gallery are ImageKit-relative paths, not site paths —
+ *  build their real CDN URL instead of prefixing with SITE_URL like absoluteUrl(). */
+function imageKitUrl(path: string): string {
+  return path.startsWith("http") ? path : buildSrc({ urlEndpoint: IMAGEKIT_URL_ENDPOINT, src: path });
 }
 
 /** Product + Offer schema for a single vehicle's detail page. */
@@ -15,7 +23,9 @@ export function vehicleProductJsonLd(vehicle: Vehicle, path: string) {
     name: `${vehicle.oemName} ${vehicle.modelName}`,
     brand: { "@type": "Brand", name: vehicle.oemName },
     description: vehicle.description,
-    ...(vehicle.images.photoUrl ? { image: [absoluteUrl(vehicle.images.photoUrl)] } : {}),
+    ...(vehicle.images.photoUrl
+      ? { image: [imageKitUrl(vehicle.images.photoUrl), ...vehicle.images.gallery.map(imageKitUrl)] }
+      : {}),
     url,
     offers: {
       "@type": "Offer",

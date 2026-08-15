@@ -1,19 +1,14 @@
 import type { Metadata } from "next";
 import {
   Hero,
-  TrendingCompactSection,
+  HeroSearchSection,
   MainLayout,
   UpcomingSection,
-  CompareSection,
+  LatestEVNewsSection,
   WhyEvMotionSection,
   AdvertiseSection,
 } from "@/components/home";
-import {
-  getTrendingByCategory,
-  getUpcomingByCategory,
-  carComparisons,
-  bikeComparisons,
-} from "@/lib/data/ev-motion/derive";
+import { getUpcomingByCategory } from "@/lib/data/ev-motion/derive";
 
 export const metadata: Metadata = {
   title: "EV Motion - India's #1 EV Marketplace",
@@ -29,33 +24,31 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <>
-      {/* Hero (with overlapping search card) — single H1 lives here */}
+      {/* Hero — single H1 lives here */}
       <Hero />
 
-      {/* Compact trending carousels */}
-      <TrendingCompactSection title="Trending Cars" items={getTrendingByCategory("car")} />
-      <TrendingCompactSection title="Trending Scooters & Bikes" items={getTrendingByCategory("2-wheeler")} />
+      {/* Search (left) + sticky Key Highlights (right) + trending carousels,
+          overlapping the hero boundary. Key Highlights stays sticky through
+          this section and releases once MainLayout/FeaturedBanner begins. */}
+      <HeroSearchSection />
 
-      {/* Browse by Category, Sponsored spotlight, Popular Cars, Popular Bikes,
-          Brand carousels + sidebar */}
+      {/* Browse by Category, Featured spotlight, Popular Cars, Compare EVs
+          Instantly, Popular Bikes, Brand carousels + sidebar (EV Tools,
+          Popular Comparisons, Advertiser, Top lists, Subsidy calculator) */}
       <MainLayout />
 
       {/* Upcoming */}
-      <UpcomingSection title="Upcoming Electric Cars" items={getUpcomingByCategory("car")} />
+      <UpcomingSection title="Upcoming Electric Cars" items={getUpcomingByCategory("car")} showNotifyBanner />
       <UpcomingSection
         title="Upcoming Electric Bikes & Scooters"
         items={getUpcomingByCategory("2-wheeler")}
         tinted
       />
 
-      {/* Compare */}
-      <CompareSection title="Compare Electric Cars" pairs={carComparisons} viewAllHref="/compare" />
-      <CompareSection
-        title="Compare Electric Bikes & Scooters"
-        pairs={bikeComparisons}
-        viewAllHref="/compare"
-        tinted
-      />
+      {/* Latest EV News — honest empty state, no fabricated headlines (see
+          LatestEVNewsSection.tsx and SectionLatestNews.tsx for the pattern
+          this project uses everywhere a real news source doesn't exist) */}
+      <LatestEVNewsSection />
 
       {/* Why EV Motion */}
       <WhyEvMotionSection />

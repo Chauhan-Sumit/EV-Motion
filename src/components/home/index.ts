@@ -1,7 +1,9 @@
 export { Hero } from "./Hero";
+export { HeroSearchSection } from "./HeroSearchSection";
+export { KeyHighlightsCard } from "./KeyHighlightsCard";
 export { TrendingCompactSection } from "./TrendingCompactSection";
 export { MainLayout } from "./MainLayout";
 export { UpcomingSection } from "./UpcomingSection";
-export { CompareSection } from "./CompareSection";
+export { LatestEVNewsSection } from "./LatestEVNewsSection";
 export { WhyEvMotionSection } from "./WhyEvMotionSection";
 export { AdvertiseSection } from "./AdvertiseSection";

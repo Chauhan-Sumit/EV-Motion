@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Image } from "@imagekit/next";
 import { ChevronLeft, ChevronRight, ImageOff, RotateCw, Car, Armchair, Palette, Video } from "lucide-react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
@@ -8,7 +9,11 @@ import { VehicleImage } from "@/components/vehicles/VehicleImage";
 interface GallerySlot {
   id: string;
   label: string;
-  hasImage: boolean;
+  /** ImageKit path for this slot's photo. Absent on the primary slot means
+   *  "let VehicleImage decide" (real photo or branded placeholder); absent
+   *  on any other slot means an honest "coming soon" placeholder. */
+  src?: string;
+  isPrimary?: boolean;
 }
 
 const QUICK_JUMPS = [
@@ -22,22 +27,31 @@ const QUICK_JUMPS = [
 /**
  * Slot 0 always renders via VehicleImage — a real photo when the vehicle has
  * one, or our branded placeholder otherwise, since either reads as finished.
- * The remaining slots are honest "photo coming soon" placeholders, matching
- * how few of our 36 vehicles have more than one confirmed real angle.
+ * Any paths in `vehicle.images.gallery` (real ImageKit photos, populated once
+ * photography is sourced/prepared) render as their own slots right after it —
+ * this list grows automatically as gallery data is added, no component
+ * changes needed. Remaining slots are honest "photo coming soon" placeholders.
  */
-function buildSlots(): GallerySlot[] {
+function buildSlots(vehicle: VehicleDetail): GallerySlot[] {
+  const realGallery: GallerySlot[] = vehicle.sourceVehicle.images.gallery.map((src, i) => ({
+    id: `gallery-${i}`,
+    label: "Gallery",
+    src,
+  }));
+
   return [
-    { id: "ext-1", label: "Exterior", hasImage: true },
-    { id: "ext-2", label: "Exterior", hasImage: false },
-    { id: "int-1", label: "Interior", hasImage: false },
-    { id: "int-2", label: "Interior", hasImage: false },
-    { id: "360", label: "360° View", hasImage: false },
-    { id: "color-1", label: "Colours", hasImage: false },
+    { id: "ext-1", label: "Exterior", isPrimary: true },
+    ...realGallery,
+    { id: "ext-2", label: "Exterior" },
+    { id: "int-1", label: "Interior" },
+    { id: "int-2", label: "Interior" },
+    { id: "360", label: "360° View" },
+    { id: "color-1", label: "Colours" },
   ];
 }
 
 export function VehicleGallery({ vehicle }: { vehicle: VehicleDetail }) {
-  const [slots] = useState<GallerySlot[]>(buildSlots);
+  const [slots] = useState<GallerySlot[]>(() => buildSlots(vehicle));
   const [activeIndex, setActiveIndex] = useState(0);
   const active = slots[activeIndex];
 
@@ -58,7 +72,7 @@ export function VehicleGallery({ vehicle }: { vehicle: VehicleDetail }) {
     <div className="min-w-0">
       {/* Main image with arrows */}
       <div className="relative h-56 overflow-hidden rounded-xl border border-border bg-white sm:h-72 lg:h-[280px]">
-        {active.hasImage ? (
+        {active.isPrimary ? (
           <VehicleImage
             vehicle={vehicle.sourceVehicle}
             color={vehicle.oemColor}
@@ -66,6 +80,16 @@ export function VehicleGallery({ vehicle }: { vehicle: VehicleDetail }) {
             sizes="(min-width: 1024px) 55vw, 100vw"
             className="h-full w-full"
           />
+        ) : active.src ? (
+          <div className="relative h-full w-full">
+            <Image
+              src={active.src}
+              alt={`${vehicle.name} — ${active.label}`}
+              fill
+              sizes="(min-width: 1024px) 55vw, 100vw"
+              className="object-cover"
+            />
+          </div>
         ) : (
           <div className="flex h-full flex-col items-center justify-center gap-2 bg-surface-secondary text-center">
             <ImageOff size={22} className="text-ink-muted" />
@@ -98,14 +122,16 @@ export function VehicleGallery({ vehicle }: { vehicle: VehicleDetail }) {
             key={slot.id}
             type="button"
             onClick={() => setActiveIndex(index)}
-            aria-label={`View ${slot.label}${slot.hasImage ? "" : " (photo coming soon)"}`}
+            aria-label={`View ${slot.label}${slot.isPrimary || slot.src ? "" : " (photo coming soon)"}`}
             aria-current={activeIndex === index}
             className={`relative h-12 overflow-hidden rounded-md border sm:h-14 ${
               activeIndex === index ? "border-primary" : "border-border"
             }`}
           >
-            {slot.hasImage ? (
+            {slot.isPrimary ? (
               <VehicleImage vehicle={vehicle.sourceVehicle} color={vehicle.oemColor} sizes="80px" className="h-full w-full" />
+            ) : slot.src ? (
+              <Image src={slot.src} alt={`${vehicle.name} — ${slot.label} thumbnail`} fill sizes="80px" className="object-cover" />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-surface-secondary">
                 <ImageOff size={13} className="text-ink-muted" />

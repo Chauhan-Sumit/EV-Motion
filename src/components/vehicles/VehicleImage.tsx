@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { Image } from "@imagekit/next";
 import { PlaceholderImage } from "@/components/common/PlaceholderImage";
 import { Vehicle } from "@/types/vehicle";
 

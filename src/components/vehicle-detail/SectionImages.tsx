@@ -8,7 +8,8 @@ const VISIBLE = 4;
 
 export function SectionImages({ vehicle }: { vehicle: VehicleDetail }) {
   const overflow = TOTAL_SLOTS - VISIBLE;
-  const realCount = vehicle.sourceVehicle.images.photoUrl ? 1 : 0;
+  const realCount =
+    (vehicle.sourceVehicle.images.photoUrl ? 1 : 0) + vehicle.sourceVehicle.images.gallery.length;
 
   return (
     <VehicleSection
@@ -16,7 +17,7 @@ export function SectionImages({ vehicle }: { vehicle: VehicleDetail }) {
       title={`Images (${realCount} of ${TOTAL_SLOTS})`}
       description={
         realCount > 0
-          ? "Only one confirmed photo is on file — the remaining slots are ready for real photography."
+          ? `${realCount} confirmed photo${realCount === 1 ? " is" : "s are"} on file — the remaining slots are ready for real photography.`
           : "No confirmed photos are on file yet — these slots are ready for real photography."
       }
       headingAction={
