@@ -7,7 +7,8 @@ import { Container } from "@/components/ui/Container";
 import { BlockHeading } from "@/components/ui/BlockHeading";
 import { VehicleCard } from "@/components/vehicles/VehicleCard";
 import { getRelatedVehicles } from "@/lib/data";
-import { parseCompareSlug, buildCompareSlug } from "@/lib/compare/slug";
+import { buildCompareSlug } from "@/lib/compare/slug";
+import { parseCompareSlug } from "@/lib/compare/parse-slug";
 import { loadRecentComparisonSlugs } from "@/lib/compare/recentComparisons";
 import type { Vehicle } from "@/types/vehicle";
 

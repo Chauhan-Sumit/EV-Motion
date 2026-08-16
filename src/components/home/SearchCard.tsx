@@ -9,7 +9,11 @@ import { LocationSelector } from "@/components/layout/LocationSelector";
 import { useLocation } from "@/context/LocationContext";
 import { Slider } from "@/components/ui/slider";
 import { FilterBar } from "@/components/vehicles/FilterBar";
-import { getVehiclesByCategory, oems } from "@/lib/data";
+// `@/lib/data/oems` directly, never the `@/lib/data` barrel: the barrel's
+// module body builds a category->vehicles map, so importing anything from it
+// drags all 122 full vehicle records into this client bundle.
+import { oems } from "@/lib/data/oems";
+import type { SeatOptionsByCategory } from "@/lib/filter-facets";
 import { buildListingSearchParams, type ListingFilterState } from "@/lib/listing-params";
 import {
   CAR_FILTER_CONFIG,
@@ -42,7 +46,7 @@ function defaultFilterState(config: CategoryFilterConfig): ListingFilterState {
   };
 }
 
-export function SearchCard() {
+export function SearchCard({ seatOptionsByCategory }: { seatOptionsByCategory: SeatOptionsByCategory }) {
   const router = useRouter();
   const { city } = useLocation();
   const [mode, setMode] = useState<"car" | "bike">("car");
@@ -199,7 +203,13 @@ export function SearchCard() {
               </>
             }
           >
-            <AllFiltersPanel key={mode} category={category} config={config} onApply={applyAndNavigate} />
+            <AllFiltersPanel
+              key={mode}
+              category={category}
+              config={config}
+              seatOptionsByCategory={seatOptionsByCategory}
+              onApply={applyAndNavigate}
+            />
           </ResponsivePopover>
         </div>
       </div>
@@ -296,17 +306,17 @@ function ChargingPanel({ onApply }: { onApply: (charging: ChargingBucket) => voi
 function AllFiltersPanel({
   category,
   config,
+  seatOptionsByCategory,
   onApply,
 }: {
   category: VehicleCategory;
   config: CategoryFilterConfig;
+  seatOptionsByCategory: SeatOptionsByCategory;
   onApply: (state: Partial<ListingFilterState>) => void;
 }) {
-  const vehicles = getVehiclesByCategory(category);
   const oemOptions = oems.filter((oem) => oem.categories.includes(category));
-  const seatOptions = Array.from(
-    new Set(vehicles.map((v) => v.seatingCapacity).filter((s): s is number => s != null)),
-  ).sort((a, b) => a - b);
+  // Derived server-side and threaded down as a prop — see `@/lib/filter-facets`.
+  const seatOptions = seatOptionsByCategory[category];
 
   const [state, setState] = useState<ListingFilterState>(() => defaultFilterState(config));
 

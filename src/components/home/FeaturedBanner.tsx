@@ -3,21 +3,25 @@
 import Link from "next/link";
 import { Star, Gauge, BatteryCharging, Timer, ShieldCheck } from "lucide-react";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
-import { cars } from "@/lib/data/cars";
-import { getOemBySlug } from "@/lib/data";
+import { getOemBySlug } from "@/lib/data/oems";
 import { vehicleHref } from "@/lib/search";
 import { LeadCaptureDialog } from "@/components/common/LeadCaptureDialog";
 import { useVehiclePricing } from "@/hooks/useVehiclePricing";
 import { vehiclePricingSubject } from "@/lib/vehicle-pricing";
 import { formatPriceLakh } from "@/lib/utils";
-import { oemColorOf } from "@/lib/data/ev-motion/derive";
+import type { Vehicle } from "@/types/vehicle";
 
-const featured = cars.find((v) => v.slug === "tata-nexon-ev") ?? cars[0];
-const oem = getOemBySlug(featured.oem);
-const featuredName = `${oem?.name ?? ""} ${featured.modelName}`.trim();
-const safety = featured.specs?.safety;
-
-export function FeaturedBanner() {
+/**
+ * `featured` arrives as a prop from `MainLayout` (a Server Component). This
+ * component used to pick it itself with `cars.find(...)` at module scope,
+ * which put all 54 car records in the homepage's client bundle to select
+ * one. `@/lib/data/oems` is safe to import directly — it carries no vehicle
+ * data — but the `@/lib/data` barrel and `ev-motion/derive` are not.
+ */
+export function FeaturedBanner({ featured }: { featured: Vehicle }) {
+  const oem = getOemBySlug(featured.oem);
+  const featuredName = `${oem?.name ?? ""} ${featured.modelName}`.trim();
+  const safety = featured.specs?.safety;
   const pricing = useVehiclePricing(vehiclePricingSubject(featured));
 
   return (
@@ -62,7 +66,7 @@ export function FeaturedBanner() {
 
         <div className="relative flex flex-1 items-center justify-center">
           <div className="relative aspect-[16/10] w-full max-w-md overflow-hidden rounded-lg bg-white/5">
-            <VehicleImage vehicle={featured} color={oemColorOf(featured)} sizes="400px" className="h-full w-full" />
+            <VehicleImage vehicle={featured} color={oem?.color ?? "#1FA83C"} sizes="400px" className="h-full w-full" />
           </div>
         </div>
 
@@ -73,6 +77,8 @@ export function FeaturedBanner() {
             <div className="text-[11px] text-white/50">Onwards · {pricing.cityName}</div>
           </div>
           <LeadCaptureDialog
+            kind="best-price"
+            vehicleSlug={featured.slug}
             triggerLabel="Get Best Quote"
             triggerClassName="focus-ring w-full rounded-lg bg-white px-4 py-2.5 text-[12.5px] font-semibold text-surface-dark transition-colors hover:bg-white/90"
             dialogTitle="Get the best quote"

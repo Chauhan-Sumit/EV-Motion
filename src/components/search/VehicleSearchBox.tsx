@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { Clock, Search, TrendingUp, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { searchVehicles, type LinkSuggestion, type SearchScope, type VehicleSuggestion } from "@/lib/search";
-import { oemColorOf } from "@/lib/data/ev-motion/derive";
+import { loadSearchIndex } from "@/lib/search-index-client";
+import { POPULAR_SEARCHES_BY_SCOPE } from "@/lib/popular-searches";
 import { categoryConfig } from "@/lib/data/categories";
 import { loadRecentSearches, saveRecentSearch } from "@/lib/search-history";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
 import { HighlightedText } from "./HighlightedText";
+import type { SearchIndex } from "@/types/search-index";
 
 type FlatItem =
   | { kind: "vehicle"; key: string; suggestion: VehicleSuggestion }
@@ -29,17 +31,7 @@ const DEBOUNCE_MS = 180;
 const RECENT_SEARCH_KEY = "ev-motion:recent-searches";
 const MAX_RECENT_SEARCHES = 5;
 
-// Real terms that resolve to real results in this dataset (vehicle names / category keywords already handled by searchVehicles) — not invented copy.
-// Scoped to the active category so Bike mode never surfaces car terms and vice versa; "all" is the mixed default for the unscoped Navbar boxes.
-// Deliberately bare model names ("Nexon EV", not "Tata Nexon EV") — search.ts's substring matcher can't bridge a brand's full legal name
-// (e.g. "Tata Motors", "Ola Electric") sitting between the OEM word and the model word in a query, so a two/three-word "OEM + model" popular
-// term can silently fail to resolve. A bare model name always matches via the exact `model === query` rule regardless of OEM naming.
-export const POPULAR_SEARCHES_BY_SCOPE: Record<SearchScope, string[]> = {
-  car: ["Nexon EV", "SUV", "Creta Electric", "Hatchback", "Windsor EV", "Sedan"],
-  "2-wheeler": ["S1 Pro", "Scooter", "450X", "Motorcycle", "iQube", "Chetak Premium"],
-  commercial: ["3-Wheeler", "Truck", "Van", "Bus"],
-  all: ["Nexon EV", "SUV", "S1 Pro", "Scooter", "450X", "Creta Electric"],
-};
+
 
 export function VehicleSearchBox({
   ariaLabel,
@@ -59,6 +51,27 @@ export function VehicleSearchBox({
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  // The catalog is fetched, not bundled — see `@/lib/search-index-client`.
+  // Null until it arrives, which is why the results panel distinguishes
+  // "still loading" from "genuinely no matches".
+  const [searchIndex, setSearchIndex] = useState<SearchIndex | null>(null);
+  const [indexError, setIndexError] = useState(false);
+
+  /**
+   * Pull the index in on first interaction rather than on mount, so it stays
+   * off the critical path of every page load. Focus is early enough that it
+   * is almost always resolved before the first debounced keystroke lands.
+   */
+  function ensureSearchIndex() {
+    if (searchIndex) return;
+    loadSearchIndex().then(
+      (index) => {
+        setSearchIndex(index);
+        setIndexError(false);
+      },
+      () => setIndexError(true),
+    );
+  }
 
   useEffect(() => {
     // One-time hydration from localStorage after mount — same rationale as
@@ -77,12 +90,15 @@ export function VehicleSearchBox({
     return () => clearTimeout(debounceRef.current);
   }, [value]);
 
-  const outcome = useMemo(() => searchVehicles(debouncedValue, 8, categoryScope), [debouncedValue, categoryScope]);
+  const outcome = useMemo(
+    () => searchVehicles(searchIndex, debouncedValue, 8, categoryScope),
+    [searchIndex, debouncedValue, categoryScope],
+  );
 
   const items: FlatItem[] = useMemo(() => {
     const flat: FlatItem[] = outcome.vehicles.map((suggestion) => ({
       kind: "vehicle",
-      key: suggestion.vehicle.id,
+      key: suggestion.entry.id,
       suggestion,
     }));
     if (outcome.brandMatch) flat.push({ kind: "link", key: outcome.brandMatch.id, suggestion: outcome.brandMatch });
@@ -140,8 +156,22 @@ export function VehicleSearchBox({
    * name merely happens to contain that word as a substring (e.g. "SUV"
    * matching "Mercedes-Benz Maybach EQS SUV" ahead of the SUV listing page).
    */
-  function selectSuggestion(term: string) {
-    const resolved = searchVehicles(term, 1, categoryScope);
+  async function selectSuggestion(term: string) {
+    // Awaits the index rather than reading component state: a suggestion can
+    // be clicked before the fetch settles, and resolving against a null index
+    // would silently downgrade a direct hit into a blank query panel.
+    let index = searchIndex;
+    if (!index) {
+      try {
+        index = await loadSearchIndex();
+        setSearchIndex(index);
+      } catch {
+        setIndexError(true);
+        runQuery(term);
+        return;
+      }
+    }
+    const resolved = searchVehicles(index, term, 1, categoryScope);
     const target = resolved.categoryMatch ?? resolved.vehicles[0] ?? resolved.brandMatch;
     if (target) {
       setValue(term);
@@ -208,10 +238,12 @@ export function VehicleSearchBox({
           value={value}
           placeholder={placeholder}
           onChange={(e) => {
+            ensureSearchIndex();
             setValue(e.target.value);
             setOpen(true);
           }}
           onFocus={() => {
+            ensureSearchIndex();
             setOpen(true);
             setActiveIndex(-1);
           }}
@@ -318,14 +350,18 @@ export function VehicleSearchBox({
           className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 max-h-[360px] overflow-y-auto rounded-lg border border-border bg-surface p-1.5 shadow-popover animate-fade-in"
         >
           {items.length === 0 ? (
-            <p className="px-3 py-3 text-center text-[12px] text-ink-muted">
-              No matches for &ldquo;{debouncedValue}&rdquo;
+            <p className="px-3 py-3 text-center text-[12px] text-ink-muted" aria-live="polite">
+              {indexError
+                ? "Search is unavailable right now. Please try again."
+                : searchIndex === null
+                  ? "Searching…"
+                  : `No matches for “${debouncedValue}”`}
             </p>
           ) : (
             items.map((item, index) => {
               const active = index === activeIndex;
               if (item.kind === "vehicle") {
-                const { vehicle, href, label } = item.suggestion;
+                const { entry, href, label } = item.suggestion;
                 return (
                   <button
                     key={item.key}
@@ -341,13 +377,13 @@ export function VehicleSearchBox({
                     )}
                   >
                     <span className="relative h-9 w-11 shrink-0 overflow-hidden rounded-md bg-white">
-                      <VehicleImage vehicle={vehicle} color={oemColorOf(vehicle)} sizes="44px" className="h-full w-full" />
+                      <VehicleImage vehicle={entry} color={entry.oemColor} sizes="44px" className="h-full w-full" />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[12.5px] font-semibold text-ink">
                         <HighlightedText text={label} query={debouncedValue} />
                       </span>
-                      <span className="block text-[10.5px] text-ink-muted">{categoryConfig(vehicle.category).label}</span>
+                      <span className="block text-[10.5px] text-ink-muted">{categoryConfig(entry.category).label}</span>
                     </span>
                   </button>
                 );

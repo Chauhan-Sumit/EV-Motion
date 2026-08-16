@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Plus, Repeat, Star, Trophy, X } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
-import { getOemBySlug } from "@/lib/data";
+import { getOemBySlug } from "@/lib/data/oems";
 import { routeSegmentFor } from "@/lib/data/categories";
 import { formatPriceLakh, formatPriceRangeLakh } from "@/lib/utils";
 import { useVehiclePricing } from "@/hooks/useVehiclePricing";

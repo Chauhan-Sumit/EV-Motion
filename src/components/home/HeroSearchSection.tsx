@@ -4,6 +4,7 @@ import { KeyHighlightsCard } from "./KeyHighlightsCard";
 import { EVToolsCard } from "./EVToolsCard";
 import { TrendingCompactSection } from "./TrendingCompactSection";
 import { getHomeHighlights, getTrendingByCategory } from "@/lib/data/ev-motion/derive";
+import { seatOptionsByCategory } from "@/lib/filter-facets";
 
 /**
  * Search card (left, full column width) + sticky Key Highlights/EV Tools
@@ -30,7 +31,7 @@ export function HeroSearchSection() {
     <Container className="relative z-10 -mt-[52px]">
       <div className="relative lg:pr-[280px]">
         <div className="flex min-w-0 flex-col gap-3.5 sm:gap-5">
-          <SearchCard />
+          <SearchCard seatOptionsByCategory={seatOptionsByCategory()} />
           <TrendingCompactSection title="Trending Now" items={trending} />
         </div>
 

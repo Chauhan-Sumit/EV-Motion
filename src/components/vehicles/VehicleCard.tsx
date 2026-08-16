@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Scale, Zap } from "lucide-react";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
-import { getOemBySlug } from "@/lib/data";
+import { getOemBySlug } from "@/lib/data/oems";
 import { routeSegmentFor } from "@/lib/data/categories";
 import { LAUNCH_STATUS_LABEL } from "@/lib/vehicle-labels";
 import { VehiclePriceText } from "@/components/pricing/VehiclePriceText";

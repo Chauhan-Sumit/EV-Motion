@@ -1,4 +1,5 @@
 import type { VehicleDetail } from "@/types/vehicle-detail";
+import { getSimilarVehicleDetails } from "@/lib/data/ev-motion/toVehicleDetail";
 import { Container } from "@/components/ui/Container";
 import { AdSlot } from "@/components/common/AdSlot";
 import { VehicleHero } from "./VehicleHero";
@@ -48,7 +49,7 @@ export function VehicleDetailTemplate({ vehicle }: { vehicle: VehicleDetail }) {
             <SectionVariants vehicle={vehicle} />
             <SectionBattery vehicle={vehicle} />
             <SectionOwnershipTools vehicle={vehicle} />
-            <SectionCompareSimilar vehicle={vehicle} />
+            <SectionCompareSimilar vehicle={vehicle} similar={getSimilarVehicleDetails(vehicle).slice(0, 2)} />
             <SectionColors vehicle={vehicle} />
             <SectionFeatures vehicle={vehicle} />
             <SectionImages vehicle={vehicle} />

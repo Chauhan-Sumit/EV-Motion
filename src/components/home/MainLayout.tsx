@@ -1,6 +1,7 @@
 import { Container } from "@/components/ui/Container";
 import { CategoryRow } from "./CategoryRow";
 import { FeaturedBanner } from "./FeaturedBanner";
+import { featuredVehicle } from "@/lib/featured-vehicle";
 import { ListingGrid } from "./ListingGrid";
 import { CompareEVsInstantly } from "./CompareEVsInstantly";
 import { BrandCarousel } from "./BrandCarousel";
@@ -16,7 +17,7 @@ export function MainLayout() {
     <Container className="grid grid-cols-1 gap-3.5 py-[22px] sm:gap-5 lg:grid-cols-[minmax(0,1fr)_260px]">
       <div className="flex min-w-0 flex-col gap-3.5 sm:gap-5">
         <CategoryRow />
-        <FeaturedBanner />
+        <FeaturedBanner featured={featuredVehicle()} />
         <ListingGrid
           title="Popular Electric Cars"
           viewAllLabel="View all"

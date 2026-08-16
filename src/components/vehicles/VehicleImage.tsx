@@ -1,9 +1,23 @@
 import { Image } from "@imagekit/next";
 import { PlaceholderImage } from "@/components/common/PlaceholderImage";
-import { Vehicle } from "@/types/vehicle";
+import { VehicleCategory } from "@/types/vehicle";
+
+/**
+ * The four fields this component actually reads, rather than a whole
+ * `Vehicle`. A full `Vehicle` is structurally assignable to this, so every
+ * existing caller is unaffected — but it also lets a lightweight
+ * `VehicleIndexEntry` render here without the search box having to load the
+ * entire catalog just to draw a 44px thumbnail.
+ */
+export interface VehicleImageSubject {
+  oemName: string;
+  modelName: string;
+  category: VehicleCategory;
+  images: { photoUrl?: string };
+}
 
 interface VehicleImageProps {
-  vehicle: Vehicle;
+  vehicle: VehicleImageSubject;
   color: string;
   className?: string;
   sizes?: string;

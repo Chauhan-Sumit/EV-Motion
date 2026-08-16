@@ -3,7 +3,9 @@
 import { useId, useState } from "react";
 import Link from "next/link";
 import type { VehicleDetail } from "@/types/vehicle-detail";
-import { vehicleDetailHref } from "@/lib/data/ev-motion/toVehicleDetail";
+// `@/lib/search` is data-free by design; importing the href helper from
+// `toVehicleDetail` would drag the whole catalog into this client component.
+import { vehicleHref } from "@/lib/search";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
 import { VehiclePriceText } from "@/components/pricing/VehiclePriceText";
 import { VehicleEmiText } from "@/components/pricing/VehicleEmiText";
@@ -11,7 +13,7 @@ import { VehicleEmiText } from "@/components/pricing/VehicleEmiText";
 export function SimilarCarCard({ vehicle }: { vehicle: VehicleDetail }) {
   const [compareChecked, setCompareChecked] = useState(false);
   const checkboxId = useId();
-  const href = vehicleDetailHref(vehicle);
+  const href = vehicleHref(vehicle);
 
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-[10px] border border-border bg-surface transition-all duration-200 hover:-translate-y-0.5 hover:border-primary hover:shadow-card-hover">

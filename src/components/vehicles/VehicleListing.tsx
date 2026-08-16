@@ -13,7 +13,7 @@ import {
 import { ChargingBucket, FilterBar, SubTypeOption } from "@/components/vehicles/FilterBar";
 import { VehicleCard } from "@/components/vehicles/VehicleCard";
 import { Container } from "@/components/ui/Container";
-import { oems } from "@/lib/data";
+import { oems } from "@/lib/data/oems";
 import { categoryConfig } from "@/lib/data/categories";
 import { buildListingSearchParams, type ListingFilterState } from "@/lib/listing-params";
 import { LaunchStatus, Vehicle, VehicleCategory } from "@/types/vehicle";
