@@ -4,9 +4,9 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { Scale } from "lucide-react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
-import { getSimilarVehicleDetails } from "@/lib/data/ev-motion/toVehicleDetail";
 import { VehicleSection } from "./VehicleSection";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
+import { UnavailableValue } from "@/components/common/UnavailableValue";
 import { useLocation } from "@/context/LocationContext";
 import { getVehiclePricingSnapshot } from "@/lib/vehicle-pricing";
 import { buildCompareSlug } from "@/lib/compare/slug";
@@ -23,9 +23,14 @@ function firstSafetyFeature(vehicle: VehicleDetail): string {
   return vehicle.features.find((f) => f.category === "Safety")?.label ?? "Not specified";
 }
 
-export function SectionCompareSimilar({ vehicle }: { vehicle: VehicleDetail }) {
+/**
+ * `similar` is resolved by `VehicleDetailTemplate` (a Server Component) and
+ * passed down. This component is client-side only because it needs
+ * `useLocation()` for city-aware pricing — calling `getSimilarVehicleDetails()`
+ * here as well meant the whole catalog shipped with every vehicle detail page.
+ */
+export function SectionCompareSimilar({ vehicle, similar }: { vehicle: VehicleDetail; similar: VehicleDetail[] }) {
   const { city } = useLocation();
-  const similar = getSimilarVehicleDetails(vehicle).slice(0, 2);
   const columns = [vehicle, ...similar];
 
   if (similar.length === 0) return null;
@@ -56,7 +61,15 @@ export function SectionCompareSimilar({ vehicle }: { vehicle: VehicleDetail }) {
     { label: "Engine / Battery", render: (v) => `${v.quickSpecs.batteryKwh} kWh` },
     { label: "Transmission", render: () => "Automatic" },
     { label: "Safety", render: (v) => firstSafetyFeature(v) },
-    { label: "Power (bhp)", render: (v) => `${kwToBhp(v.quickSpecs.powerKw)} bhp` },
+    {
+      label: "Power (bhp)",
+      render: (v) =>
+        v.quickSpecs.powerKw !== undefined ? (
+          `${kwToBhp(v.quickSpecs.powerKw)} bhp`
+        ) : (
+          <UnavailableValue label="Not specified" />
+        ),
+    },
   ];
 
   return (

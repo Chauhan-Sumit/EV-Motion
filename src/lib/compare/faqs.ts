@@ -27,11 +27,20 @@ export function computeComparisonFaqs(vehicles: VehicleDetail[]): ComparisonFaq[
     answer: `The ${byPrice[0].name} has the lower starting price at ${formatPriceLakh(byPrice[0].startingPrice / 100000)}, ex-showroom.`,
   });
 
-  const byCharge = [...vehicles].sort((a, b) => a.quickSpecs.fastChargeMinutes - b.quickSpecs.fastChargeMinutes);
-  faqs.push({
-    question: `Which charges faster?`,
-    answer: `The ${byCharge[0].name} DC fast-charges from 10-80% in about ${byCharge[0].quickSpecs.fastChargeMinutes} minutes, the quickest among the vehicles compared here.`,
-  });
+  // Emitted as schema.org FAQPage markup, so this answer only gets published
+  // when at least two of the compared vehicles have a real, manufacturer-
+  // published DC time to rank. Previously every vehicle had one, because an
+  // absent time was silently backfilled from its AC charging hours.
+  const withCharge = vehicles.filter((v) => v.quickSpecs.fastChargeMinutes !== undefined);
+  if (withCharge.length >= 2) {
+    const byCharge = [...withCharge].sort(
+      (a, b) => a.quickSpecs.fastChargeMinutes! - b.quickSpecs.fastChargeMinutes!,
+    );
+    faqs.push({
+      question: `Which charges faster?`,
+      answer: `The ${byCharge[0].name} DC fast-charges from 10-80% in about ${byCharge[0].quickSpecs.fastChargeMinutes} minutes, the quickest among the vehicles compared here with a published fast-charging time.`,
+    });
+  }
 
   const byBattery = [...vehicles].sort((a, b) => b.quickSpecs.batteryKwh - a.quickSpecs.batteryKwh);
   faqs.push({

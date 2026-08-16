@@ -4,14 +4,26 @@ import { Container } from "@/components/ui/Container";
 
 export function QuickSpecsBar({ vehicle }: { vehicle: VehicleDetail }) {
   const q = vehicle.quickSpecs;
+  // This strip is a highlight reel, not a spec sheet — a stat with no sourced
+  // value is dropped rather than shown as an empty "Not specified" tile. The
+  // full picture, including what's missing, is in the Overview and Battery &
+  // Charging sections below, which do render the gaps explicitly.
   const stats = [
     { icon: Gauge, label: "Range", value: `${q.rangeKm} km` },
     { icon: BatteryCharging, label: "Battery", value: `${q.batteryKwh} kWh` },
-    { icon: Zap, label: "Power", value: `${q.powerKw} kW` },
-    { icon: Activity, label: "Torque", value: `${q.torqueNm} Nm` },
-    { icon: Timer, label: "Charging", value: `${q.fastChargeMinutes} min (${q.fastChargeFromPct}–${q.fastChargeToPct}%)` },
-    { icon: Shield, label: "Warranty", value: `${q.warrantyYears} yr / ${(q.warrantyKm / 1000).toFixed(0)}k km` },
-  ];
+    q.powerKw !== undefined && { icon: Zap, label: "Power", value: `${q.powerKw} kW` },
+    q.torqueNm !== undefined && { icon: Activity, label: "Torque", value: `${q.torqueNm} Nm` },
+    q.fastChargeMinutes !== undefined && {
+      icon: Timer,
+      label: "Charging",
+      value: `${q.fastChargeMinutes} min (${q.fastChargeFromPct}–${q.fastChargeToPct}%)`,
+    },
+    q.warrantyYears !== undefined && {
+      icon: Shield,
+      label: "Warranty",
+      value: q.warrantyKm !== undefined ? `${q.warrantyYears} yr / ${(q.warrantyKm / 1000).toFixed(0)}k km` : `${q.warrantyYears} yr`,
+    },
+  ].filter((stat): stat is { icon: typeof Gauge; label: string; value: string } => Boolean(stat));
 
   return (
     <div className="border-y border-border bg-surface-secondary">

@@ -1,7 +1,7 @@
 import { Scale, ThumbsUp, ThumbsDown } from "lucide-react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
 import { CompareSectionCard } from "../CompareSectionCard";
-import { UnavailableValue } from "../UnavailableValue";
+import { UnavailableValue } from "@/components/common/UnavailableValue";
 import { computeProsAndCons } from "@/lib/compare/prosAndCons";
 
 export function ProsConsSection({ vehicles }: { vehicles: VehicleDetail[] }) {

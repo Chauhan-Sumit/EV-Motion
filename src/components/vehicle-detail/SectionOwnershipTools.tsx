@@ -1,6 +1,6 @@
 "use client";
 
-import { TrendingUp, BatteryCharging, LineChart, PiggyBank } from "lucide-react";
+import { TrendingUp, BatteryCharging, PiggyBank } from "lucide-react";
 import type { ComponentType } from "react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
 import { VehicleSection } from "./VehicleSection";
@@ -11,7 +11,6 @@ import { subsidyRowsForState } from "@/lib/data/state-charges";
 const TOOL_ICONS: Record<VehicleDetail["ownershipTools"][number]["id"], ComponentType<{ size?: number; className?: string }>> = {
   "running-cost": TrendingUp,
   "charging-cost": BatteryCharging,
-  "price-history": LineChart,
   subsidy: PiggyBank,
 };
 
@@ -23,9 +22,10 @@ export function SectionOwnershipTools({ vehicle }: { vehicle: VehicleDetail }) {
       <div className="grid gap-3.5 sm:grid-cols-2">
         {vehicle.ownershipTools.map((tool) => {
           const Icon = TOOL_ICONS[tool.id];
-          // The subsidy tool alone is recomputed for the globally-selected
-          // city's state — the other three (running cost, charging cost,
-          // price history) don't vary by location.
+          // The subsidy tool alone is resolved against the globally-selected
+          // city's state — running and charging cost don't vary by location.
+          // It ships with empty `rows` from the adapter for exactly this
+          // reason, so this is the only place its values come from.
           const rows = tool.id === "subsidy" ? subsidyRowsForState(city.state, vehicle.category) : tool.rows;
           const subtitle = tool.id === "subsidy" ? `Estimated for ${city.state} — confirm eligibility with your state EV policy.` : tool.summary;
           return (

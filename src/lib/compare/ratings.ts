@@ -48,7 +48,7 @@ export function computeRatings(vehicles: VehicleDetail[]): VehicleRatings[] {
   const torque = normalize(vehicles.map((v) => v.sourceVehicle.specs?.motor?.peakTorqueNm ?? null), "higher-better");
   const performance = vehicles.map((_, i) => average([topSpeed[i], acceleration[i], power[i], torque[i]]));
 
-  const fastCharge = normalize(vehicles.map((v) => v.quickSpecs.fastChargeMinutes), "lower-better");
+  const fastCharge = normalize(vehicles.map((v) => v.quickSpecs.fastChargeMinutes ?? null), "lower-better");
   const acCharge = normalize(vehicles.map((v) => v.charging.acHomeChargeHours), "lower-better");
   const charging = vehicles.map((_, i) => average([fastCharge[i], acCharge[i]]));
 

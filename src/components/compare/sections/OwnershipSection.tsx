@@ -3,7 +3,7 @@
 import { HandCoins } from "lucide-react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
 import { CompareSectionCard } from "../CompareSectionCard";
-import { UnavailableValue } from "../UnavailableValue";
+import { UnavailableValue } from "@/components/common/UnavailableValue";
 import { useLocation } from "@/context/LocationContext";
 import { getVehiclePricingSnapshot, estimateMonthlyChargingCost } from "@/lib/vehicle-pricing";
 import { NOT_SPECIFIED } from "@/lib/compare/metrics";

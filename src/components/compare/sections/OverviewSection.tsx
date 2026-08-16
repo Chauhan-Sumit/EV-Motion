@@ -1,7 +1,7 @@
 import { Battery, Waypoints, Zap, Gauge, ChevronsUp, TimerReset, PlugZap, Activity, Crown, LayoutGrid, type LucideIcon } from "lucide-react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
 import { CompareSectionCard } from "../CompareSectionCard";
-import { UnavailableValue } from "../UnavailableValue";
+import { UnavailableValue } from "@/components/common/UnavailableValue";
 import { computeWinners } from "@/lib/compare/winnerEngine";
 import { NOT_SPECIFIED, OVERVIEW_SPEC_ROWS, WINNER_METRICS } from "@/lib/compare/metrics";
 

@@ -38,9 +38,21 @@ function pickWinnerIndex(values: (number | null)[], direction: "higher-better" |
   return tieCount > 1 ? null : bestIndex;
 }
 
-function seatCount(v: VehicleDetail): number {
-  const match = v.bodySpecs.seatingCapacity.match(/\d+/);
-  return match ? parseInt(match[0], 10) : 0;
+function seatCount(v: VehicleDetail): number | null {
+  const match = v.bodySpecs.seatingCapacity?.match(/\d+/);
+  return match ? parseInt(match[0], 10) : null;
+}
+
+/**
+ * Seats and boot space combined into one sortable score. Returns null unless
+ * *both* are real: boot space used to come from a per-body-type lookup, so
+ * every SUV scored identically and the badge was really only ranking seats.
+ */
+function familyScore(v: VehicleDetail): number | null {
+  const seats = seatCount(v);
+  const boot = v.bodySpecs.bootSpaceLiters;
+  if (seats === null || boot === undefined) return null;
+  return seats * 1000 + boot;
 }
 
 /**
@@ -73,18 +85,11 @@ export function computeQuickVerdict(vehicles: VehicleDetail[], annualRunningCost
 
   items.push(push("range", "Longest Range", vehicles.map((v) => v.quickSpecs.rangeKm), "higher-better"));
 
-  items.push(push("charging", "Fastest Charging", vehicles.map((v) => v.quickSpecs.fastChargeMinutes), "lower-better"));
+  items.push(push("charging", "Fastest Charging", vehicles.map((v) => v.quickSpecs.fastChargeMinutes ?? null), "lower-better"));
 
   items.push(push("runningCost", "Lowest Running Cost", annualRunningCost, "lower-better"));
 
-  items.push(
-    push(
-      "family",
-      "Best Family EV",
-      vehicles.map((v) => seatCount(v) * 1000 + v.bodySpecs.bootSpaceLiters),
-      "higher-better",
-    ),
-  );
+  items.push(push("family", "Best Family EV", vehicles.map(familyScore), "higher-better"));
 
   const powerMetric = WINNER_METRICS.find((m) => m.key === "power")!;
   const powerResult = computeWinners(vehicles, [powerMetric]).metricResults[0];

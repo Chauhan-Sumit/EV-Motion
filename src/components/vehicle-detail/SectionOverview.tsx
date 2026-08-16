@@ -15,6 +15,7 @@ import {
   Smartphone,
 } from "lucide-react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
+import { UnavailableValue } from "@/components/common/UnavailableValue";
 import { VehicleSection } from "./VehicleSection";
 
 export function SectionOverview({ vehicle }: { vehicle: VehicleDetail }) {
@@ -22,18 +23,31 @@ export function SectionOverview({ vehicle }: { vehicle: VehicleDetail }) {
   const q = vehicle.quickSpecs;
   const b = vehicle.bodySpecs;
 
-  const specs = [
+  // `value: null` renders the shared "Not specified" treatment. This is the
+  // page's spec grid, so unsourced fields stay visible as gaps rather than
+  // being hidden — a reader can tell the difference between "no sunroof" and
+  // "nobody has published whether it has one".
+  const specs: { icon: typeof Gauge; label: string; value: string | null }[] = [
     { icon: Gauge, label: "Range", value: `${q.rangeKm} km` },
     { icon: BatteryCharging, label: "Battery", value: `${q.batteryKwh} kWh` },
-    { icon: Zap, label: "Power", value: `${q.powerKw} kW` },
-    { icon: Timer, label: "Fast Charging", value: `${q.fastChargeMinutes} min` },
+    { icon: Zap, label: "Power", value: q.powerKw !== undefined ? `${q.powerKw} kW` : null },
+    { icon: Timer, label: "Fast Charging", value: q.fastChargeMinutes !== undefined ? `${q.fastChargeMinutes} min` : null },
     { icon: Car, label: "Body Type", value: b.bodyType },
-    { icon: Users, label: "Seating Capacity", value: b.seatingCapacity },
-    { icon: Cog, label: "Drive Type", value: b.driveType },
-    { icon: Briefcase, label: "Boot Space", value: `${b.bootSpaceLiters} Liters` },
-    { icon: Cable, label: "Charging Port", value: vehicle.charging.connectorType },
-    { icon: Smartphone, label: "Connected Car", value: b.connectedCar ? "Yes" : "No" },
-    { icon: Shield, label: "Warranty", value: `${q.warrantyYears} Years / ${(q.warrantyKm / 1000).toFixed(0)}k km` },
+    { icon: Users, label: "Seating Capacity", value: b.seatingCapacity ?? null },
+    { icon: Cog, label: "Drive Type", value: b.driveType ?? null },
+    { icon: Briefcase, label: "Boot Space", value: b.bootSpaceLiters !== undefined ? `${b.bootSpaceLiters} Liters` : null },
+    { icon: Cable, label: "Charging Port", value: vehicle.charging.connectorType ?? null },
+    { icon: Smartphone, label: "Connected Car", value: b.connectedCar === undefined ? null : b.connectedCar ? "Yes" : "No" },
+    {
+      icon: Shield,
+      label: "Warranty",
+      value:
+        q.warrantyYears === undefined
+          ? null
+          : q.warrantyKm !== undefined
+            ? `${q.warrantyYears} Years / ${(q.warrantyKm / 1000).toFixed(0)}k km`
+            : `${q.warrantyYears} Years`,
+    },
   ];
 
   return (
@@ -56,7 +70,11 @@ export function SectionOverview({ vehicle }: { vehicle: VehicleDetail }) {
               <Icon size={15} />
             </span>
             <span className="text-[10px] text-ink-muted">{label}</span>
-            <span className="text-[12px] font-bold text-ink">{value}</span>
+            {value === null ? (
+              <UnavailableValue label="Not specified" />
+            ) : (
+              <span className="text-[12px] font-bold text-ink">{value}</span>
+            )}
           </li>
         ))}
       </ul>

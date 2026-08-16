@@ -4,7 +4,7 @@ import type { SpecRow } from "@/lib/compare/metrics";
 import { NOT_SPECIFIED } from "@/lib/compare/metrics";
 import type { WinnerMetric } from "@/lib/compare/winnerEngine";
 import { computeWinners } from "@/lib/compare/winnerEngine";
-import { UnavailableValue } from "./UnavailableValue";
+import { UnavailableValue } from "@/components/common/UnavailableValue";
 import { UnavailableRowsToggle } from "./UnavailableRowsToggle";
 
 interface SpecTableProps {

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Check, Palette } from "lucide-react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
 import { CompareSectionCard } from "../CompareSectionCard";
-import { UnavailableValue } from "../UnavailableValue";
+import { UnavailableValue } from "@/components/common/UnavailableValue";
 
 /** Colour swatches per vehicle — no manufacturer images, clickable selector, matches the honesty-first no-external-imagery policy already used sitewide. */
 export function ColoursSection({ vehicles }: { vehicles: VehicleDetail[] }) {

@@ -11,11 +11,27 @@ import { getOemBySlug, getRelatedVehicles, getVehicleBySlug } from "@/lib/data";
 import { routeSegmentFor } from "@/lib/data/categories";
 
 /**
- * Fields our Vehicle data doesn't model (power/torque, colour hex, warranty,
- * ownership-tool costs, FAQs) are derived here from what we do have — battery
- * size, range, price — the same way the template's own vehicle-detail.ts
- * derives ownership-tool costs from price/battery/range. Clearly a computed
- * approximation, consistent with this already being a labeled demo project.
+ * Adapter from a catalog `Vehicle` into the VDP view model.
+ *
+ * **Honesty rule — the same one the Compare page follows.** A specification
+ * is either real manufacturer data (from `Vehicle.specs`, the sourced-only
+ * channel, or from a first-class `Vehicle` field) or it is `undefined` and
+ * renders as "Not specified". Nothing in this file may invent a spec from a
+ * formula. Power, torque, warranty, battery chemistry, boot space, drive
+ * layout, connector type and fast-charge time were all previously derived
+ * from multipliers or category lookups and presented as fact; they are now
+ * sourced-or-absent.
+ *
+ * Two computed blocks deliberately remain, because they are *calculators*
+ * rather than specs — each publishes the assumptions it uses, so a reader
+ * can see the number is modeled:
+ *   - running/charging cost (`ownershipTools`) — states ₹/unit, km/day, and
+ *     the comparison fuel efficiency in its summary.
+ *   - `realWorldRange` — carries its derating `factors` so the UI can show
+ *     the derivation instead of implying the figures were measured.
+ *
+ * Colour hex codes stay keyword-derived: they are a swatch approximation of
+ * a marketing colour name, not a claim about the vehicle.
  */
 
 const COLOR_KEYWORDS: [RegExp, string][] = [
@@ -52,38 +68,15 @@ function categorizeFeature(label: string): string {
   return "Highlights";
 }
 
-function chemistryFor(vehicle: Vehicle): string {
-  return vehicle.oem === "byd" ? "LFP Blade Battery" : "NMC (Nickel Manganese Cobalt)";
-}
-
-const POWER_MULTIPLIER: Record<VehicleCategory, number> = { car: 2.3, "2-wheeler": 2.0, commercial: 1.5 };
-const TORQUE_MULTIPLIER: Record<VehicleCategory, number> = { car: 2.0, "2-wheeler": 4.0, commercial: 3.0 };
-
-function powerKwFor(vehicle: Vehicle): number {
-  return Math.round(vehicle.batteryCapacityKwh * POWER_MULTIPLIER[vehicle.category] * 10) / 10;
-}
-
-function torqueNmFor(vehicle: Vehicle, powerKw: number): number {
-  return Math.round(powerKw * TORQUE_MULTIPLIER[vehicle.category]);
-}
-
-function fastChargeMinutesFor(vehicle: Vehicle): number {
-  return vehicle.chargingTimeFastMin ?? Math.round(vehicle.chargingTimeSlowHr * 60 * 0.4);
-}
-
-const BOOT_SPACE_BY_BODY_TYPE: Record<string, number> = {
-  hatchback: 300,
-  suv: 400,
-  sedan: 450,
-  muv: 500,
-  scooter: 30,
-  motorcycle: 15,
-  "three-wheeler-cargo": 550,
-  "three-wheeler-passenger": 0,
-  "small-truck": 1200,
-  van: 4000,
-  bus: 0,
-};
+/**
+ * Derating factors applied to the manufacturer's claimed (ARAI/MIDC) range to
+ * model real-world figures. Deliberately round numbers: these are a stated
+ * rule of thumb — claimed cycles are optimistic, highway running costs an EV
+ * more than city running does — not a researched per-vehicle measurement, and
+ * a value like 0.686 would imply a precision that does not exist. Surfaced in
+ * the UI via `VdpRealWorldRange.factors` so the derivation is visible.
+ */
+const REAL_WORLD_RANGE_FACTORS = { city: 0.8, highway: 0.7, mixed: 0.75 } as const;
 
 const BODY_TYPE_LABEL: Record<string, string> = {
   hatchback: "Hatchback",
@@ -99,6 +92,12 @@ const BODY_TYPE_LABEL: Record<string, string> = {
   bus: "Bus",
 };
 
+/**
+ * Body-type label comes from the catalog record (real), everything else is
+ * sourced-or-absent. Drive layout used to be guessed from whether a variant
+ * name contained "AWD"; boot space came from a per-body-type lookup table, so
+ * every SUV in the database claimed exactly 400 L. Both are now `specs`-only.
+ */
 function bodySpecsFor(vehicle: Vehicle): VdpBodySpecs {
   const bodyKey =
     (vehicle.category === "car"
@@ -106,27 +105,13 @@ function bodySpecsFor(vehicle: Vehicle): VdpBodySpecs {
       : vehicle.category === "2-wheeler"
         ? vehicle.twoWheelerType
         : vehicle.commercialType) ?? "suv";
-  const hasAwdVariant = vehicle.variants.some((v) => /awd/i.test(v.name));
-
-  let seatingCapacity: string;
-  let driveType: string;
-  if (vehicle.category === "car") {
-    seatingCapacity = `${vehicle.seatingCapacity ?? 5} Seater`;
-    driveType = hasAwdVariant ? "AWD" : "FWD";
-  } else if (vehicle.category === "2-wheeler") {
-    seatingCapacity = "2 Rider";
-    driveType = "Hub Motor (FWD)";
-  } else {
-    seatingCapacity = vehicle.seatingCapacity ? `${vehicle.seatingCapacity} Seater` : "Driver + Cargo";
-    driveType = "Rear Hub Motor (RWD)";
-  }
 
   return {
     bodyType: BODY_TYPE_LABEL[bodyKey] ?? bodyKey,
-    seatingCapacity,
-    driveType,
-    bootSpaceLiters: BOOT_SPACE_BY_BODY_TYPE[bodyKey] ?? (vehicle.category === "car" ? 350 : 25),
-    connectedCar: true,
+    seatingCapacity: vehicle.seatingCapacity ? `${vehicle.seatingCapacity} Seater` : undefined,
+    driveType: vehicle.specs?.motor?.driveLayout,
+    bootSpaceLiters: vehicle.specs?.dimensions?.bootSpaceLiters,
+    connectedCar: vehicle.specs?.features?.connectedCarApp,
   };
 }
 
@@ -149,7 +134,14 @@ function toFeatures(vehicle: Vehicle): VdpFeature[] {
   }));
 }
 
-function toFaqs(vehicle: Vehicle, fastChargeMinutes: number): VdpFaq[] {
+/**
+ * These FAQs are also emitted as schema.org `FAQPage` markup, so every answer
+ * has to be defensible as published fact — a fabricated figure here would be
+ * fed to search engines as a structured claim. The fast-charge answer is
+ * therefore split: it only quotes a DC time when the catalog actually has
+ * one, and otherwise answers with the home-charging figure alone.
+ */
+function toFaqs(vehicle: Vehicle, fastChargeMinutes: number | undefined): VdpFaq[] {
   const faqs: VdpFaq[] = [
     {
       id: "q1",
@@ -158,8 +150,10 @@ function toFaqs(vehicle: Vehicle, fastChargeMinutes: number): VdpFaq[] {
     },
     {
       id: "q2",
-      question: "How long does it take to fast charge?",
-      answer: `About ${fastChargeMinutes} minutes on a compatible fast charger (10-80%). A standard home charger takes roughly ${vehicle.chargingTimeSlowHr} hours for a full charge.`,
+      question: "How long does it take to charge?",
+      answer: fastChargeMinutes
+        ? `About ${fastChargeMinutes} minutes on a compatible fast charger (10-80%). A standard home charger takes roughly ${vehicle.chargingTimeSlowHr} hours for a full charge.`
+        : `A standard home charger takes roughly ${vehicle.chargingTimeSlowHr} hours for a full charge. ${vehicle.oemName} has not published a DC fast-charging time for the ${vehicle.modelName}.`,
     },
   ];
 
@@ -181,77 +175,66 @@ const OWNERSHIP_ASSUMPTIONS: Record<VehicleCategory, { dailyKm: number; fuelKmPe
   commercial: { dailyKm: 90, fuelKmPerL: 12, fuelLabel: "commercial vehicle" },
 };
 
+/** Tariff used by the running/charging-cost calculators, disclosed in their summaries. */
+const ELECTRICITY_RATE_PER_UNIT = 8;
+/** Petrol/diesel rate the fuel comparison is quoted against, disclosed likewise. */
+const FUEL_RATE_PER_LITRE = 105;
+
+/**
+ * Calculators, not specs — every figure below is reproducible from the
+ * assumptions printed in its own `summary`. A "Price History" tool used to
+ * sit here too, reporting `currentPrice × 1.012` as the price three months
+ * ago; there is no price-history source in this project, so it was removed
+ * rather than estimated. Restore it only against real recorded prices.
+ *
+ * The subsidy tool's rows are computed per-state at render time by
+ * `SectionOwnershipTools` via `subsidyRowsForState()`, which is why it ships
+ * an empty `rows` array here.
+ */
 function ownershipTools(vehicle: Vehicle): VdpOwnershipTool[] {
-  const price = Math.round(vehicle.priceRangeLakh[0] * 100000);
   const { dailyKm, fuelKmPerL, fuelLabel } = OWNERSHIP_ASSUMPTIONS[vehicle.category];
   const monthlyKm = dailyKm * 30;
   const unitsPerMonth = (monthlyKm / vehicle.rangeKm) * vehicle.batteryCapacityKwh;
-  const electricityCost = Math.round(unitsPerMonth * 8);
-  const petrolEquivalent = Math.round((monthlyKm / fuelKmPerL) * 105);
-  const chargeCost = Math.round(vehicle.batteryCapacityKwh * 8);
+  const electricityCost = Math.round(unitsPerMonth * ELECTRICITY_RATE_PER_UNIT);
+  const petrolEquivalent = Math.round((monthlyKm / fuelKmPerL) * FUEL_RATE_PER_LITRE);
+  const chargeCost = Math.round(vehicle.batteryCapacityKwh * ELECTRICITY_RATE_PER_UNIT);
   const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
-  const priceDriftMultiplier = vehicle.category === "car" ? 1.03 : vehicle.category === "2-wheeler" ? 1.05 : 1.02;
-
-  const subsidyRows: Record<VehicleCategory, { label: string; value: string }[]> = {
-    car: [
-      { label: "State subsidy (varies by state)", value: "Up to ₹1,50,000 in some states" },
-      { label: "Road tax / registration waiver", value: "Often 100% in EV-friendly states" },
-    ],
-    "2-wheeler": [
-      { label: "State subsidy (varies by state)", value: "Up to ₹30,000 in some states" },
-      { label: "Registration waiver", value: "Often 100% in EV-friendly states" },
-    ],
-    commercial: [
-      { label: "FAME-II / PM E-DRIVE incentive (varies)", value: "Applicable on many commercial EV categories" },
-      { label: "Permit / road tax waiver", value: "Often reduced or waived in EV-friendly states" },
-    ],
-  };
 
   return [
     {
       id: "running-cost",
       title: "Running Cost",
-      summary: `Estimated at ${dailyKm} km/day, ₹8/unit, vs. a comparable diesel/petrol ${fuelLabel} at ${fuelKmPerL} km/l.`,
+      summary: `Calculated at ${dailyKm} km/day and ₹${ELECTRICITY_RATE_PER_UNIT}/unit, against a comparable petrol/diesel ${fuelLabel} at ${fuelKmPerL} km/l and ₹${FUEL_RATE_PER_LITRE}/litre.`,
       rows: [
         { label: "Monthly electricity cost", value: inr(electricityCost) },
         { label: "Equivalent fuel cost", value: inr(petrolEquivalent) },
-        { label: "Estimated monthly saving", value: inr(petrolEquivalent - electricityCost) },
+        { label: "Monthly saving", value: inr(petrolEquivalent - electricityCost) },
       ],
     },
     {
       id: "charging-cost",
       title: "Charging Cost",
-      summary: `A full home/depot charge costs approximately ${inr(chargeCost)}.`,
+      summary: `A full ${vehicle.batteryCapacityKwh} kWh home/depot charge at ₹${ELECTRICITY_RATE_PER_UNIT}/unit, spread over the ${vehicle.rangeKm} km claimed range.`,
       rows: [
-        { label: "Cost per full charge (₹8/unit)", value: inr(chargeCost) },
+        { label: `Cost per full charge (₹${ELECTRICITY_RATE_PER_UNIT}/unit)`, value: inr(chargeCost) },
         { label: "Cost per km", value: `₹${(chargeCost / vehicle.rangeKm).toFixed(2)}` },
-      ],
-    },
-    {
-      id: "price-history",
-      title: "Price History",
-      summary: "Ex-showroom price movement, estimated over the last 6 months.",
-      rows: [
-        { label: "Current price", value: inr(price) },
-        { label: "3 months ago (est.)", value: inr(Math.round(price * 1.012)) },
-        { label: "6 months ago (est.)", value: inr(Math.round(price * priceDriftMultiplier)) },
       ],
     },
     {
       id: "subsidy",
       title: "Subsidy Calculator",
-      summary: "Estimated only — confirm eligibility and amount with your state EV policy.",
-      rows: subsidyRows[vehicle.category],
+      summary: "Confirm eligibility and amount with your state EV policy.",
+      rows: [],
     },
   ];
 }
 
 export function toVehicleDetail(vehicle: Vehicle): VehicleDetail {
-  const powerKw = powerKwFor(vehicle);
-  const fastChargeMinutes = fastChargeMinutesFor(vehicle);
+  const specs = vehicle.specs;
+  // Sourced only — absent for every vehicle whose OEM figure hasn't been
+  // researched yet. Previously `chargingTimeSlowHr * 60 * 0.4`.
+  const fastChargeMinutes = vehicle.chargingTimeFastMin;
   const related = getRelatedVehicles(vehicle);
-  const isThreeWheeler =
-    vehicle.commercialType === "three-wheeler-cargo" || vehicle.commercialType === "three-wheeler-passenger";
 
   return {
     id: vehicle.id,
@@ -268,34 +251,43 @@ export function toVehicleDetail(vehicle: Vehicle): VehicleDetail {
     quickSpecs: {
       rangeKm: vehicle.rangeKm,
       batteryKwh: vehicle.batteryCapacityKwh,
-      powerKw,
-      torqueNm: torqueNmFor(vehicle, powerKw),
+      // Previously batteryKwh × a per-category multiplier, presented as the
+      // vehicle's real output. Sourced only now.
+      powerKw: specs?.motor?.peakPowerKw,
+      torqueNm: specs?.motor?.peakTorqueNm,
       fastChargeMinutes,
       fastChargeFromPct: 10,
       fastChargeToPct: 80,
-      warrantyYears: vehicle.category === "car" ? 8 : vehicle.category === "2-wheeler" ? 3 : 5,
-      warrantyKm: vehicle.category === "car" ? 160000 : vehicle.category === "2-wheeler" ? 40000 : 100000,
+      // Previously a flat 8yr/160k for every car, 3yr/40k for every
+      // 2-wheeler, regardless of what the manufacturer actually offers.
+      warrantyYears: specs?.warranty?.vehicleYears,
+      warrantyKm: specs?.warranty?.vehicleKm,
     },
     variants: toVariants(vehicle),
     colors: vehicle.colors.map((name, i) => ({ id: `c${i + 1}`, name, hex: colorNameToHex(name) })),
     battery: {
       capacityKwh: vehicle.batteryCapacityKwh,
       araiRangeKm: vehicle.rangeKm,
-      chemistry: chemistryFor(vehicle),
+      // Previously "LFP Blade Battery" for BYD and "NMC" for literally every
+      // other vehicle on the site.
+      chemistry: specs?.batteryChemistry,
     },
     charging: {
       dcFastChargeMinutes: fastChargeMinutes,
       dcFastChargeFromPct: 10,
       dcFastChargeToPct: 80,
       acHomeChargeHours: vehicle.chargingTimeSlowHr,
-      connectorType: vehicle.category === "2-wheeler" || isThreeWheeler ? "Type 2 (proprietary)" : "CCS2",
+      // Previously assumed CCS2 for all cars and "Type 2 (proprietary)" for
+      // all 2-/3-wheelers.
+      connectorType: specs?.chargingExtra?.connectorType,
     },
     bodySpecs: bodySpecsFor(vehicle),
     realWorldRange: {
       araiKm: vehicle.rangeKm,
-      cityKm: Math.round(vehicle.rangeKm * 0.78),
-      highwayKm: Math.round(vehicle.rangeKm * 0.686),
-      mixedKm: Math.round(vehicle.rangeKm * 0.732),
+      cityKm: Math.round(vehicle.rangeKm * REAL_WORLD_RANGE_FACTORS.city),
+      highwayKm: Math.round(vehicle.rangeKm * REAL_WORLD_RANGE_FACTORS.highway),
+      mixedKm: Math.round(vehicle.rangeKm * REAL_WORLD_RANGE_FACTORS.mixed),
+      factors: REAL_WORLD_RANGE_FACTORS,
     },
     ownershipTools: ownershipTools(vehicle),
     features: toFeatures(vehicle),

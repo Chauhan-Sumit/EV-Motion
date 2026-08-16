@@ -37,21 +37,33 @@ function fmtKm(n: number): string {
   return `${n.toLocaleString("en-IN")} km`;
 }
 
+/**
+ * Power and torque are sourced-only. These used to fall back to a "(est.)"
+ * figure derived from battery capacity — which meant the Power and Torque
+ * rows were a restatement of the Battery row, and, because they also fed
+ * `barValue`, they let battery size be counted three times over in the
+ * winner engine and the overall verdict. Unsourced now reads as unsourced.
+ */
 function powerLabel(v: VehicleDetail): string {
-  const real = v.sourceVehicle.specs?.motor?.peakPowerKw;
-  return real ? `${real} kW` : `${v.quickSpecs.powerKw} kW (est.)`;
+  const real = v.quickSpecs.powerKw;
+  return real ? `${real} kW` : NOT_SPECIFIED;
 }
 
 function torqueLabel(v: VehicleDetail): string {
-  const real = v.sourceVehicle.specs?.motor?.peakTorqueNm;
-  return real ? `${real} Nm` : `${v.quickSpecs.torqueNm} Nm (est.)`;
+  const real = v.quickSpecs.torqueNm;
+  return real ? `${real} Nm` : NOT_SPECIFIED;
+}
+
+function fastChargeLabel(v: VehicleDetail, suffix = ""): string {
+  const real = v.quickSpecs.fastChargeMinutes;
+  return real ? `${real} min${suffix}` : NOT_SPECIFIED;
 }
 
 export const OVERVIEW_SPEC_ROWS: SpecRow[] = [
   { key: "battery", label: "Battery", section: "overview", render: (v) => `${v.quickSpecs.batteryKwh} kWh`, barValue: (v) => v.quickSpecs.batteryKwh },
   { key: "range", label: "Range", section: "overview", render: (v) => fmtKm(v.quickSpecs.rangeKm), barValue: (v) => v.quickSpecs.rangeKm },
-  { key: "power", label: "Power", section: "overview", render: powerLabel, barValue: (v) => v.sourceVehicle.specs?.motor?.peakPowerKw ?? v.quickSpecs.powerKw },
-  { key: "torque", label: "Torque", section: "overview", render: torqueLabel, barValue: (v) => v.sourceVehicle.specs?.motor?.peakTorqueNm ?? v.quickSpecs.torqueNm },
+  { key: "power", label: "Power", section: "overview", render: powerLabel, barValue: (v) => v.quickSpecs.powerKw ?? null },
+  { key: "torque", label: "Torque", section: "overview", render: torqueLabel, barValue: (v) => v.quickSpecs.torqueNm ?? null },
   { key: "topSpeed", label: "Top Speed", section: "overview", render: (v) => `${v.sourceVehicle.topSpeedKmph} km/h` },
   {
     key: "acceleration",
@@ -63,8 +75,8 @@ export const OVERVIEW_SPEC_ROWS: SpecRow[] = [
     key: "fastCharge",
     label: "Charging Time",
     section: "overview",
-    render: (v) => `${v.quickSpecs.fastChargeMinutes} min (10-80%)`,
-    barValue: (v) => v.quickSpecs.fastChargeMinutes,
+    render: (v) => fastChargeLabel(v, " (10-80%)"),
+    barValue: (v) => v.quickSpecs.fastChargeMinutes ?? null,
   },
   {
     key: "efficiency",
@@ -94,8 +106,8 @@ export const CHARGING_SPEC_ROWS: SpecRow[] = [
     key: "fastCharge",
     label: "DC Fast Charging (10-80%)",
     section: "charging",
-    render: (v) => `${v.quickSpecs.fastChargeMinutes} min`,
-    barValue: (v) => v.quickSpecs.fastChargeMinutes,
+    render: (v) => fastChargeLabel(v),
+    barValue: (v) => v.quickSpecs.fastChargeMinutes ?? null,
   },
   {
     key: "acCharge",
@@ -131,8 +143,8 @@ export const CHARGING_SPEC_ROWS: SpecRow[] = [
 ];
 
 export const PERFORMANCE_SPEC_ROWS: SpecRow[] = [
-  { key: "power", label: "Power", section: "performance", render: powerLabel, barValue: (v) => v.sourceVehicle.specs?.motor?.peakPowerKw ?? v.quickSpecs.powerKw },
-  { key: "torque", label: "Torque", section: "performance", render: torqueLabel, barValue: (v) => v.sourceVehicle.specs?.motor?.peakTorqueNm ?? v.quickSpecs.torqueNm },
+  { key: "power", label: "Power", section: "performance", render: powerLabel, barValue: (v) => v.quickSpecs.powerKw ?? null },
+  { key: "torque", label: "Torque", section: "performance", render: torqueLabel, barValue: (v) => v.quickSpecs.torqueNm ?? null },
   {
     key: "acceleration",
     label: "0-100 km/h",
@@ -305,7 +317,7 @@ export const WINNER_METRICS: WinnerMetric<VehicleDetail>[] = [
     direction: "lower-better",
     value: (v) => v.sourceVehicle.accelerationSec0To100 ?? null,
   },
-  { key: "fastCharge", label: "Faster DC Charging", section: "charging", direction: "lower-better", value: (v) => v.quickSpecs.fastChargeMinutes },
+  { key: "fastCharge", label: "Faster DC Charging", section: "charging", direction: "lower-better", value: (v) => v.quickSpecs.fastChargeMinutes ?? null },
   { key: "acCharge", label: "Faster AC Charging", section: "charging", direction: "lower-better", value: (v) => v.charging.acHomeChargeHours },
   {
     key: "v2l",
