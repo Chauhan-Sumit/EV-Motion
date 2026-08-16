@@ -1,18 +1,24 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { parseCompareSlug, buildCompareSlug } from "@/lib/compare/slug";
+import { buildCompareSlug } from "@/lib/compare/slug";
+import { parseCompareSlug } from "@/lib/compare/parse-slug";
+import { popularComparisonPairs } from "@/lib/compare/popular-pairs";
 import { toVehicleDetail } from "@/lib/data/ev-motion/toVehicleDetail";
 import { breadcrumbJsonLd, comparisonItemListJsonLd, faqJsonLd } from "@/lib/structured-data";
 import { computeComparisonFaqs } from "@/lib/compare/faqs";
 import { ComparePageContent } from "@/components/compare/ComparePageContent";
 
 /**
- * No `generateStaticParams` here — unlike every sibling `[slug]` route in
- * this app (which enumerates a finite dataset), the combinatorial space of
- * 2- and 3-vehicle comparisons (C(54,2)+C(54,3) for cars alone) is far too
- * large to pre-render. Renders on demand instead (`dynamicParams` defaults
- * to true). Don't "fix" this to match the sibling routes.
+ * Pre-renders the *popular* comparisons only, not the whole combinatorial
+ * space — see `popularComparisonPairs()` for the reasoning. The full space
+ * (C(54,2)+C(54,3) for cars alone) remains far too large to enumerate, so
+ * don't widen this to every possible pair; `dynamicParams` stays at its
+ * default `true`, and any comparison outside this set renders on demand
+ * exactly as it did before.
  */
+export function generateStaticParams() {
+  return popularComparisonPairs().map((pair) => ({ slug: pair.slug }));
+}
 
 export async function generateMetadata({ params }: PageProps<"/compare/[slug]">): Promise<Metadata> {
   const { slug } = await params;

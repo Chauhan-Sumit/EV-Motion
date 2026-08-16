@@ -4,10 +4,23 @@ import { commercial } from "@/lib/data/commercial";
 import { parseListingParams } from "@/lib/listing-params";
 import { COMMERCIAL_FILTER_CONFIG } from "@/lib/vehicle-filter-options";
 
+/**
+ * The commercial category has complete architecture but no data yet (Batch 5
+ * — see CLAUDE.md). Until it does, this page is marked `noindex`: the copy
+ * would otherwise read "Browse 0 commercial electric vehicles" and the page
+ * is a textbook thin-content/soft-404 signal. The route stays reachable and
+ * fully functional, and drops back into the index automatically the moment
+ * `commercial.ts` has records — nothing to remember to undo.
+ */
+const hasVehicles = commercial.length > 0;
+
 export const metadata: Metadata = {
   title: "Commercial EVs in India — Compare Prices, Range & Specs",
-  description: `Browse ${commercial.length} commercial electric vehicles — 3-wheelers, small trucks, vans and buses — from every major OEM in India. Filter by price, range, battery, vehicle type and brand.`,
+  description: hasVehicles
+    ? `Browse ${commercial.length} commercial electric vehicles — 3-wheelers, small trucks, vans and buses — from every major OEM in India. Filter by price, range, battery, vehicle type and brand.`
+    : "Commercial electric vehicles in India — 3-wheelers, small trucks, vans and buses. Listings coming soon.",
   alternates: { canonical: "/commercial" },
+  ...(hasVehicles ? {} : { robots: { index: false, follow: true } }),
 };
 
 const {

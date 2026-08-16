@@ -5,8 +5,7 @@ import { commercial } from "@/lib/data/commercial";
 import { oems } from "@/lib/data/oems";
 import { routeSegmentFor } from "@/lib/data/categories";
 import { SITE_URL } from "@/lib/site";
-import { buildCompareSlug } from "@/lib/compare/slug";
-import { carComparisons, bikeComparisons } from "@/lib/data/ev-motion/derive";
+import { popularComparisonPairs } from "@/lib/compare/popular-pairs";
 import type { Vehicle } from "@/types/vehicle";
 
 function vehicleRoutes(vehicles: Vehicle[]): MetadataRoute.Sitemap {
@@ -22,7 +21,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE_URL}/`, changeFrequency: "daily", priority: 1 },
     { url: `${SITE_URL}/cars`, changeFrequency: "daily", priority: 0.9 },
     { url: `${SITE_URL}/two-wheelers`, changeFrequency: "daily", priority: 0.9 },
-    { url: `${SITE_URL}/commercial`, changeFrequency: "daily", priority: 0.9 },
+    // Listed only once it has vehicles — submitting an empty listing page
+    // ("Browse 0 commercial electric vehicles") is a thin-content signal.
+    // The route itself keeps working either way; see src/lib/data/commercial.ts.
+    ...(commercial.length > 0
+      ? [{ url: `${SITE_URL}/commercial`, changeFrequency: "daily" as const, priority: 0.9 }]
+      : []),
     { url: `${SITE_URL}/brands`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/compare`, changeFrequency: "weekly", priority: 0.6 },
   ];
@@ -33,8 +37,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  const compareRoutes: MetadataRoute.Sitemap = [...carComparisons, ...bikeComparisons].map((pair) => ({
-    url: `${SITE_URL}/compare/${buildCompareSlug([pair.vehicleA.vehicle, pair.vehicleB.vehicle])}`,
+  // The same set `/compare/[slug]` pre-renders, so sitemap and pre-render
+  // coverage can't drift apart. This used to list only the six hand-curated
+  // homepage pairs, leaving every other comparison page — the highest-intent
+  // organic queries this site has — undiscoverable.
+  const compareRoutes: MetadataRoute.Sitemap = popularComparisonPairs().map((pair) => ({
+    url: `${SITE_URL}/compare/${pair.slug}`,
     changeFrequency: "weekly",
     priority: 0.5,
   }));
