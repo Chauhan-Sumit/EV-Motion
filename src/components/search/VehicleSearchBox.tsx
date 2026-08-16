@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { searchVehicles, type LinkSuggestion, type SearchScope, type VehicleSuggestion } from "@/lib/search";
 import { loadSearchIndex } from "@/lib/search-index-client";
 import { POPULAR_SEARCHES_BY_SCOPE } from "@/lib/popular-searches";
+import { track } from "@/lib/analytics/track";
 import { categoryConfig } from "@/lib/data/categories";
 import { loadRecentSearches, saveRecentSearch } from "@/lib/search-history";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
@@ -94,6 +95,20 @@ export function VehicleSearchBox({
     () => searchVehicles(searchIndex, debouncedValue, 8, categoryScope),
     [searchIndex, debouncedValue, categoryScope],
   );
+
+  // Recorded once per settled query, not per keystroke — the value is debounced,
+  // so this fires when someone stops typing. `resultCount: 0` is the point of
+  // collecting this at all: zero-result searches are a ranked, user-written
+  // list of what the catalog is missing. See lib/analytics/types.
+  useEffect(() => {
+    const query = debouncedValue.trim();
+    if (!query || !searchIndex) return;
+    track("search", {
+      query: query.toLowerCase(),
+      resultCount: outcome.totalVehicleMatches,
+      scope: categoryScope,
+    });
+  }, [debouncedValue, searchIndex, outcome.totalVehicleMatches, categoryScope]);
 
   const items: FlatItem[] = useMemo(() => {
     const flat: FlatItem[] = outcome.vehicles.map((suggestion) => ({

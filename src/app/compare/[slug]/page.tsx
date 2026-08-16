@@ -7,6 +7,7 @@ import { toVehicleDetail } from "@/lib/data/ev-motion/toVehicleDetail";
 import { breadcrumbJsonLd, comparisonItemListJsonLd, faqJsonLd } from "@/lib/structured-data";
 import { computeComparisonFaqs } from "@/lib/compare/faqs";
 import { ComparePageContent } from "@/components/compare/ComparePageContent";
+import { TrackPageView } from "@/components/common/TrackPageView";
 
 /**
  * Pre-renders the *popular* comparisons only, not the whole combinatorial
@@ -75,6 +76,7 @@ export default async function ComparisonPage({ params }: PageProps<"/compare/[sl
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd(comparisonFaqs)) }}
         />
       ) : null}
+      <TrackPageView event="compare_view" slug={canonicalSlug} category={vehicles[0].category} />
       <ComparePageContent vehicles={details} />
     </>
   );

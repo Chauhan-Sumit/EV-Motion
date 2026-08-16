@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { AlertTriangle, RotateCw } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { reportError } from "@/lib/analytics/reportError";
 
 export default function ErrorBoundary({
   error,
@@ -14,6 +15,7 @@ export default function ErrorBoundary({
 }) {
   useEffect(() => {
     console.error(error);
+    reportError(error, { boundary: "root" });
   }, [error]);
 
   return (

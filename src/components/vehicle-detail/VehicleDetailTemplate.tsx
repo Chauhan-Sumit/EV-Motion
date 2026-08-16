@@ -2,6 +2,7 @@ import type { VehicleDetail } from "@/types/vehicle-detail";
 import { getSimilarVehicleDetails } from "@/lib/data/ev-motion/toVehicleDetail";
 import { Container } from "@/components/ui/Container";
 import { AdSlot } from "@/components/common/AdSlot";
+import { TrackPageView } from "@/components/common/TrackPageView";
 import { VehicleHero } from "./VehicleHero";
 import { QuickSpecsBar } from "./QuickSpecsBar";
 import { StickyTabs } from "./StickyTabs";
@@ -37,6 +38,8 @@ export function VehicleDetailTemplate({ vehicle }: { vehicle: VehicleDetail }) {
       <Container className="hidden justify-center py-3.5 lg:flex">
         <AdSlot size="leaderboard" />
       </Container>
+
+      <TrackPageView event="vehicle_view" slug={vehicle.slug} category={vehicle.category} />
 
       <VehicleHero vehicle={vehicle} />
       <QuickSpecsBar vehicle={vehicle} />

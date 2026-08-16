@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { useLocation } from "@/context/LocationContext";
 import { validateField, type FieldValidation } from "@/lib/leads/validation";
+import { track } from "@/lib/analytics/track";
 import type { LeadFieldKey, LeadKind, LeadOutcome, LeadSubmission } from "@/lib/leads/types";
 
 export type LeadCaptureValidation = FieldValidation;
@@ -149,6 +150,9 @@ export function LeadCaptureDialog({
 
       if (result.status === "stored") {
         setOutcome("stored");
+        // Which CTA converted and for which vehicle — never the contact
+        // details the person just typed. Those live only in public.leads.
+        track("lead_submitted", { kind, vehicleSlug: vehicleSlug ?? null });
       } else if (result.status === "not-configured") {
         setOutcome("not-configured");
       } else if (result.status === "rate-limited") {

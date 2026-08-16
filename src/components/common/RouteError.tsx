@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { AlertTriangle, RotateCw } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { reportError } from "@/lib/analytics/reportError";
 
 /**
  * Shared body for every route-segment `error.tsx`.
@@ -30,9 +31,10 @@ export function RouteError({
   backLabel?: string;
 }) {
   useEffect(() => {
-    // Replace with the real error reporter once one exists (Batch 6).
     console.error(error);
-  }, [error]);
+    // Flushed immediately rather than batched — see reportError's note.
+    reportError(error, { boundary: heading });
+  }, [error, heading]);
 
   return (
     <Container className="flex min-h-[50vh] flex-col items-center justify-center py-14 text-center">
