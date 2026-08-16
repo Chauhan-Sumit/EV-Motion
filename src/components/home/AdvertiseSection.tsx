@@ -49,6 +49,7 @@ export function AdvertiseSection() {
 
         <div className="mt-5 flex justify-center">
           <LeadCaptureDialog
+            kind="advertise"
             triggerLabel="Get Advertiser Kit ›"
             triggerClassName="focus-ring rounded-md bg-primary px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-primary-hover"
             dialogTitle="Get the advertiser kit"

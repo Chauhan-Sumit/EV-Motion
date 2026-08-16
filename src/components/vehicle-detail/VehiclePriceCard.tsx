@@ -44,7 +44,7 @@ export function VehiclePriceCard({ vehicle }: { vehicle: VehicleDetail }) {
       </div>
 
       <div className="mt-3.5 flex flex-wrap gap-2">
-        <GetBestPriceDialog vehicleName={vehicle.name} />
+        <GetBestPriceDialog vehicleName={vehicle.name} vehicleSlug={vehicle.slug} />
         <Link
           href={compareHref}
           className="focus-ring flex items-center gap-1.5 rounded-md border border-primary bg-transparent px-4 py-2.5 text-[13px] font-semibold text-primary transition-colors hover:bg-primary-tint"

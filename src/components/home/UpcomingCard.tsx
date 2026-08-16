@@ -28,6 +28,7 @@ export function UpcomingCard({ item }: { item: UpcomingItemData }) {
         <p className="text-[13px] font-extrabold text-primary-bright">{item.expectedPriceLabel}</p>
         <div className="mt-auto pt-1">
           <LeadCaptureDialog
+            kind="notify-launch"
             triggerIcon={<Bell size={12} />}
             triggerLabel="Notify Me"
             triggerClassName="focus-ring flex w-full items-center justify-center gap-1.5 rounded-md bg-white/10 py-2 text-[11px] font-semibold text-white transition-colors hover:bg-primary-bright hover:text-surface-dark"

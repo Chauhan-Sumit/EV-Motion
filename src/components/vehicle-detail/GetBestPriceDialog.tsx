@@ -2,9 +2,11 @@
 
 import { LeadCaptureDialog } from "@/components/common/LeadCaptureDialog";
 
-export function GetBestPriceDialog({ vehicleName }: { vehicleName: string }) {
+export function GetBestPriceDialog({ vehicleName, vehicleSlug }: { vehicleName: string; vehicleSlug?: string }) {
   return (
     <LeadCaptureDialog
+      kind="best-price"
+      vehicleSlug={vehicleSlug}
       triggerLabel="Get Best Price"
       triggerClassName="focus-ring rounded-md bg-primary px-4 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-primary-hover"
       dialogTitle="Get the best price"

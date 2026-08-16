@@ -11,6 +11,7 @@ export function SidebarAdSlot() {
       <h4 className="mt-3 text-[15px] font-bold text-white">Your Brand Here</h4>
       <p className="mt-1 text-[11px] text-white/60">Drive results with EV enthusiasts</p>
       <LeadCaptureDialog
+        kind="advertise"
         triggerLabel="Advertise Now"
         triggerClassName="focus-ring mt-3.5 w-full rounded-lg bg-primary-bright px-3.5 py-2 text-[11.5px] font-semibold text-surface-dark transition-colors hover:brightness-95"
         dialogTitle="Advertise on EV Motion"

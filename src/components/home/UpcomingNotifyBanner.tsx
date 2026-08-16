@@ -9,6 +9,7 @@ export function UpcomingNotifyBanner() {
         <p className="text-[11.5px] text-ink-secondary">Get notified the moment a new EV launches in India.</p>
       </div>
       <LeadCaptureDialog
+        kind="notify-launch"
         triggerIcon={<Bell size={13} />}
         triggerLabel="Notify Me About New Launches"
         triggerClassName="focus-ring flex shrink-0 items-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-[12px] font-semibold text-white transition-colors hover:bg-primary-hover"
