@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
 import { buildCompareSlug } from "@/lib/compare/slug";
 import { carComparisons, bikeComparisons } from "@/lib/data/ev-motion/derive";
@@ -15,24 +16,68 @@ export function PopularComparisonsCard() {
           View all
         </Link>
       </div>
-      <ul className="p-3.5">
+
+      <ul className="flex flex-col">
         {pairs.map((pair) => {
           const href = `/compare/${buildCompareSlug([pair.vehicleA.vehicle, pair.vehicleB.vehicle])}`;
           return (
-            <li key={pair.id}>
+            <li key={pair.id} className="border-b border-border last:border-b-0">
               <Link
                 href={href}
-                className="focus-ring flex items-center gap-1.5 rounded-md py-1.5 text-[11px] font-medium text-ink-secondary transition-colors hover:text-primary"
+                aria-label={`Compare ${pair.vehicleA.name} and ${pair.vehicleB.name}`}
+                className="focus-ring group flex items-center gap-1 px-[13px] py-2.5 transition-colors hover:bg-primary-tint"
               >
-                <span className="h-6 w-6 shrink-0 overflow-hidden rounded-full bg-surface-secondary">
-                  <VehicleImage vehicle={pair.vehicleA.vehicle} color={pair.vehicleA.oemColor} sizes="24px" className="h-full w-full" />
+                {/* VS is centered against only the two vehicle columns (equal
+                    1fr tracks) — the chevron sits outside this grid as a
+                    separate flex item so it doesn't pull the badge off-center. */}
+                <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-1.5">
+                  <span className="flex min-w-0 items-center gap-1.5">
+                    <span className="relative h-7 w-7 shrink-0 overflow-hidden rounded-md bg-surface-secondary">
+                      <VehicleImage
+                        vehicle={pair.vehicleA.vehicle}
+                        color={pair.vehicleA.oemColor}
+                        sizes="28px"
+                        className="h-full w-full p-1"
+                      />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-[7.5px] font-bold uppercase leading-tight tracking-wide text-ink-muted">
+                        {pair.vehicleA.vehicle.oemName}
+                      </span>
+                      <span className="block text-[10px] font-bold leading-tight text-ink">
+                        {pair.vehicleA.vehicle.modelName}
+                      </span>
+                    </span>
+                  </span>
+
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-primary-tint text-[7px] font-extrabold text-primary">
+                    VS
+                  </span>
+
+                  <span className="flex min-w-0 flex-row-reverse items-center gap-1.5 text-right">
+                    <span className="relative h-7 w-7 shrink-0 overflow-hidden rounded-md bg-surface-secondary">
+                      <VehicleImage
+                        vehicle={pair.vehicleB.vehicle}
+                        color={pair.vehicleB.oemColor}
+                        sizes="28px"
+                        className="h-full w-full p-1"
+                      />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-[7.5px] font-bold uppercase leading-tight tracking-wide text-ink-muted">
+                        {pair.vehicleB.vehicle.oemName}
+                      </span>
+                      <span className="block text-[10px] font-bold leading-tight text-ink">
+                        {pair.vehicleB.vehicle.modelName}
+                      </span>
+                    </span>
+                  </span>
                 </span>
-                <span className="truncate">{pair.vehicleA.name}</span>
-                <span className="shrink-0 text-ink-muted">vs</span>
-                <span className="h-6 w-6 shrink-0 overflow-hidden rounded-full bg-surface-secondary">
-                  <VehicleImage vehicle={pair.vehicleB.vehicle} color={pair.vehicleB.oemColor} sizes="24px" className="h-full w-full" />
-                </span>
-                <span className="truncate">{pair.vehicleB.name}</span>
+
+                <ChevronRight
+                  size={13}
+                  className="shrink-0 text-ink-muted transition-colors group-hover:text-primary"
+                />
               </Link>
             </li>
           );
