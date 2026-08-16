@@ -20,7 +20,7 @@ export interface StateCharges {
   /**
    * State road tax/cess, as a % of ex-showroom price — a separate line item from
    * `registrationPct`'s RTO fee, added for the Vehicle Detail Page's itemized
-   * price breakdown (see `src/lib/pricing/`). Additive field: existing consumers
+   * price breakdown (see `src/lib/vehicle-pricing/`). Additive field: existing consumers
    * reading only `registrationPct`/`insurancePct`/`hasPurchaseSubsidy` (Compare
    * page, homepage Subsidy Calculator) are unaffected by its presence.
    */

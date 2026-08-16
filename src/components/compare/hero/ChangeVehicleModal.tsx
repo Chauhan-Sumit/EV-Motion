@@ -14,7 +14,7 @@ import {
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
 import { oemColorOf } from "@/lib/data/ev-motion/derive";
 import { getVehiclesByCategory } from "@/lib/data";
-import { POPULAR_SEARCHES_BY_SCOPE } from "@/components/search/VehicleSearchBox";
+import { POPULAR_SEARCHES_BY_SCOPE } from "@/lib/popular-searches";
 import { loadRecentSearches, saveRecentSearch } from "@/lib/search-history";
 import type { Vehicle, VehicleCategory } from "@/types/vehicle";
 
