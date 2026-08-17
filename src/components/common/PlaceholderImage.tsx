@@ -1,12 +1,28 @@
 import type { CSSProperties } from "react";
+import { Image } from "@imagekit/next";
 import { cn } from "@/lib/utils";
-import { VehicleCategory } from "@/types/vehicle";
+import { illustrationFor, subTypeLabelFor } from "@/lib/vehicle-illustrations";
+import { CarBodyType, CommercialType, TwoWheelerType, VehicleCategory } from "@/types/vehicle";
 
 interface PlaceholderImageProps {
   oemName: string;
   modelName: string;
   color: string;
   category: VehicleCategory;
+  /**
+   * Sub-type, when the caller has it. Selects a generic AI-generated
+   * illustration of that *vehicle type* (see `@/lib/vehicle-illustrations` for
+   * why it is per-type and never per-model); absent, or with no illustration
+   * generated yet, the hand-drawn category icon below is used instead. A
+   * lightweight search-index entry carries no sub-type and so keeps the icon,
+   * which is the right call at a 44px thumbnail anyway.
+   */
+  bodyType?: CarBodyType;
+  twoWheelerType?: TwoWheelerType;
+  commercialType?: CommercialType;
+  /** Forwarded to the illustration's <Image>. */
+  sizes?: string;
+  priority?: boolean;
   className?: string;
   /**
    * Renders the vehicle name as visible text inside the placeholder graphic.
@@ -85,15 +101,31 @@ export function PlaceholderImage({
   modelName,
   color,
   category,
+  bodyType,
+  twoWheelerType,
+  commercialType,
+  sizes = "(min-width: 1024px) 25vw, 50vw",
+  priority = false,
   className,
   showLabel = false,
 }: PlaceholderImageProps) {
   const Icon = category === "car" ? CarIcon : category === "2-wheeler" ? ScooterIcon : CommercialIcon;
 
+  const subject = { category, bodyType, twoWheelerType, commercialType };
+  const illustration = illustrationFor(subject);
+  const subTypeLabel = subTypeLabelFor(subject);
+
+  // Says out loud that this is a generic drawing, so a screen-reader user is
+  // never told a picture of *this* vehicle exists when none does. The icon path
+  // needs no such caveat — nobody mistakes a line icon for a photograph.
+  const accessibleName = illustration
+    ? `${oemName} ${modelName} — generic ${subTypeLabel ?? "vehicle"} illustration, not a photograph of this vehicle`
+    : `${oemName} ${modelName}`;
+
   return (
     <div
       role="img"
-      aria-label={`${oemName} ${modelName}`}
+      aria-label={accessibleName}
       className={cn(
         "relative flex flex-col items-center justify-center overflow-hidden rounded-[inherit]",
         className
@@ -108,7 +140,22 @@ export function PlaceholderImage({
           backgroundImage: `radial-gradient(circle at 20% 20%, ${color}33, transparent 60%)`,
         }}
       />
-      <Icon className="relative z-10 h-1/3 w-1/3 min-h-8 min-w-8" style={{ color }} />
+      {illustration ? (
+        // Transparent PNG cutout, so the brand-tinted gradient above still
+        // shows through and cards keep their per-OEM variety. `alt=""` because
+        // the wrapper's role="img" + aria-label already name this region;
+        // labelling both would read the vehicle out twice.
+        <Image
+          src={illustration.path}
+          alt=""
+          fill
+          sizes={sizes}
+          priority={priority}
+          className="relative z-10 object-contain p-[6%]"
+        />
+      ) : (
+        <Icon className="relative z-10 h-1/3 w-1/3 min-h-8 min-w-8" style={{ color }} />
+      )}
       {showLabel ? (
         <span
           className="relative z-10 mt-2 px-2 text-center text-sm font-heading font-medium"

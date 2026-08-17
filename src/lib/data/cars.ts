@@ -220,6 +220,36 @@ export const cars: Vehicle[] = [
     highlights: ["627 km ARAI range on the 75kWh RWD pack", "Optional all-wheel drive", "6.3s 0-100 km/h"],
     description:
       "Harrier EV tops Tata's mainstream electric range with two battery sizes and Tata's first electric AWD option, aimed at buyers cross-shopping premium SUVs.",
+    // Sourced Aug 2026 from Autocar India + Wikipedia + Bharat NCAP reporting.
+    // Deliberately absent: peak power/torque (Autocar's 313hp and the 390bhp
+    // "Boost Mode" figure disagree, and RWD/AWD differ — no single honest
+    // number); ground clearance (only the ICE Harrier's 205mm is published);
+    // kerb weight (a 2235-2336kg variant range); battery warranty (lifetime
+    // for the first owner, 10yr/200,000km from second registration — the
+    // conditional scheme this schema can't represent); driveLayout (both RWD
+    // and AWD are sold); batteryChemistry (LFP, but single-sourced).
+    specs: {
+      dimensions: { lengthMm: 4607, widthMm: 1922, heightMm: 1740, wheelbaseMm: 2741, bootSpaceLiters: 502 },
+      // 5 stars on the EV itself — BNCAP tested Empowered 75 and Empowered 75
+      // AWD, 32/32 adult and 45/49 child, applicable to all variants. Not an
+      // ICE-Harrier rating carried across.
+      safety: { ncapRating: 5, ncapAgency: "Bharat NCAP", airbagsCount: 7, adas: true, abs: true, esc: true, tpms: true, camera360: true },
+      warranty: { vehicleYears: 3, vehicleKm: 125000, motorYears: 8, motorKm: 160000 },
+      features: {
+        touchscreenInches: 14.53,
+        otaUpdates: true,
+        connectedCarApp: true,
+        ventilatedSeats: true,
+        sunroofType: "panoramic",
+        digitalCluster: true,
+        premiumAudioBrand: "JBL",
+      },
+      chargingExtra: { v2l: true, v2v: true },
+      motor: { regenBraking: true },
+      tyres: { size: "245/55 R19" },
+      suspension: { front: "Independent, MacPherson strut", rear: "Independent, multi-link" },
+      brakes: { front: "disc", rear: "disc" },
+    },
   },
   {
     id: "car-tata-sierra-ev",
@@ -250,6 +280,25 @@ export const cars: Vehicle[] = [
     highlights: ["665 km MIDC range", "5.8s 0-100 km/h in Boost Mode", "Optional Quad Wheel Drive (QWD)"],
     description:
       "Sierra EV revives Tata's cult SUV nameplate as a dedicated electric model, slotting between Curvv EV and Harrier EV with segment-leading acceleration.",
+    // Sourced Aug 2026 from Autocar India's Sierra EV spec page (not the ICE
+    // Sierra's) + ZigWheels' launch report.
+    // NO NCAP RATING ON PURPOSE: the Sierra EV has not been crash-tested. The
+    // widely-quoted 5-star Bharat NCAP result belongs to the petrol Sierra, and
+    // several aggregators present it as the EV's own — the same trap that kept
+    // a rating off the Tiago EV and Punch EV records.
+    // Also absent: peak power/torque (306hp converts to no round kW and the
+    // 504Nm figure is QWD-only, while RWD is standard); kerb weight (not
+    // published); battery warranty (lifetime for first owner — conditional).
+    specs: {
+      dimensions: { lengthMm: 4340, widthMm: 1841, heightMm: 1750, wheelbaseMm: 2730, groundClearanceMm: 205, bootSpaceLiters: 622 },
+      safety: { airbagsCount: 6, adas: true, abs: true, esc: true },
+      features: { touchscreenInches: 12.3, digitalCluster: true, connectedCarApp: true, otaUpdates: true },
+      chargingExtra: { v2l: true, v2v: true },
+      motor: { motorType: "Permanent magnet synchronous", regenBraking: true },
+      tyres: { size: "225/55 R19" },
+      suspension: { front: "Independent, MacPherson strut", rear: "Independent, multi-link" },
+      brakes: { front: "disc", rear: "disc" },
+    },
   },
   {
     id: "car-mg-zs-ev",
@@ -484,6 +533,31 @@ export const cars: Vehicle[] = [
     highlights: ["V2L and V2V charging", "ADAS Level 2", "473 km range on the bigger pack"],
     description:
       "Creta Electric brings Hyundai's best-selling nameplate into the EV era, aiming to convert loyal Creta buyers into EV owners.",
+    // Mostly OEM-primary: dimensions, motor power, motor type, tyres, suspension
+    // and brakes are from Hyundai India's own Creta Electric specification page.
+    // Torque, boot space and the airbag count come from Autocar India/ZigWheels,
+    // which Hyundai's page doesn't publish. Power is the 51.4kWh figure (126 kW /
+    // 171 PS), matching this record's headline battery; the 42kWh pack is 99 kW.
+    // No NCAP rating: no Bharat NCAP result for the Creta *Electric* was found,
+    // and the petrol Creta's rating is not this car's.
+    // No batteryChemistry: Hyundai publishes only "liquid cooled Lithium Ion",
+    // which is a pack type, not the NMC/LFP-level chemistry this field means.
+    specs: {
+      dimensions: { lengthMm: 4340, widthMm: 1790, heightMm: 1655, wheelbaseMm: 2610, groundClearanceMm: 200, bootSpaceLiters: 433 },
+      safety: { airbagsCount: 6, adas: true, abs: true, esc: true },
+      features: { connectedCarApp: true, otaUpdates: true, digitalCluster: true },
+      chargingExtra: { connectorType: "CCS2", v2l: true, v2v: true },
+      motor: {
+        motorType: "Interior permanent magnet synchronous (IPMSM)",
+        peakPowerKw: 126,
+        peakTorqueNm: 255,
+        driveLayout: "FWD",
+        regenBraking: true,
+      },
+      tyres: { size: "215/60 R17" },
+      suspension: { front: "Independent, MacPherson strut", rear: "Coupled torsion beam axle" },
+      brakes: { front: "disc", rear: "disc" },
+    },
   },
   {
     id: "car-hyundai-ioniq-5",
@@ -611,6 +685,23 @@ export const cars: Vehicle[] = [
     highlights: ["8.3s 0-100 km/h", "456 km range", "Blue Sense connected app"],
     description:
       "XUV400 punches above its price with segment-leading acceleration, built on the tried-and-tested XUV300 body.",
+    // Sourced Aug 2026 from ZigWheels/CarDekho/AckoDrive, cross-checked.
+    // Power reconciles cleanly across three quoted units: 110 kW = 147.51 bhp =
+    // 149.55 PS, which is why 110 is recorded rather than the "149.55 kW" one
+    // aggregator prints - that is the PS figure in a kW field, not a 150 kW
+    // motor. Torque 310 Nm is quoted consistently.
+    // Wheelbase is 2600mm, the XUV300 platform's: one aggregator lists 2445mm,
+    // which no other source supports.
+    // Absent: boot space (sources split between 368 and 378 litres, so neither
+    // is safe to publish); NCAP (no Bharat NCAP result for the XUV400 itself was
+    // found - the XUV300's Global NCAP stars are a different car and a different
+    // programme).
+    specs: {
+      dimensions: { lengthMm: 4200, widthMm: 1821, heightMm: 1634, wheelbaseMm: 2600, groundClearanceMm: 200, kerbWeightKg: 1578 },
+      safety: { abs: true, esc: true },
+      motor: { peakPowerKw: 110, peakTorqueNm: 310, driveLayout: "FWD", regenBraking: true },
+      chargingExtra: { connectorType: "CCS2" },
+    },
   },
   {
     id: "car-mahindra-be-6",
@@ -646,8 +737,14 @@ export const cars: Vehicle[] = [
     specs: {
       dimensions: { lengthMm: 4371, widthMm: 1907, heightMm: 1627, wheelbaseMm: 2775, groundClearanceMm: 207, bootSpaceLiters: 455, kerbWeightKg: 2070 },
       safety: { ncapRating: 5, ncapAgency: "Bharat NCAP", airbagsCount: 6, adas: true, camera360: true },
-      motor: { peakPowerKw: 213, peakTorqueNm: 380, driveLayout: "RWD", regenBraking: true },
+      // 210 kW, not 213: Mahindra's own launch press release states "up to
+      // 210 kW" for the 79 kWh pack. 213 was a back-conversion of the quoted
+      // 286 PS, and since BE 6 and XEV 9e share this exact powertrain, the 3 kW
+      // artifact was enough to hand BE 6 a false Power crown over its sibling in
+      // the winner engine. Corrected on both records together.
+      motor: { peakPowerKw: 210, peakTorqueNm: 380, driveLayout: "RWD", regenBraking: true },
       chargingExtra: { connectorType: "CCS2" },
+      batteryChemistry: "LFP",
     },
   },
   {
@@ -679,6 +776,34 @@ export const cars: Vehicle[] = [
     highlights: ["Coupe-SUV silhouette on the INGLO platform", "656 km range on the 79kWh pack", "202 km/h top speed"],
     description:
       "XEV 9e is the production coupe-SUV sibling to the BE 6, aimed at buyers who want Mahindra's dedicated EV platform in a more premium, feature-loaded package.",
+    // Sourced Aug 2026 from Mahindra's BE 6e/XEV 9e launch press release
+    // (power, torque, LFP chemistry) + Autocar India's spec page (dimensions,
+    // running gear). Power is the 79kWh figure, matching this record's headline
+    // battery; torque is 380Nm on every variant, so it needs no such caveat.
+    // NCAP is unambiguous here: the XEV 9e is born-electric with no petrol twin,
+    // so a 5-star Bharat NCAP result can only be the EV's own.
+    // Absent on purpose: battery warranty (Mahindra's "lifetime for the first
+    // owner, 10 years if transferred" scheme doesn't reduce to one honest
+    // number in this schema - same call as the BE 6 record); sunroofType (it is
+    // a *fixed* glass roof, and none of "none"/"electric"/"panoramic" says that
+    // truthfully); touchscreenInches (Autocar doesn't publish it).
+    specs: {
+      dimensions: { lengthMm: 4789, widthMm: 1907, heightMm: 1694, wheelbaseMm: 2775, groundClearanceMm: 218, bootSpaceLiters: 663 },
+      safety: { ncapRating: 5, ncapAgency: "Bharat NCAP", airbagsCount: 7, adas: true, abs: true, esc: true, camera360: true },
+      features: { digitalCluster: true, ventilatedSeats: true, connectedCarApp: true, otaUpdates: true, premiumAudioBrand: "Harman Kardon" },
+      motor: {
+        motorType: "Permanent magnet synchronous",
+        peakPowerKw: 210,
+        peakTorqueNm: 380,
+        driveLayout: "RWD",
+        regenBraking: true,
+      },
+      chargingExtra: { connectorType: "CCS2" },
+      batteryChemistry: "LFP",
+      tyres: { size: "245/55 R19" },
+      suspension: { front: "Independent, MacPherson strut", rear: "Independent, multi-link" },
+      brakes: { front: "disc", rear: "disc" },
+    },
   },
   {
     id: "car-mahindra-xev-9s",

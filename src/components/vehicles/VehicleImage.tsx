@@ -1,18 +1,26 @@
 import { Image } from "@imagekit/next";
 import { PlaceholderImage } from "@/components/common/PlaceholderImage";
-import { VehicleCategory } from "@/types/vehicle";
+import { CarBodyType, CommercialType, TwoWheelerType, VehicleCategory } from "@/types/vehicle";
 
 /**
- * The four fields this component actually reads, rather than a whole
- * `Vehicle`. A full `Vehicle` is structurally assignable to this, so every
- * existing caller is unaffected — but it also lets a lightweight
- * `VehicleIndexEntry` render here without the search box having to load the
- * entire catalog just to draw a 44px thumbnail.
+ * The fields this component actually reads, rather than a whole `Vehicle`. A
+ * full `Vehicle` is structurally assignable to this, so every existing caller
+ * is unaffected — but it also lets a lightweight `VehicleIndexEntry` render
+ * here without the search box having to load the entire catalog just to draw a
+ * 44px thumbnail.
+ *
+ * The three sub-type fields are optional for exactly that reason: a `Vehicle`
+ * has one of them and gets a vehicle-type illustration in the placeholder; an
+ * index entry has none and falls back to the category icon, keeping the search
+ * index lean (CLAUDE.md point 23).
  */
 export interface VehicleImageSubject {
   oemName: string;
   modelName: string;
   category: VehicleCategory;
+  bodyType?: CarBodyType;
+  twoWheelerType?: TwoWheelerType;
+  commercialType?: CommercialType;
   images: { photoUrl?: string };
 }
 
@@ -55,6 +63,11 @@ export function VehicleImage({
       modelName={vehicle.modelName}
       color={color}
       category={vehicle.category}
+      bodyType={vehicle.bodyType}
+      twoWheelerType={vehicle.twoWheelerType}
+      commercialType={vehicle.commercialType}
+      sizes={sizes}
+      priority={priority}
       className={className}
       showLabel={showLabel}
     />

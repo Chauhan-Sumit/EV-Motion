@@ -11,6 +11,11 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    // `scripts/*.mts` run directly under Node's native type stripping, which
+    // requires the explicit `.ts` extension on relative imports. Safe here
+    // because `noEmit` is on, and it keeps those scripts inside the typecheck
+    // rather than excluding them from it.
+    "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
     "incremental": true,
     "plugins": [
