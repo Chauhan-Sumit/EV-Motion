@@ -77,6 +77,11 @@ export const cars: Vehicle[] = [
     highlights: ["Lowest entry price of any EV in India", "315 km range on the LR pack", "Harman infotainment"],
     description:
       "Tiago EV brings electric mobility within reach of first-time car buyers, undercutting every other EV on price without skimping on range.",
+    specs: {
+      dimensions: { lengthMm: 3825, widthMm: 1684, heightMm: 1562, wheelbaseMm: 2400, groundClearanceMm: 165, bootSpaceLiters: 240 },
+      motor: { peakPowerKw: 55, peakTorqueNm: 114, driveLayout: "FWD", regenBraking: true },
+      chargingExtra: { connectorType: "CCS2" },
+    },
   },
   {
     id: "car-tata-curvv-ev",
@@ -145,6 +150,11 @@ export const cars: Vehicle[] = [
     highlights: ["468 km ARAI range on the 40kWh pack", "Battery-as-a-Service purchase option", "Lifetime battery warranty on the 40kWh pack"],
     description:
       "Punch EV carries Tata's tallboy micro-SUV design onto a dedicated electric platform, offered with two battery sizes and a subscription-style ownership option.",
+    specs: {
+      dimensions: { lengthMm: 3880, widthMm: 1742, heightMm: 1622, wheelbaseMm: 2445, groundClearanceMm: 195, bootSpaceLiters: 366 },
+      motor: { driveLayout: "FWD", regenBraking: true },
+      chargingExtra: { connectorType: "CCS2" },
+    },
   },
   {
     id: "car-tata-tigor-ev",
@@ -174,6 +184,12 @@ export const cars: Vehicle[] = [
     highlights: ["One of the first EVs crash-tested by Global NCAP", "315 km ARAI range", "Sub-4-metre sedan footprint"],
     description:
       "Tigor EV pairs Tata's Ziptron powertrain with a compact sedan body, for buyers who want three-box practicality without stepping up to an SUV.",
+    specs: {
+      dimensions: { lengthMm: 3993, widthMm: 1677, heightMm: 1532, wheelbaseMm: 2450, groundClearanceMm: 172, bootSpaceLiters: 316 },
+      safety: { airbagsCount: 2 },
+      motor: { peakPowerKw: 55, peakTorqueNm: 170, driveLayout: "FWD", regenBraking: true },
+      chargingExtra: { connectorType: "CCS2" },
+    },
   },
   {
     id: "car-tata-harrier-ev",
