@@ -366,6 +366,19 @@ export const cars: Vehicle[] = [
     highlights: ["Tiny turning radius", "Twin 10.25-inch screens", "Dual-tone interior themes"],
     description:
       "Comet EV is a quirky, compact micro-EV built for dense city driving, with just enough room for a small family's daily errands.",
+    // Omitted: peakPowerKw — sources conflict on the UNIT, not the number.
+    // ZigWheels prints "41.42 kW (42bhp)", which is self-contradictory (41.42 kW
+    // is ~55hp); 41.42 is the PS figure, putting the real output near 30 kW. No
+    // source states kW unambiguously, so it stays out. Also omitted: brakes
+    // (ZigWheels claims rear disc, implausible on a microcar and uncorroborated),
+    // batteryChemistry (LFP is widely reported but not OEM-stated), and ground
+    // clearance / boot / kerb weight (not published).
+    specs: {
+      dimensions: { lengthMm: 2974, widthMm: 1505, heightMm: 1640, wheelbaseMm: 2010 },
+      safety: { airbagsCount: 2 },
+      motor: { peakTorqueNm: 110, driveLayout: "RWD", regenBraking: true },
+      tyres: { size: "145/70 R12" },
+    },
   },
   {
     id: "car-mg-windsor-ev",
@@ -434,6 +447,17 @@ export const cars: Vehicle[] = [
     highlights: ["510hp dual-motor AWD", "3.2s 0-100 km/h", "Sold exclusively via MG Select showrooms"],
     description:
       "Cyberster is MG's low-volume electric roadster halo model, showcasing dual-motor performance in a two-seat convertible body.",
+    // peakPowerKw 375 is safe: the quoted "503bhp" and "510PS" both convert to
+    // 375.1 kW, so the underlying OEM figure is unambiguous. Staggered tyres are
+    // recorded as one string since the schema has a single size field. Omitted:
+    // ncapRating (not tested in India), ground clearance and kerb weight.
+    specs: {
+      dimensions: { lengthMm: 4535, widthMm: 1913, heightMm: 1329, wheelbaseMm: 2690, bootSpaceLiters: 250 },
+      safety: { airbagsCount: 4 },
+      motor: { peakPowerKw: 375, peakTorqueNm: 725, driveLayout: "AWD", regenBraking: true },
+      tyres: { size: "245/45 R20 (front), 275/35 R20 (rear)" },
+      brakes: { front: "disc", rear: "disc" },
+    },
   },
   {
     id: "car-mg-m9",
@@ -462,6 +486,16 @@ export const cars: Vehicle[] = [
     highlights: ["India's first all-electric luxury MPV from MG", "16-way power captain chairs with massage function", "548 km claimed range"],
     description:
       "M9 sits at the top of MG's India range as a chauffeur-focused electric MPV, aimed at business and premium family use.",
+    // peakPowerKw 180 is corroborated two ways: ZigWheels' "242bhp" and Autocar's
+    // "245hp" both convert to 180.x kW. Boot is the all-three-rows-up figure, so it
+    // compares like-for-like with other 7-seaters. Omitted: ncapRating (not tested),
+    // tyres, ground clearance, kerb weight.
+    specs: {
+      dimensions: { lengthMm: 5270, widthMm: 2000, heightMm: 1800, wheelbaseMm: 3200, bootSpaceLiters: 945 },
+      safety: { airbagsCount: 7, adas: true, abs: true, esc: true, camera360: true },
+      motor: { peakPowerKw: 180, peakTorqueNm: 350, driveLayout: "FWD", regenBraking: true },
+      brakes: { front: "disc", rear: "disc" },
+    },
   },
   {
     id: "car-hyundai-kona-electric",
@@ -834,6 +868,19 @@ export const cars: Vehicle[] = [
     highlights: ["7-seat family SUV on the INGLO platform", "679 km range on the 79kWh pack", "Harman Kardon sound system"],
     description:
       "XEV 9S adapts Mahindra's dedicated EV platform into a practical 7-seat family SUV, sitting alongside the more style-focused XEV 9e.",
+    // 282bhp converts to 210.3 kW — the same 210 kW / 380 Nm INGLO powertrain
+    // already recorded for BE 6 and XEV 9e, which corroborates it rather than
+    // relying on one source. airbagsCount is the top-variant figure (Mahindra
+    // states "up to 7"; 6 on lower packs), matching how XEV 9e is recorded.
+    // Omitted: ncapRating — Mahindra claims 5-star intent but the 9S has not been
+    // crash-tested; the XEV 9e result is not transferable. Also boot and kerb.
+    specs: {
+      dimensions: { lengthMm: 4737, widthMm: 1900, heightMm: 1747, wheelbaseMm: 2762, groundClearanceMm: 201 },
+      safety: { airbagsCount: 7, adas: true, abs: true, esc: true },
+      motor: { peakPowerKw: 210, peakTorqueNm: 380, driveLayout: "RWD", regenBraking: true },
+      chargingExtra: { connectorType: "CCS2" },
+      batteryChemistry: "LFP",
+    },
   },
   {
     id: "car-mahindra-xuv-3xo-ev",
@@ -863,6 +910,21 @@ export const cars: Vehicle[] = [
     highlights: ["Sole 39.4kWh battery across the range", "8.3s 0-100 km/h", "Mahindra's most affordable EV"],
     description:
       "XUV 3XO EV brings Mahindra's electric powertrain to its compact SUV body, positioned as an accessible entry point below the XUV400.",
+    // Omitted: lengthMm. Autocar prints 3900mm, but its width (1821) and wheelbase
+    // (2600) match the petrol XUV 3XO exactly, and Indian sub-4m cars sit at
+    // 3990-3995 to stay inside the tax bracket — so 3900 reads as a dropped digit.
+    // One wrong dimension would silently decide a Compare winner, so it stays out
+    // until corroborated. peakPowerKw 110 = 150 PS, the unit Mahindra's own launch
+    // release uses. Omitted: ncapRating (not tested), kerb weight, chemistry.
+    specs: {
+      dimensions: { widthMm: 1821, heightMm: 1617, wheelbaseMm: 2600, groundClearanceMm: 190, bootSpaceLiters: 364 },
+      safety: { airbagsCount: 6, adas: true, abs: true, esc: true, camera360: true },
+      motor: { peakPowerKw: 110, peakTorqueNm: 310, driveLayout: "FWD", regenBraking: true },
+      tyres: { size: "215/55 R17" },
+      suspension: { front: "Independent, MacPherson strut", rear: "Non-independent, torsion beam" },
+      brakes: { front: "disc", rear: "disc" },
+      chargingExtra: { connectorType: "CCS2" },
+    },
   },
   {
     id: "car-byd-atto-3",
