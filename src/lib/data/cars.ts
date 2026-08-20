@@ -1068,6 +1068,29 @@ export const cars: Vehicle[] = [
     highlights: ["3.8s 0-100 km/h on AWD", "CTB battery-as-structure design", "650 km range on RWD"],
     description:
       "Seal brings genuine sports-sedan performance to the EV segment, with an AWD variant that outruns most petrol performance cars.",
+    // Sourced from Autocar India's Seal specification page.
+    // Power is the 82.56 kWh Premium RWD's 230 kW, matching this record's
+    // headline battery and 650 km range. Autocar prints it as "313 hp /
+    // 230 kW", which is the round OEM figure rather than a back-conversion,
+    // and the Sealion 7 carries the same motor.
+    // NO peakTorqueNm: sources disagree irreconcilably — Autocar's own page
+    // lists "370Nm" against the 390 kW Performance AWD while launch coverage
+    // quotes 670 Nm for that variant, and neither states the Premium RWD's
+    // figure outright. A 300 Nm spread is not a rounding artifact, so it is
+    // omitted rather than picked between. CLAUDE.md #28(c).
+    // ncapRating is safe: born-electric, no ICE twin, 5-star Euro NCAP 2023.
+    // Omitted: warranty (see the Sealion 7 note). Boot space is the 400 L rear
+    // compartment; the 50 L frunk is not part of what this field means
+    // elsewhere in the dataset.
+    specs: {
+      dimensions: { lengthMm: 4800, widthMm: 1875, heightMm: 1460, wheelbaseMm: 2920, groundClearanceMm: 145, bootSpaceLiters: 400, kerbWeightKg: 2185 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", airbagsCount: 9 },
+      motor: { peakPowerKw: 230, driveLayout: "RWD" },
+      tyres: { size: "235/45 R19" },
+      suspension: { front: "Independent, double wishbone", rear: "Independent, multi-link" },
+      brakes: { front: "disc", rear: "disc" },
+      batteryChemistry: "LFP Blade Battery",
+    },
   },
   {
     id: "car-byd-e6",
@@ -1099,6 +1122,27 @@ export const cars: Vehicle[] = [
     highlights: ["415 km range", "Fleet-friendly running costs", "Large boot and cabin space"],
     description:
       "e6 targets fleet and family buyers who need MPV-like space, originally positioned for cab and business use.",
+    // The e6 is BYD India's fleet-oriented MPV and its specification is
+    // unusually stable across sources: 70 kW / 180 Nm reconciles exactly
+    // (70 kW = 95.2 PS = 93.9 bhp, and sources print "94 bhp").
+    // No ncapRating: the e6 has no Euro NCAP, Bharat NCAP or ASEAN NCAP result.
+    // Omitted: airbagsCount, tyres, suspension and brakes (not published);
+    // warranty (see the Sealion 7 note).
+    // NOTE for a future pass: at least one aggregator lists this car as
+    // "BYD E6 Electric 2021-2024 — Discontinued". This record still says
+    // launchStatus "available". Not changed here because the sourcing is one
+    // aggregator's label rather than a BYD India statement, but it belongs in
+    // the "upcoming/available records go stale" sweep flagged in sub-batch 5.
+    specs: {
+      dimensions: { lengthMm: 4695, widthMm: 1810, heightMm: 1670, wheelbaseMm: 2800, groundClearanceMm: 170, bootSpaceLiters: 580, kerbWeightKg: 1930 },
+      motor: {
+        motorType: "Permanent Magnet Synchronous Motor (PMSM)",
+        peakPowerKw: 70,
+        peakTorqueNm: 180,
+        driveLayout: "FWD",
+      },
+      batteryChemistry: "LFP Blade Battery",
+    },
   },
   {
     id: "car-byd-emax-7",
@@ -1128,6 +1172,26 @@ export const cars: Vehicle[] = [
     highlights: ["Choice of 6- or 7-seat layouts", "530 km range on the larger pack", "580-litre boot space"],
     description:
       "eMAX 7 gives BYD a dedicated family MPV, pairing three-row practicality with a choice of two Blade Battery packs.",
+    // Power is the 71.8 kWh Superior variant's 150 kW, matching this record's
+    // headline battery and 530 km range; the 55.4 kWh Premium is 120 kW. It
+    // reconciles cleanly across units — sources print both "201 bhp" and
+    // "204 hp" for it, and 150 kW is 201.2 bhp / 204.0 PS.
+    // No ncapRating: no Euro NCAP, Bharat NCAP or ASEAN NCAP result for the
+    // eMAX 7 was found. It is a body-on-platform relative of BYD's Song Max
+    // line, which makes any rating quoted near it worth distrusting.
+    // Omitted: tyres, suspension and brakes (not published for the India car);
+    // kerbWeightKg; warranty (see the Sealion 7 note).
+    specs: {
+      dimensions: { lengthMm: 4710, widthMm: 1810, heightMm: 1690, wheelbaseMm: 2800, groundClearanceMm: 170, bootSpaceLiters: 180 },
+      safety: { airbagsCount: 6 },
+      motor: {
+        motorType: "Permanent Magnet Synchronous Motor (PMSM)",
+        peakPowerKw: 150,
+        peakTorqueNm: 310,
+        driveLayout: "FWD",
+      },
+      batteryChemistry: "LFP Blade Battery",
+    },
   },
   {
     id: "car-byd-sealion-7",
@@ -1157,6 +1221,30 @@ export const cars: Vehicle[] = [
     highlights: ["Dual-motor AWD Performance variant", "4.5s 0-100 km/h", "567 km range on the RWD Premium"],
     description:
       "Sealion 7 is BYD's driving-focused electric SUV, offering a rear-drive Premium and a quicker dual-motor Performance variant.",
+    // Sourced from Autocar India's Sealion 7 specification page, cross-checked
+    // against India launch coverage.
+    // Power is the Premium RWD's 230 kW, matching this record's headline
+    // 567 km range. Note what the sources actually print: "313hp" and "530hp"
+    // are PS values (230 kW = 312.6 PS, 390 kW = 530.2 PS), and at least one
+    // aggregator back-converts them into "233 kW" and "396 kW". Those are the
+    // artifact, not the figure — CLAUDE.md #28(c), and the same mistake that
+    // handed the BE 6 a false Power crown. The round OEM numbers are
+    // corroborated by the Seal, which shares both motors and whose Autocar
+    // page prints "313 hp / 230 kW" and "530 hp / 390 kW" explicitly.
+    // ncapRating is safe: BYD builds no ICE version of this car, so the 5-star
+    // Euro NCAP 2025 result can only be its own.
+    // Omitted: kerbWeightKg (Autocar says 2340 kg, 91Wheels 2225 kg — a 115 kg
+    // disagreement); warranty (BYD India's uniform terms are on the Atto 3
+    // record but were not re-verified for this car).
+    specs: {
+      dimensions: { lengthMm: 4830, widthMm: 1925, heightMm: 1620, wheelbaseMm: 2930, groundClearanceMm: 170, bootSpaceLiters: 500 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", airbagsCount: 8 },
+      motor: { peakPowerKw: 230, peakTorqueNm: 380, driveLayout: "RWD" },
+      tyres: { size: "245/45 R20" },
+      suspension: { front: "Independent, double wishbone", rear: "Independent, multi-link" },
+      brakes: { front: "disc", rear: "disc" },
+      batteryChemistry: "LFP Blade Battery",
+    },
   },
   {
     id: "car-kia-ev6",
