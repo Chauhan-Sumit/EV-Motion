@@ -17,7 +17,7 @@ Verified against the codebase and the live database, not from memory. Last check
 | --- | --- | --- |
 | Cars / two-wheelers data | ✅ **DONE** | 54 + 68 = **122 vehicles**, 46 OEMs |
 | Commercial data | ⛔ **NOT STARTED** | `commercial.ts` is `[]`. Architecture complete; category auto-gated everywhere |
-| `Vehicle.specs` coverage | 🟡 **IN PROGRESS** | **37 of 122 (30%)** — cars 31/54, two-wheelers 6/68. The rest render "Not specified" |
+| `Vehicle.specs` coverage | 🟡 **IN PROGRESS** | **43 of 122 (35%)** — cars 31/54, two-wheelers 12/68. The rest render "Not specified" |
 | Vehicle photography (real) | 🚫 **BLOCKED** | **0 of 122**. Pipeline + credentials verified working; blocked on a licensing decision, not code. `photoUrl` is deliberately still empty everywhere |
 | Vehicle-type illustrations (AI) | 🟡 **5 of 6** | NEW 2026-08-17. Generic per-**body-type** AI art replacing the SVG placeholder — *not* per-model, *not* photoreal, and not in `photoUrl`. Scooter blocked on a provider generation cap |
 | Data honesty (Batch 1) | ✅ **DONE** | No spec is derived. Guarded by tests |
@@ -26,7 +26,7 @@ Verified against the codebase and the live database, not from memory. Last check
 | Test suite (Batch 4) | ✅ **DONE** | **167 tests**, 9 files, ~8s |
 | Lead capture (Batch 5) | ✅ **DONE** | Live, verified end to end. RLS deny-all |
 | Analytics + errors (Batch 6) | ✅ **DONE** | Live, verified. Cookie-less, no PII, no IP |
-| Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 6 sub-batches done. Tata, MG, Mahindra, Hyundai, Kia **and BYD** complete — every partially-done brand is now finished. 85 vehicles left |
+| Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 7 sub-batches done. Cars: Tata, MG, Mahindra, Hyundai, Kia, BYD. Two-wheelers: **Ather, TVS**. 79 vehicles left |
 | Homepage hero (2.5D) | ✅ **DONE** | NEW 2026-08-18. Vehicle + generated environment at `lg`+, CSS/DOM parallax, no Three.js. Hero height unchanged. **Motion never watched in a browser** — see the section |
 | `loading.tsx` | ⛔ **BLOCKED** | Hangs at every level, dev and prod. Root cause unknown |
 | Auth / admin view for leads | ⛔ **NOT STARTED** | RLS denies all reads; only the Supabase dashboard can see leads |
@@ -736,7 +736,7 @@ The Syros EV's 45 kWh pack **does not exist** — it was a pre-launch guess. Add
 
 ### Sub-batch 6 — BYD (2026-08-20)
 
-**33 → 37 of 122.** Seal, e6, eMAX 7 and Sealion 7 gain specs; **BYD is complete (5/5)** and, with it, **every partially-populated brand in the dataset is now finished.** Six brands done: Tata, MG, Mahindra, Hyundai, Kia, BYD. Everything remaining starts from zero. Quality gate clean: 167 tests, `tsc`, `eslint`, `npm run build` (421 routes). Purely additive, 88 insertions, no deletions.
+**33 → 37 of 122.** Seal, e6, eMAX 7 and Sealion 7 gain specs; **BYD is complete (5/5)**, and with it every partially-populated **car** brand is finished. Six car brands done: Tata, MG, Mahindra, Hyundai, Kia, BYD. *(Corrected in sub-batch 7: this section originally claimed every partially-populated brand in the dataset was finished and that everything remaining started from zero. Both were wrong — five two-wheeler brands were still partway done, and sub-batch 7 closed two of them.)* Quality gate clean: 167 tests, `tsc`, `eslint`, `npm run build` (421 routes). Purely additive, 88 insertions, no deletions.
 
 **The shared-motor trap, caught before it shipped this time.** The Seal and Sealion 7 use the same two BYD motors, and the sources print their outputs as **"313hp"** and **"530hp"**. Those are PS values — 230 kW is 312.6 PS and 390 kW is 530.2 PS — and at least one aggregator back-converts them into **"233 kW"** and **"396 kW"**. Recording those would have given one of two cars sharing a motor a **false Power crown over the other**: exactly the BE 6 / XEV 9e failure from sub-batch 2, in the same shape, on the same kind of sibling pair. The round OEM figures are recorded instead, and Autocar's Seal page prints "313 hp / 230 kW" and "530 hp / 390 kW" explicitly, which is the corroboration that makes 230/390 safe. **Verified in the build: `/compare/byd-sealion-7-vs-byd-seal` shows 230 kW on both sides — a real tie, no crown.**
 
@@ -771,6 +771,53 @@ The Syros EV's 45 kWh pack **does not exist** — it was a pre-launch guess. Add
 | **Two-wheelers** | **62** | **The real bulk — 6 of 68 done, untouched since the Batch 6 pilot** |
 
 The two-wheeler side is now the larger gap by a wide margin and has had no attention since the pilot. If the goal is coverage percentage rather than premium-car comparison quality, that is where the remaining 85 mostly live.
+
+### Sub-batch 7 — Ather + TVS (2026-08-20)
+
+**37 → 43 of 122** (two-wheelers 6 → 12 of 68). **Ather (4/4) and TVS (4/4)** are complete — the first two-wheeler brands finished, and the first work on that side of the catalogue since the Batch 6 pilot. Quality gate clean: 167 tests, `tsc`, `eslint`, `npm run build` (421 routes). Purely additive, 87 insertions, no deletions.
+
+**First, a correction to sub-batch 6's summary.** It said every partially-populated brand was finished. That was true of *cars* only. **Five two-wheeler brands were partway done** — Ola 2/5, Ather 1/4, TVS 1/4, Bajaj 1/6, Ampere 1/5 — so the OEM-clustering rationale that has ordered this whole batch does still pick targets, which is why this sub-batch has one. Two of the five are now closed; Ola, Bajaj and Ampere remain.
+
+### The finding: hub-motor torque and mid-drive torque are different quantities
+
+**All three TVS records get no `peakTorqueNm`, and this is a measurement-convention problem rather than a sourcing one.**
+
+TVS quotes **140 Nm** for the iQube. That is **hub-motor torque, measured at the wheel**, with no gear reduction between motor and road. Ather, Ola and the other mid-drive scooters quote **shaft torque**, which their belt drive then multiplies before it reaches the wheel. The two numbers describe different points in the driveline and are not comparable.
+
+Dropping 140 into the same Compare Torque row as the 450X's 26 Nm would crown the iQube by roughly **five times**, on a difference that is purely definitional. This is structurally identical to the width-with-mirrors trap in CLAUDE.md #28(b): two real figures, two conventions, one meaningless winner.
+
+**⚠️ The already-recorded `tvs-iqube` record carries `peakTorqueNm: 140` and has this problem live today.** It was left untouched because the fix is a decision rather than a lookup. Three options, roughly in order of how much they cost:
+
+1. **Omit it too**, matching the three records added here. Cheapest, loses a real published figure.
+2. **Add a convention field to `VehicleMotor`** — e.g. `torqueMeasuredAt: "shaft" | "wheel"` — and have `metrics.ts` refuse to compare across conventions. Most correct, and it generalises: the same shape of problem will recur wherever OEMs measure differently.
+3. **Exclude torque from the two-wheeler winner metrics entirely**, keeping it as a displayed spec but not a scored one. Middle cost, and defensible on its own terms since torque is a poor single-number proxy for scooter performance anyway.
+
+`ampere-nexus` should be checked for the same issue when this is decided.
+
+### What was recorded, and the cross-check worth noting
+
+Ather's three share one convention with the already-recorded 450X, so **22 / 22 / 26 Nm compare against each other cleanly** and are recorded. The 450S and 450 Apex dimensions come out **identical to the 450X** — 1891 × 739 × 1114 mm, 1296 mm wheelbase — published independently for each rather than inferred, which makes the agreement a cross-check rather than an assumption.
+
+The **Rizta is deliberately recorded from its own numbers** rather than treated as a 450 trim: longer body, taller, 1285 mm wheelbase, 125 kg, detuned to 4.3 kW. It is a different vehicle that happens to share a badge.
+
+### Omissions
+
+- **450S tyres** — 12-inch tubeless is published but no size is stated for that variant. The Apex's 90/90-12 / 100/80-12 is not evidence for the 450S even on a shared chassis.
+- **Rizta tyres** — the MRF Zapper fitment is named, no size given.
+- **TVS X kerb weight** — quoted only as "around 120 kg". An approximation is not a specification.
+- **iQube S dimensions** — the 1805/645/1140/1301 figures are published for the iQube *family*, not attributed to this variant.
+- **TVS X is thin on purpose**: 11 kW peak (7 kW nominal) is the one figure sources agree on outright.
+
+### Two more staleness flags, unchanged
+
+- **TVS X** is marked `launchStatus: "upcoming"` with `launchDate: "2026-08 (Tentative)"`, but every source treats it as a scooter already on sale.
+- **iQube ST** says 3.7 kWh / 155 km; TVS now sells the ST with a **5.3 kWh pack rated 212 km IDC**. The record's 3.7 kWh does not match any TVS pack.
+
+That is the **fourth and fifth** stale record found in four consecutive sub-batches (Ioniq 9, Kia EV9, Kia Syros EV, BYD e6, now these two). The sweep argued for in sub-batch 5 keeps getting more evidence behind it.
+
+### Remaining after this sub-batch
+
+**79 vehicles: 23 cars, 56 two-wheelers.** Cars left are BMW 5, Mercedes-Benz 4, Volvo 3, Audi/Lotus/MINI/Porsche/VinFast 2 each, Rolls-Royce 1 — all from zero. Two-wheelers still have three partially-done brands worth finishing first on the clustering argument: **Ola 2/5, Bajaj 1/6, Ampere 1/5.**
 
 ## HOMEPAGE HERO — 2.5D VEHICLE + ENVIRONMENT (2026-08-18)
 
