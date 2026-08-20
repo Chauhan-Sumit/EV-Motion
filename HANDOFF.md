@@ -17,7 +17,7 @@ Verified against the codebase and the live database, not from memory. Last check
 | --- | --- | --- |
 | Cars / two-wheelers data | ✅ **DONE** | 54 + 69 = **123 vehicles**, 46 OEMs |
 | Commercial data | ⛔ **NOT STARTED** | `commercial.ts` is `[]`. Architecture complete; category auto-gated everywhere |
-| `Vehicle.specs` coverage | 🟡 **IN PROGRESS** | **46 of 123 (37%)** — cars 31/54, two-wheelers 15/69. The rest render "Not specified" |
+| `Vehicle.specs` coverage | 🟡 **IN PROGRESS** | **51 of 123 (41%)** — cars 31/54, two-wheelers 20/69. The rest render "Not specified" |
 | Vehicle photography (real) | 🚫 **BLOCKED** | **0 of 122**. Pipeline + credentials verified working; blocked on a licensing decision, not code. `photoUrl` is deliberately still empty everywhere |
 | Vehicle-type illustrations (AI) | 🟡 **5 of 6** | NEW 2026-08-17. Generic per-**body-type** AI art replacing the SVG placeholder — *not* per-model, *not* photoreal, and not in `photoUrl`. Scooter blocked on a provider generation cap |
 | Data honesty (Batch 1) | ✅ **DONE** | No spec is derived. Guarded by tests |
@@ -26,7 +26,7 @@ Verified against the codebase and the live database, not from memory. Last check
 | Test suite (Batch 4) | ✅ **DONE** | **167 tests**, 9 files, ~8s |
 | Lead capture (Batch 5) | ✅ **DONE** | Live, verified end to end. RLS deny-all |
 | Analytics + errors (Batch 6) | ✅ **DONE** | Live, verified. Cookie-less, no PII, no IP |
-| Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 9 sub-batches done. Cars: Tata, MG, Mahindra, Hyundai, Kia, BYD. Two-wheelers: Ather, TVS, Ola. 77 vehicles left. **Bajaj unblocked** — line-up reconciled in sub-batch 9, specs still to do |
+| Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 9 sub-batches done. Cars: Tata, MG, Mahindra, Hyundai, Kia, BYD. Two-wheelers: Ather, TVS, Ola, **Bajaj** (reconciled + specced). 72 vehicles left |
 | Homepage hero (2.5D) | ✅ **DONE** | NEW 2026-08-18. Vehicle + generated environment at `lg`+, CSS/DOM parallax, no Three.js. Hero height unchanged. **Motion never watched in a browser** — see the section |
 | `loading.tsx` | ⛔ **BLOCKED** | Hangs at every level, dev and prod. Root cause unknown |
 | Auth / admin view for leads | ⛔ **NOT STARTED** | RLS denies all reads; only the Supabase dashboard can see leads |
@@ -925,6 +925,34 @@ Route count **421 → 425**, comparisons **241 → 244**, sitemap **414 → 418*
 ### What this unblocks
 
 Bajaj's five current records now provably describe five real scooters, so **specs research for them is straightforward whenever it is wanted** — and it should cover the five C-series models only, not the two annotated legacy records. Ampere remains blocked on the separate hub-vs-shaft torque decision from sub-batch 7.
+
+### Sub-batch 9, part 2 — Bajaj specs (2026-08-20)
+
+**46 → 51 of 123** (two-wheelers 15 → 20 of 69). All five current Chetaks now carry specs, so **Bajaj is complete** in the sense that matters: every scooter Bajaj actually sells is researched. `bajaj-chetak-2901` is deliberately left empty — it describes no scooter Bajaj lists, so there is nothing to research — and `bajaj-chetak-premium` keeps its Batch 6 pilot specs. Quality gate clean: 167 tests, `tsc`, `eslint`, `npm run build` (425 routes). Purely additive, 81 insertions.
+
+**These records are modest, and that is Bajaj's doing.** No motor output, no length or height, no ground clearance, no tyre size and no suspension appears on *any* chetak.com model page. Everything recorded is either Bajaj's own or corroborated by two independent sources; nothing is filled in from a single aggregator.
+
+**The Series 35 trio share one powertrain** — **4.0 kW / 20 Nm**, each confirmed twice. A "4.8 kW" figure circulating for the C3501 is contradicted by both sources and was not recorded.
+
+**Why that 20 Nm was safe to record when TVS's 140 Nm was not.** The Chetak is a **mid-drive, belt-driven** scooter, so its quoted torque is **shaft** torque — the same convention as Ather and Ola. That is why 20 Nm sits sensibly beside Ather's 22-26 and can be compared against it, while the TVS hub figure could not (sub-batch 7, CLAUDE.md #28(b2)). **The convention was checked before the number was recorded**, which is the whole point of that trap entry: it does not mean "never record two-wheeler torque," it means "establish where it was measured first."
+
+### The OEM contradicting itself
+
+**No warranty is recorded on any of the five.** `chetak.com`'s C3501 and C3503 pages state **"5 Years or first 70,000 Kilometers"** — while the FAQ block **on the same page** states **"3 yrs or 50,000 km"**.
+
+This is worth generalising: CLAUDE.md #28(c) was written about aggregators disagreeing with each other, but it applies unchanged to **a manufacturer disagreeing with itself**. An OEM-primary source is a strong signal, not an infallible one, and "it came from the manufacturer" is not a reason to skip the reconciliation check. Neither figure is recorded.
+
+### Other omissions
+
+- **C2501 `peakPowerKw`** — one aggregator says 3 kW; nothing corroborates it.
+- **C3502 `brakes`** — Bajaj does not state this variant's fitment, and secondary sources disagree over whether the front disc is standard or arrives with the optional TecPac pack. The C3501's disc and the C3503's drum are both published; this one is not.
+- **C3501 `kerbWeightKg`** — "approximately 125 kg" is an approximation, not a specification. Same call as the TVS X in sub-batch 7.
+- **Tyre sizes throughout** — published only as "R12" or "12 inch", never as a section width.
+- **Length, height and ground clearance** for four of the five — Bajaj publishes none of them, and only the C3001 has a ground clearance figure (168 mm) from a second source.
+
+### What the Compare page gains
+
+The five Chetaks were previously indistinguishable on specs. They now differ on **boot space** (25 L on the C2501 against 35 L on the rest), **brakes** (C3501 front disc, C3001 and C3503 drums, C3502 honestly blank) and **power** (3.1 kW Series 30 against 4.0 kW Series 35) — which is close to the actual decision a buyer makes between them.
 
 ## HOMEPAGE HERO — 2.5D VEHICLE + ENVIRONMENT (2026-08-18)
 
