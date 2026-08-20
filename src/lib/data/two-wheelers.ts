@@ -107,6 +107,27 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["Ola's first motorcycle body style", "126 km/h top speed", "Upside-down front forks"],
     description:
       "Roadster X marks Ola Electric's move from scooters into naked-motorcycle territory, aimed at younger, performance-minded riders.",
+    // The catalogue's first researched motorcycle-format Ola, and the numbers
+    // are genuinely a motorcycle's: 2015 mm long, 180 mm of ground clearance,
+    // an 18-inch front wheel on a 17-inch rear.
+    // Power is the 11 kW RoadsterX+ figure, matching this record's headline
+    // 4.5 kWh / 200 km variant; the base 2.5 kWh RoadsterX is 7 kW. Both share
+    // the 58 Nm shaft-torque rating, which is why torque is safe to record even
+    // though the power figures differ by variant.
+    // Omitted, and each for a specific reason rather than absence:
+    //   - wheelbaseMm: published as "1301.9 mm", which is an inch conversion
+    //     wearing false precision (51.25 in). A real figure would be round.
+    //   - kerbWeightKg: 123.4 kg is attributed to the base RoadsterX, not the
+    //     X+ this record's headline describes.
+    //   - brakes: sources list drum/drum for the base variant. On a 126 km/h
+    //     X+ that is almost certainly not the fitment, and "almost certainly"
+    //     is not a source.
+    specs: {
+      dimensions: { lengthMm: 2015, widthMm: 831, heightMm: 1235, groundClearanceMm: 180 },
+      motor: { peakPowerKw: 11, peakTorqueNm: 58, motorType: "Mid-Drive IPM Motor" },
+      tyres: { size: "80/100-18 front, 100/90-17 rear" },
+      suspension: { front: "Telescopic, 130mm travel", rear: "Twin shock, adjustable" },
+    },
   },
   {
     id: "tw-ather-450x",
@@ -624,6 +645,25 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["4680-format Bharat Cell battery", "320 km claimed range on the top pack", "13 kW peak motor output"],
     description:
       "S1 Pro+ sits above the standard S1 Pro with Ola's newer in-house cell format, stretching claimed range past 300 km on the larger battery option.",
+    // Peak power 13 kW (5.5 kW rated) — the flagship of the S1 line and a real
+    // step over the S1 Pro's 11 kW, which is what makes recording it worthwhile
+    // rather than the two reading as the same scooter.
+    // Torque is not published for this variant. The S1 Pro's 58 Nm is NOT
+    // carried over: same brand and same drive layout is not the same motor.
+    // Omitted: kerbWeightKg (published as a 116-118 kg range across trims).
+    // NOTE for the staleness sweep: this record's headline says 5.3 kWh and
+    // 141 km/h, while current sources list the top variant as 5.2 kWh and
+    // 130 km/h. Ola has re-specced the S1 line across generations more than
+    // once and aggregators mix them freely, so the core fields are left alone
+    // rather than swapped on a source that may itself be describing a
+    // different generation.
+    specs: {
+      dimensions: { lengthMm: 1899, widthMm: 850, heightMm: 1297, wheelbaseMm: 1359, groundClearanceMm: 160 },
+      motor: { peakPowerKw: 13, motorType: "Mid-Drive IPM Motor" },
+      tyres: { size: "110/70-12 (front & rear)" },
+      suspension: { front: "Twin telescopic", rear: "Mono shock" },
+      brakes: { front: "disc", rear: "disc" },
+    },
   },
   {
     id: "tw-ola-s1-x-plus",
@@ -651,6 +691,22 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["320 km claimed range on the 5.2 kWh pack", "11 kW peak motor", "Sits between S1 X and S1 Pro on price"],
     description:
       "S1 X+ slots a larger battery into the value-focused S1 X body, closing much of the range gap to the Pro line at a lower price.",
+    // Peak power is 11 kW; the "5.5 kW" that aggregators also print for this
+    // scooter is the RATED figure, not a contradiction — that pairing is what
+    // makes several sources look like they disagree with each other about the
+    // S1 range when they don't.
+    // Shaft torque, same convention as the rest of Ola's mid-drive line — but
+    // NOT published for this variant, so it is omitted rather than borrowed
+    // from the S1 Pro's 58 Nm.
+    // Omitted: kerbWeightKg is recorded (113 kg, stated for this variant);
+    // warranty not published per-variant.
+    specs: {
+      dimensions: { lengthMm: 1900, widthMm: 850, heightMm: 1288, wheelbaseMm: 1359, groundClearanceMm: 160, kerbWeightKg: 113 },
+      motor: { peakPowerKw: 11, motorType: "Mid-Drive IPM Motor" },
+      tyres: { size: "90/90-12 (front & rear)" },
+      suspension: { front: "Twin telescopic", rear: "Mono shock" },
+      brakes: { front: "disc", rear: "drum" },
+    },
   },
   {
     id: "tw-ather-450s",
