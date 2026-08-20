@@ -17,7 +17,7 @@ Verified against the codebase and the live database, not from memory. Last check
 | --- | --- | --- |
 | Cars / two-wheelers data | ✅ **DONE** | 54 + 68 = **122 vehicles**, 46 OEMs |
 | Commercial data | ⛔ **NOT STARTED** | `commercial.ts` is `[]`. Architecture complete; category auto-gated everywhere |
-| `Vehicle.specs` coverage | 🟡 **IN PROGRESS** | **30 of 122 (25%)** — cars 24/54, two-wheelers 6/68. The rest render "Not specified" |
+| `Vehicle.specs` coverage | 🟡 **IN PROGRESS** | **33 of 122 (27%)** — cars 27/54, two-wheelers 6/68. The rest render "Not specified" |
 | Vehicle photography (real) | 🚫 **BLOCKED** | **0 of 122**. Pipeline + credentials verified working; blocked on a licensing decision, not code. `photoUrl` is deliberately still empty everywhere |
 | Vehicle-type illustrations (AI) | 🟡 **5 of 6** | NEW 2026-08-17. Generic per-**body-type** AI art replacing the SVG placeholder — *not* per-model, *not* photoreal, and not in `photoUrl`. Scooter blocked on a provider generation cap |
 | Data honesty (Batch 1) | ✅ **DONE** | No spec is derived. Guarded by tests |
@@ -26,7 +26,7 @@ Verified against the codebase and the live database, not from memory. Last check
 | Test suite (Batch 4) | ✅ **DONE** | **167 tests**, 9 files, ~8s |
 | Lead capture (Batch 5) | ✅ **DONE** | Live, verified end to end. RLS deny-all |
 | Analytics + errors (Batch 6) | ✅ **DONE** | Live, verified. Cookie-less, no PII, no IP |
-| Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 4 sub-batches done. Tata, MG, Mahindra **and Hyundai** complete. 92 vehicles left |
+| Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 5 sub-batches done. Tata, MG, Mahindra, Hyundai **and Kia** complete. 89 vehicles left |
 | Homepage hero (2.5D) | ✅ **DONE** | NEW 2026-08-18. Vehicle + generated environment at `lg`+, CSS/DOM parallax, no Three.js. Hero height unchanged. **Motion never watched in a browser** — see the section |
 | `loading.tsx` | ⛔ **BLOCKED** | Hangs at every level, dev and prod. Root cause unknown |
 | Auth / admin view for leads | ⛔ **NOT STARTED** | RLS denies all reads; only the Supabase dashboard can see leads |
@@ -694,6 +694,45 @@ Power passes the reconciliation test on both: Ioniq 6's **168 kW** is simultaneo
 - **The AI vehicle-type illustrations were dead in Production and nobody had noticed.** `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` was unset in the Vercel environment, so `src/lib/imagekit.ts`'s `?? ""` fallback made `@imagekit/next` emit the bare path `/illustrations/vehicle-types/car-suv.png`, which 404s against the site's own origin. Every card rendered an OEM gradient with nothing on it. The assets themselves were fine — all five returned 200 from ImageKit throughout. Fixed by setting the variable and redeploying (`NEXT_PUBLIC_*` is inlined at build time, so the redeploy is not optional). **The underlying defect is still open:** a missing endpoint degrades to a broken image rather than falling back to the SVG icon, because `illustrationFor()` consults a static registry that knows nothing about whether delivery is configured. Worth making `illustrationFor()` return `null` on an empty endpoint, and/or failing the production build instead of warning only in dev.
 - **`NEXT_PUBLIC_SITE_URL` is set in Production and the site serves from `https://www.evmotion.in`.** `robots.txt` reads `Allow: /` with a real sitemap URL. Several paragraphs in this file still describe a placeholder domain with crawling disabled — that is stale. `www.evmotion.in` and `ev-motion.vercel.app` serve byte-identical builds.
 - **`stash@{0}` holds an earlier, unapproved MG draft that is not a subset of what shipped.** For Cyberster it carries `abs`/`esc`, `chargingExtra.connectorType` and `suspension` that `f168351` doesn't; for M9, `connectorType`, `tyres` and `suspension`. Conversely `f168351` has Cyberster's `peakPowerKw: 375` and M9's `lengthMm` that the draft omits, and the two disagree on Cyberster's dimensions by 1mm across the board (two different sources). Folding the extra fields in is a genuine improvement but needs re-verification, **not a `stash pop`.**
+
+### Sub-batch 5 — Kia (2026-08-20)
+
+**30 → 33 of 122.** EV9, Carens Clavis EV and Syros EV gain specs; **Kia is now complete (4/4)**, the fifth brand fully populated. Quality gate clean: 167 tests, `tsc`, `eslint`, `npm run build` (421 routes). Two commits, deliberately separable — see below.
+
+**One powertrain, three cars, and why that matters.** The Carens Clavis EV and Syros EV both run the same 126 kW Hyundai-Kia unit already recorded on the Creta Electric, and all three are quoted at **171 PS / 255 Nm**. Three independent expressions converging on one figure is the strongest form of the reconciliation test in CLAUDE.md #28(c) — far better than a single source's kW claim. The EV9's **283 kW** is quoted as 384 PS, 385 hp and 380 bhp, with Autocar India's India-spec 282.6 kW rounding to the same OEM number.
+
+**The ICE-twin trap fired twice more, and once in reverse.**
+
+- **Syros EV has no `ncapRating`.** The celebrated 5-star Bharat NCAP result — the first ever for a made-in-India Kia, and heavily marketed as such — belongs to the **petrol/diesel Syros**. The EV has not been crash-tested. This is the purest form of the trap yet: the rating is real, recent, Indian, and about a car with the same name.
+- **Carens Clavis EV has no `ncapRating`.** Bharat NCAP has not tested it. The 3-star Global NCAP figure circulating nearby is the **pre-facelift petrol Carens**.
+- **EV9 does carry one, safely** — born-electric, no ICE twin, 5-star Euro NCAP 2023 (84% adult occupant).
+- **And the reverse case, which is now recorded in `CLAUDE.md` #28(a):** MG ZS EV's existing Euro NCAP claim was checked on suspicion — it has an ICE twin — and turned out **correct**. Euro NCAP tested the ZS EV itself at 5 stars while the petrol ZS scored 3, because the EV ships more active safety kit. Assuming the trap would have deleted a true rating. **Check; don't assume in either direction.**
+
+### Two Kia records described cars that had already launched
+
+This is the finding worth carrying forward, and it is systemic rather than about Kia.
+
+| | Record said | Reality |
+| --- | --- | --- |
+| **EV9** | upcoming, ₹80-90L, 7 seats, 6.0s | launched Oct 2024, **₹129.90L**, single GT-Line AWD, **6 seats** (captain chairs), 5.3s |
+| **Syros EV** | upcoming, **45 kWh**, 460 km, ₹16.5-20.5L | launched **23 Jul 2026**, from **₹13.49L**, packs are **42 kWh / 443 km** and **51.4 kWh ER / 526 km** |
+
+The Syros EV's 45 kWh pack **does not exist** — it was a pre-launch guess. Adding real specs to a record whose headline battery is fictional would have produced a page that contradicts itself, which is why this was corrected rather than only flagged.
+
+**These corrections are in their own commit** (`3174b15`), separate from the specs commit (`d2fc206`), specifically so the commercial figures can be dropped independently if the owner would rather set price and launch status personally. Filter bounds were re-checked per CLAUDE.md 5a: car `priceBounds [0,950]`, `rangeBounds [0,900]` and `batteryBounds [0,130]` all still contain the new extremes.
+
+**Left alone on purpose:** the Syros EV's top speed and 0-100. Kia publishes neither, so swapping one guess for another is not an improvement.
+
+**The general lesson: `launchStatus: "upcoming"` records rot.** Every one of them is a dated prediction, and the dataset now contains several written before the car existed. The Ioniq 9 (sub-batch 4) has the same shape of problem in reverse — its headline figures straddle three variants. **A pass over every remaining `"upcoming"` record to check what has actually launched is probably worth more than the next spec sub-batch**, and it is a different kind of work: verification, not research.
+
+### Omissions
+
+- **Syros EV `tyres`** — 215/60 R16 and 215/55 R17 are both factory fitments by trim.
+- **Both Kias' battery warranty** — Kia's "Lifetime" cover is 15 years / unlimited km **for the first owner only**. `VehicleWarranty`'s single-number fields cannot express that without misrepresenting a second owner. This is the third OEM (after Tata and Mahindra) whose flagship warranty the schema cannot hold, which promotes the schema gap from an edge case to a real omission.
+- **EV9 `bootSpaceLiters`** — three-row SUV, sources quote behind-3rd-row and behind-2nd-row figures without labelling which. Same call as the Ioniq 9.
+- **Carens Clavis EV boot and ground clearance** — not published for the EV; Kia states only a 25 L frunk.
+- **Kerb weights throughout**, and EV9 tyres/suspension (not published for the India car).
+- **Trim-gated features on the Carens Clavis EV** (BOSE audio, panoramic sunroof, ventilated seats) are real but higher-trim only, and `VehicleFeatures` has no trim axis.
 
 ## HOMEPAGE HERO — 2.5D VEHICLE + ENVIRONMENT (2026-08-18)
 
