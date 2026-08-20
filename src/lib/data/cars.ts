@@ -528,9 +528,17 @@ export const cars: Vehicle[] = [
     highlights: ["452 km range", "Bose premium sound", "Vehicle-to-load support"],
     description:
       "Kona Electric brought Hyundai's global EV know-how to India, with a comfortable ride and strong efficiency figures.",
+    // CORRECTED in Batch 7 sub-batch 4: this record previously credited the
+    // 5-star result to Euro NCAP. Euro NCAP has never crash-tested the Kona
+    // *Electric* — its 2017 5-star result is the petrol Kona's, which is
+    // exactly the ICE-twin trap in CLAUDE.md #28(a), hit here for a fourth
+    // time. ANCAP did test the Kona Electric itself, in 2019, and awarded 5
+    // stars, so the rating stands but the agency is now recorded correctly.
+    // (Unrelated: the second-generation Kona, petrol and electric alike, scored
+    // 4 stars at Euro NCAP. This record is the first-generation India car.)
     specs: {
       dimensions: { lengthMm: 4180, widthMm: 1800, heightMm: 1570, wheelbaseMm: 2600, bootSpaceLiters: 332 },
-      safety: { ncapRating: 5, ncapAgency: "Euro NCAP" },
+      safety: { ncapRating: 5, ncapAgency: "ANCAP" },
       warranty: { vehicleYears: 3, batteryYears: 8, batteryKm: 160000 },
       motor: { peakPowerKw: 100, peakTorqueNm: 395, motorType: "Permanent Magnet Synchronous Motor (PMSM)" },
       chargingExtra: { v2l: true },
@@ -646,7 +654,10 @@ export const cars: Vehicle[] = [
     chargingTimeFastMin: 18,
     chargingTimeSlowHr: 10.5,
     topSpeedKmph: 185,
-    accelerationSec0To100: 5.1,
+    // 7.4s, not the 5.1s this record carried until Batch 7 sub-batch 4: 5.1s is
+    // the 239 kW Long Range AWD, and the only variant listed here is the 168 kW
+    // Long Range RWD, which Hyundai quotes at 7.4s 0-100 km/h.
+    accelerationSec0To100: 7.4,
     seatingCapacity: 5,
     launchStatus: "available",
     launchDate: "2026-03",
@@ -658,6 +669,35 @@ export const cars: Vehicle[] = [
     highlights: ["614 km range", "800V ultra-fast charging", "Streamliner aerodynamic design"],
     description:
       "Ioniq 6 brings Hyundai's E-GMP platform to a low-drag sedan body, prioritising range and efficiency over the Ioniq 5's crossover shape.",
+    // Global/Korean-market specification for the 77.4 kWh Long Range RWD, the
+    // single variant this record lists: the Ioniq 6 has not launched in India,
+    // so no India-spec sheet exists. These are pre-facelift figures, matching
+    // this record's 77.4 kWh pack rather than the later 84 kWh car.
+    // Power reconciles across units — 168 kW is simultaneously the quoted
+    // "225 bhp" and "228 PS" — so it is recorded rather than back-converted.
+    // Width is the body width, excluding mirrors (the with-mirrors figure is
+    // ~2073mm), the same convention every other record here uses.
+    // ncapRating is safe: the Ioniq 6 is born-electric with no ICE twin, so the
+    // 5-star Euro NCAP 2022 result (97% adult occupant) is this car's own.
+    // Omitted: kerbWeightKg (quoted from ~1930 to 2095 kg across markets and
+    // wheel sizes); connectorType (CCS2 in Europe/Korea, NACS in the US, and no
+    // India spec exists to choose between them); airbagsCount (market/trim
+    // dependent); warranty (India terms don't exist for an unlaunched car).
+    specs: {
+      dimensions: { lengthMm: 4855, widthMm: 1880, heightMm: 1495, wheelbaseMm: 2950, groundClearanceMm: 141, bootSpaceLiters: 401 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP" },
+      chargingExtra: { v2l: true },
+      motor: {
+        motorType: "Permanent Magnet Synchronous Motor (PMSM)",
+        peakPowerKw: 168,
+        peakTorqueNm: 350,
+        driveLayout: "RWD",
+        regenBraking: true,
+      },
+      tyres: { size: "225/55 R18" },
+      suspension: { front: "Independent, MacPherson strut", rear: "Independent, multi-link" },
+      brakes: { front: "disc", rear: "disc" },
+    },
   },
   {
     id: "car-hyundai-ioniq-9",
@@ -687,6 +727,37 @@ export const cars: Vehicle[] = [
     highlights: ["Three-row flagship with 6/7-seat layouts", "620 km range", "Level 2 ADAS suite"],
     description:
       "Ioniq 9 tops Hyundai's electric range as a full-size three-row SUV, bringing E-GMP's 800V architecture to a flagship family package.",
+    // Global/Korean-market specification: the Ioniq 9 has not launched in India,
+    // so no India-spec sheet exists. The figures below are what Hyundai
+    // publishes for the markets it does sell in (Korea, US, Australia, EU).
+    // Power is the Long Range AWD figure — 230 kW / 605 Nm — matching this
+    // record's first variant. Note the record's own headline numbers straddle
+    // three different variants: its 5.2s 0-100 is the 320 kW / 700 Nm
+    // Performance AWD, and its 620 km WLTP range is the Long Range *RWD*
+    // (160 kW), which this record doesn't list. Flagged in HANDOFF.md rather
+    // than rewritten here, since changing a core field moves listing filters.
+    // ncapRating is safe: the Ioniq 9 is born-electric with no ICE twin, so the
+    // 5-star Euro NCAP 2025 result can only be this vehicle's own.
+    // Omitted: bootSpaceLiters (828 / 620 / 1323 L are all quoted without
+    // agreeing which is behind the 3rd row, the 2nd row, or seats folded);
+    // tyres (255/50 R20 and 285/45 R21 are both factory fitments by trim, so a
+    // single size would misdescribe it); kerbWeightKg (a 2505-2680 kg spread);
+    // batteryChemistry (NCM is widely reported but not OEM-primary, and NMC is
+    // exactly the value toVehicleDetail.ts used to fabricate — CLAUDE.md #22);
+    // brakes (disc/disc is near-certain on a 2.5-tonne SUV but unsourced).
+    specs: {
+      dimensions: { lengthMm: 5060, widthMm: 1980, heightMm: 1790, wheelbaseMm: 3130, groundClearanceMm: 177 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", adas: true },
+      chargingExtra: { v2l: true },
+      motor: {
+        motorType: "Permanent Magnet Synchronous Motor (PMSM)",
+        peakPowerKw: 230,
+        peakTorqueNm: 605,
+        driveLayout: "AWD",
+        regenBraking: true,
+      },
+      suspension: { front: "Independent, MacPherson strut", rear: "Independent, multi-link (5-link)" },
+    },
   },
   {
     id: "car-mahindra-xuv400",
