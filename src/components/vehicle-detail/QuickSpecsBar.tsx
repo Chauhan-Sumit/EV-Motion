@@ -1,9 +1,14 @@
 import { BatteryCharging, Gauge, Shield, Timer, Zap, Activity } from "lucide-react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
 import { Container } from "@/components/ui/Container";
+import { torqueMeasurementPointFor, TORQUE_POINT_LABEL } from "@/lib/vehicle-torque";
 
 export function QuickSpecsBar({ vehicle }: { vehicle: VehicleDetail }) {
   const q = vehicle.quickSpecs;
+  // Same disclosure as the Compare page's Torque row: a scooter's 140 Nm is
+  // measured at the wheel and another's 26 Nm at the motor shaft, and the
+  // suffix is what stops a reader comparing them (CLAUDE.md #28(b2)).
+  const torquePoint = torqueMeasurementPointFor(vehicle.sourceVehicle);
   // This strip is a highlight reel, not a spec sheet — a stat with no sourced
   // value is dropped rather than shown as an empty "Not specified" tile. The
   // full picture, including what's missing, is in the Overview and Battery &
@@ -12,7 +17,11 @@ export function QuickSpecsBar({ vehicle }: { vehicle: VehicleDetail }) {
     { icon: Gauge, label: "Range", value: `${q.rangeKm} km` },
     { icon: BatteryCharging, label: "Battery", value: `${q.batteryKwh} kWh` },
     q.powerKw !== undefined && { icon: Zap, label: "Power", value: `${q.powerKw} kW` },
-    q.torqueNm !== undefined && { icon: Activity, label: "Torque", value: `${q.torqueNm} Nm` },
+    q.torqueNm !== undefined && {
+      icon: Activity,
+      label: "Torque",
+      value: torquePoint ? `${q.torqueNm} Nm (${TORQUE_POINT_LABEL[torquePoint]})` : `${q.torqueNm} Nm`,
+    },
     q.fastChargeMinutes !== undefined && {
       icon: Timer,
       label: "Charging",

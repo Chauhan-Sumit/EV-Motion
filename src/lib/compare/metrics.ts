@@ -2,6 +2,8 @@ import type { VehicleDetail } from "@/types/vehicle-detail";
 import type { WinnerMetric } from "./winnerEngine";
 import { boolToMetricValue } from "./winnerEngine";
 import { formatPriceLakh } from "@/lib/utils";
+import { isTorqueComparable, torqueMeasurementPointFor, TORQUE_POINT_LABEL } from "@/lib/vehicle-torque";
+import { currentNcapRating, formatNcapResult, ncapResultFor } from "@/lib/vehicle-safety";
 
 export interface SpecRow {
   key: string;
@@ -10,6 +12,13 @@ export interface SpecRow {
   render: (v: VehicleDetail) => string;
   /** Optional raw numeric accessor — when present, SpecTable draws a proportional bar (value vs. the highest known value in the row) next to the text instead of just the number. Omit for rows with no meaningful magnitude (Colours, free-text). */
   barValue?: (v: VehicleDetail) => number | null;
+  /**
+   * Optional SET-level gate, mirroring `WinnerMetric.comparable`. When it
+   * returns false, SpecTable still renders every value but draws no
+   * proportional bars — a bar is a visual ranking, so leaving it on would
+   * crown a winner the engine has just refused to crown.
+   */
+  comparable?: (vehicles: VehicleDetail[]) => boolean;
 }
 
 /**
@@ -49,10 +58,27 @@ function powerLabel(v: VehicleDetail): string {
   return real ? `${real} kW` : NOT_SPECIFIED;
 }
 
+/**
+ * Torque prints its measurement point whenever one is known — "58 Nm (at
+ * motor)", "140 Nm (at wheel)". Those two numbers are four hours of confusion
+ * apart without that suffix and obvious with it, and it is the visible half of
+ * the same rule `torqueComparable` enforces invisibly: a hub figure and a
+ * shaft figure never get ranked against each other. See
+ * `src/lib/vehicle-torque.ts` and CLAUDE.md #28(b2).
+ *
+ * A two-wheeler whose convention was never established prints the bare figure
+ * — no suffix is honest about not knowing, and its value is excluded from the
+ * ranking anyway.
+ */
 function torqueLabel(v: VehicleDetail): string {
   const real = v.quickSpecs.torqueNm;
-  return real ? `${real} Nm` : NOT_SPECIFIED;
+  if (!real) return NOT_SPECIFIED;
+  const point = torqueMeasurementPointFor(v.sourceVehicle);
+  return point ? `${real} Nm (${TORQUE_POINT_LABEL[point]})` : `${real} Nm`;
 }
+
+/** Shared by the Overview and Performance torque rows — both render the same figure, so both must gate on the same rule. */
+const torqueComparable = (vehicles: VehicleDetail[]) => isTorqueComparable(vehicles.map((v) => v.sourceVehicle));
 
 function fastChargeLabel(v: VehicleDetail, suffix = ""): string {
   const real = v.quickSpecs.fastChargeMinutes;
@@ -63,7 +89,7 @@ export const OVERVIEW_SPEC_ROWS: SpecRow[] = [
   { key: "battery", label: "Battery", section: "overview", render: (v) => `${v.quickSpecs.batteryKwh} kWh`, barValue: (v) => v.quickSpecs.batteryKwh },
   { key: "range", label: "Range", section: "overview", render: (v) => fmtKm(v.quickSpecs.rangeKm), barValue: (v) => v.quickSpecs.rangeKm },
   { key: "power", label: "Power", section: "overview", render: powerLabel, barValue: (v) => v.quickSpecs.powerKw ?? null },
-  { key: "torque", label: "Torque", section: "overview", render: torqueLabel, barValue: (v) => v.quickSpecs.torqueNm ?? null },
+  { key: "torque", label: "Torque", section: "overview", render: torqueLabel, barValue: (v) => v.quickSpecs.torqueNm ?? null, comparable: torqueComparable },
   { key: "topSpeed", label: "Top Speed", section: "overview", render: (v) => `${v.sourceVehicle.topSpeedKmph} km/h` },
   {
     key: "acceleration",
@@ -144,7 +170,7 @@ export const CHARGING_SPEC_ROWS: SpecRow[] = [
 
 export const PERFORMANCE_SPEC_ROWS: SpecRow[] = [
   { key: "power", label: "Power", section: "performance", render: powerLabel, barValue: (v) => v.quickSpecs.powerKw ?? null },
-  { key: "torque", label: "Torque", section: "performance", render: torqueLabel, barValue: (v) => v.quickSpecs.torqueNm ?? null },
+  { key: "torque", label: "Torque", section: "performance", render: torqueLabel, barValue: (v) => v.quickSpecs.torqueNm ?? null, comparable: torqueComparable },
   {
     key: "acceleration",
     label: "0-100 km/h",
@@ -223,9 +249,17 @@ export const SAFETY_SPEC_ROWS: SpecRow[] = [
     key: "ncap",
     label: "NCAP Rating",
     section: "safety",
+    /**
+     * Renders the published result WITH its year, and says so out loud once
+     * that year has lapsed — "5 Stars (Euro NCAP, 2019 — rating expired)".
+     * Euro NCAP and ANCAP results run six years; `src/lib/vehicle-safety.ts`
+     * owns that policy. An expired result is real history and stays visible,
+     * but it must never read as a current rating, which is exactly what a
+     * bare "5 Stars (Euro NCAP)" did before `ncapYear` existed.
+     */
     render: (v) => {
-      const s = v.sourceVehicle.specs?.safety;
-      return s?.ncapRating ? `${s.ncapRating} Star${s.ncapRating > 1 ? "s" : ""} (${s.ncapAgency ?? "NCAP"})` : NOT_SPECIFIED;
+      const result = ncapResultFor(v.sourceVehicle.specs?.safety);
+      return result ? formatNcapResult(result) : NOT_SPECIFIED;
     },
   },
   { key: "airbags", label: "Airbags", section: "safety", render: (v) => (v.sourceVehicle.specs?.safety?.airbagsCount ? `${v.sourceVehicle.specs.safety.airbagsCount}` : NOT_SPECIFIED) },
@@ -308,6 +342,9 @@ export const WINNER_METRICS: WinnerMetric<VehicleDetail>[] = [
     section: "performance",
     direction: "higher-better",
     value: (v) => v.sourceVehicle.specs?.motor?.peakTorqueNm ?? null,
+    // Hub-motor torque (at the wheel) and mid-drive torque (at the motor
+    // shaft) are different quantities — see `src/lib/vehicle-torque.ts`.
+    comparable: torqueComparable,
   },
   { key: "topSpeed", label: "Higher Top Speed", section: "performance", direction: "higher-better", value: (v) => v.sourceVehicle.topSpeedKmph },
   {
@@ -345,7 +382,11 @@ export const WINNER_METRICS: WinnerMetric<VehicleDetail>[] = [
     label: "Better Safety Rating",
     section: "safety",
     direction: "higher-better",
-    value: (v) => v.sourceVehicle.specs?.safety?.ncapRating ?? null,
+    // `currentNcapRating`, not `ncapRating`: a lapsed result is history, not
+    // evidence about the car on sale today, so it neither wins this metric
+    // nor counts toward the Winner Ribbon's tally. The EX40 (Euro NCAP 2018,
+    // expired) vs EC40 (2022, current) pair is the case to check.
+    value: (v) => currentNcapRating(v.sourceVehicle.specs?.safety),
   },
   {
     key: "airbags",

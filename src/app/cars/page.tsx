@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
 import { VehicleListing } from "@/components/vehicles/VehicleListing";
 import { cars } from "@/lib/data/cars";
+import { isCurrentlySold } from "@/lib/vehicle-availability";
 import { parseListingParams } from "@/lib/listing-params";
 import { CAR_FILTER_CONFIG } from "@/lib/vehicle-filter-options";
 
+// Discontinued records are dropped here rather than offered as a fourth
+// availability filter — a listing is what the site currently sells. Their
+// detail pages stay reachable; see src/lib/vehicle-availability.ts.
+const listed = cars.filter(isCurrentlySold);
+
 export const metadata: Metadata = {
   title: "Electric Cars in India — Compare Prices, Range & Specs",
-  description: `Browse ${cars.length} electric cars from every major OEM in India. Filter by price, range, battery, body type and brand to find the right EV.`,
+  description: `Browse ${listed.length} electric cars from every major OEM in India. Filter by price, range, battery, body type and brand to find the right EV.`,
   alternates: { canonical: "/cars" },
 };
 
@@ -29,7 +35,7 @@ export default async function CarsPage({
   return (
     <VehicleListing
       category="car"
-      vehicles={cars}
+      vehicles={listed}
       priceBounds={PRICE_BOUNDS}
       rangeBounds={RANGE_BOUNDS}
       batteryBounds={BATTERY_BOUNDS}

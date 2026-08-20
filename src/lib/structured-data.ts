@@ -1,8 +1,9 @@
 import { buildSrc } from "@imagekit/next";
 import type { Vehicle } from "@/types/vehicle";
 import { SITE_URL } from "@/lib/site";
-import { IMAGEKIT_URL_ENDPOINT } from "@/lib/imagekit";
+import { IMAGEKIT_CONFIGURED, IMAGEKIT_URL_ENDPOINT } from "@/lib/imagekit";
 import { routeSegmentFor } from "@/lib/data/categories";
+import { schemaAvailabilityFor } from "@/lib/vehicle-availability";
 
 function absoluteUrl(path: string): string {
   return path.startsWith("http") ? path : `${SITE_URL}${path}`;
@@ -14,6 +15,18 @@ function imageKitUrl(path: string): string {
   return path.startsWith("http") ? path : buildSrc({ urlEndpoint: IMAGEKIT_URL_ENDPOINT, src: path });
 }
 
+/**
+ * Only emit image URLs we can actually build. With no ImageKit endpoint
+ * configured, `buildSrc` returns a path with no host in front of it — a
+ * broken URL published into structured data, which is worse than no `image`
+ * property at all. See IMAGEKIT_CONFIGURED in src/lib/imagekit.ts.
+ */
+function imageUrlsFor(vehicle: Vehicle): string[] {
+  if (!IMAGEKIT_CONFIGURED || !vehicle.images.photoUrl) return [];
+  return [imageKitUrl(vehicle.images.photoUrl), ...vehicle.images.gallery.map(imageKitUrl)];
+}
+
+
 /** Product + Offer schema for a single vehicle's detail page. */
 export function vehicleProductJsonLd(vehicle: Vehicle, path: string) {
   const url = absoluteUrl(path);
@@ -23,16 +36,13 @@ export function vehicleProductJsonLd(vehicle: Vehicle, path: string) {
     name: `${vehicle.oemName} ${vehicle.modelName}`,
     brand: { "@type": "Brand", name: vehicle.oemName },
     description: vehicle.description,
-    ...(vehicle.images.photoUrl
-      ? { image: [imageKitUrl(vehicle.images.photoUrl), ...vehicle.images.gallery.map(imageKitUrl)] }
-      : {}),
+    ...(imageUrlsFor(vehicle).length ? { image: imageUrlsFor(vehicle) } : {}),
     url,
     offers: {
       "@type": "Offer",
       priceCurrency: "INR",
       price: Math.round(vehicle.priceRangeLakh[0] * 100000),
-      availability:
-        vehicle.launchStatus === "upcoming" ? "https://schema.org/PreOrder" : "https://schema.org/InStock",
+      availability: schemaAvailabilityFor(vehicle),
       url,
     },
     additionalProperty: [
@@ -61,7 +71,7 @@ export function comparisonItemListJsonLd(vehicles: Vehicle[], path: string) {
           "@type": "Offer",
           priceCurrency: "INR",
           price: Math.round(v.priceRangeLakh[0] * 100000),
-          availability: v.launchStatus === "upcoming" ? "https://schema.org/PreOrder" : "https://schema.org/InStock",
+          availability: schemaAvailabilityFor(v),
         },
       },
     })),

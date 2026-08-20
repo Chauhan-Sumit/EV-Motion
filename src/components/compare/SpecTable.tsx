@@ -35,7 +35,13 @@ function Row({
   index: number;
 }) {
   const result = winnerByKey.get(row.key);
-  const barValues = row.barValue ? vehicles.map((v) => row.barValue!(v)) : null;
+  // A proportional bar IS a ranking — 140 Nm drawn seven times longer than
+  // 20 Nm says "this one wins" just as loudly as the crown does. So a row
+  // whose values aren't measured the same way (see `SpecRow.comparable`)
+  // shows the numbers and drops the bars, matching the winner engine's
+  // refusal to name a winner for it.
+  const comparable = row.comparable ? row.comparable(vehicles) : true;
+  const barValues = row.barValue && comparable ? vehicles.map((v) => row.barValue!(v)) : null;
   const maxBar = barValues ? Math.max(...barValues.filter((v): v is number => v !== null)) : 0;
 
   return (

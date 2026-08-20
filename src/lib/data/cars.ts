@@ -331,9 +331,19 @@ export const cars: Vehicle[] = [
     highlights: ["461 km range", "Panoramic sunroof", "360-degree camera"],
     description:
       "ZS EV remains one of the longest-serving electric SUVs in India, known for its comfortable ride and generous feature list.",
+    // ncapRating is CORRECT and must not be 'corrected' away — this is one of
+    // the two counter-cases to CLAUDE.md #28(a). Euro NCAP crash-tested the ZS
+    // EV itself and gave it five stars where the petrol ZS scored three, so the
+    // usual ICE-twin check must NOT fire here.
+    // It has, however, LAPSED: the test was 2019 and Euro NCAP results run six
+    // years, so it stopped being current on 1 January 2026. `ncapYear: 2019`
+    // records that, and `src/lib/vehicle-safety.ts` presents it as expired and
+    // keeps it out of the winner engine and the safety score. Before
+    // 2026-08-21 this rendered as a plain "5 Stars (Euro NCAP)" — a lapsed
+    // result being shown as a current one.
     specs: {
       dimensions: { lengthMm: 4323, widthMm: 1809, heightMm: 1649, wheelbaseMm: 2585, groundClearanceMm: 177, bootSpaceLiters: 448, kerbWeightKg: 1518 },
-      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", airbagsCount: 6, abs: true, esc: true, camera360: true },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", ncapYear: 2019, airbagsCount: 6, abs: true, esc: true, camera360: true },
       warranty: { vehicleYears: 3, batteryYears: 8, batteryKm: 150000 },
       motor: { peakPowerKw: 130, peakTorqueNm: 280, driveLayout: "FWD" },
     },
@@ -536,9 +546,15 @@ export const cars: Vehicle[] = [
     // stars, so the rating stands but the agency is now recorded correctly.
     // (Unrelated: the second-generation Kona, petrol and electric alike, scored
     // 4 stars at Euro NCAP. This record is the first-generation India car.)
+    // LAPSED as of 2026: ANCAP results also run six years, so the 2019 test
+    // stopped being current on 1 January 2026. `ncapYear: 2019` records it and
+    // `src/lib/vehicle-safety.ts` presents it as expired rather than as a
+    // current rating. The agency correction above stands — it was the right
+    // agency for a result that has since aged out, which is why the year
+    // matters as much as the agency does.
     specs: {
       dimensions: { lengthMm: 4180, widthMm: 1800, heightMm: 1570, wheelbaseMm: 2600, bootSpaceLiters: 332 },
-      safety: { ncapRating: 5, ncapAgency: "ANCAP" },
+      safety: { ncapRating: 5, ncapAgency: "ANCAP", ncapYear: 2019 },
       warranty: { vehicleYears: 3, batteryYears: 8, batteryKm: 160000 },
       motor: { peakPowerKw: 100, peakTorqueNm: 395, motorType: "Permanent Magnet Synchronous Motor (PMSM)" },
       chargingExtra: { v2l: true },
@@ -685,7 +701,7 @@ export const cars: Vehicle[] = [
     // dependent); warranty (India terms don't exist for an unlaunched car).
     specs: {
       dimensions: { lengthMm: 4855, widthMm: 1880, heightMm: 1495, wheelbaseMm: 2950, groundClearanceMm: 141, bootSpaceLiters: 401 },
-      safety: { ncapRating: 5, ncapAgency: "Euro NCAP" },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", ncapYear: 2022 },
       chargingExtra: { v2l: true },
       motor: {
         motorType: "Permanent Magnet Synchronous Motor (PMSM)",
@@ -747,7 +763,7 @@ export const cars: Vehicle[] = [
     // brakes (disc/disc is near-certain on a 2.5-tonne SUV but unsourced).
     specs: {
       dimensions: { lengthMm: 5060, widthMm: 1980, heightMm: 1790, wheelbaseMm: 3130, groundClearanceMm: 177 },
-      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", adas: true },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", ncapYear: 2025, adas: true },
       chargingExtra: { v2l: true },
       motor: {
         motorType: "Permanent Magnet Synchronous Motor (PMSM)",
@@ -1084,7 +1100,7 @@ export const cars: Vehicle[] = [
     // elsewhere in the dataset.
     specs: {
       dimensions: { lengthMm: 4800, widthMm: 1875, heightMm: 1460, wheelbaseMm: 2920, groundClearanceMm: 145, bootSpaceLiters: 400, kerbWeightKg: 2185 },
-      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", airbagsCount: 9 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", ncapYear: 2023, airbagsCount: 9 },
       motor: { peakPowerKw: 230, driveLayout: "RWD" },
       tyres: { size: "235/45 R19" },
       suspension: { front: "Independent, double wishbone", rear: "Independent, multi-link" },
@@ -1238,7 +1254,7 @@ export const cars: Vehicle[] = [
     // record but were not re-verified for this car).
     specs: {
       dimensions: { lengthMm: 4830, widthMm: 1925, heightMm: 1620, wheelbaseMm: 2930, groundClearanceMm: 170, bootSpaceLiters: 500 },
-      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", airbagsCount: 8 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", ncapYear: 2025, airbagsCount: 8 },
       motor: { peakPowerKw: 230, peakTorqueNm: 380, driveLayout: "RWD" },
       tyres: { size: "245/45 R20" },
       suspension: { front: "Independent, double wishbone", rear: "Independent, multi-link" },
@@ -1332,7 +1348,7 @@ export const cars: Vehicle[] = [
     // groundClearanceMm (not published); regenBraking (not stated).
     specs: {
       dimensions: { lengthMm: 5015, widthMm: 1980, heightMm: 1780, wheelbaseMm: 3100 },
-      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", airbagsCount: 10, adas: true },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", ncapYear: 2023, airbagsCount: 10, adas: true },
       chargingExtra: { v2l: true },
       motor: {
         motorType: "Permanent Magnet Synchronous Motor (PMSM)",
@@ -1573,7 +1589,7 @@ export const cars: Vehicle[] = [
     // double-wishbone front, and one vague source is not sourcing).
     specs: {
       dimensions: { lengthMm: 4783, widthMm: 1852, heightMm: 1448, wheelbaseMm: 2856, bootSpaceLiters: 470, kerbWeightKg: 2125 },
-      safety: { ncapRating: 4, ncapAgency: "Euro NCAP", airbagsCount: 8 },
+      safety: { ncapRating: 4, ncapAgency: "Euro NCAP", ncapYear: 2022, airbagsCount: 8 },
       motor: { peakPowerKw: 250, peakTorqueNm: 430, driveLayout: "RWD" },
     },
   },
@@ -1659,7 +1675,7 @@ export const cars: Vehicle[] = [
     // possibly different variants, so the core field is left alone.
     specs: {
       dimensions: { lengthMm: 4953, widthMm: 1967, heightMm: 1695, wheelbaseMm: 3000, bootSpaceLiters: 500, kerbWeightKg: 2440 },
-      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", airbagsCount: 6 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", ncapYear: 2021, airbagsCount: 6 },
       motor: { peakPowerKw: 385, peakTorqueNm: 765, driveLayout: "AWD" },
       tyres: { size: "275/50 R22" },
       suspension: { front: "Independent, double wishbone with air springs", rear: "Independent, 5-link" },
@@ -1755,7 +1771,7 @@ export const cars: Vehicle[] = [
     // airbagsCount — not published for the India car.
     specs: {
       dimensions: { lengthMm: 5216, widthMm: 1926, heightMm: 1512, wheelbaseMm: 3210 },
-      safety: { ncapRating: 5, ncapAgency: "Euro NCAP" },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", ncapYear: 2021 },
       motor: { peakPowerKw: 400, peakTorqueNm: 858, driveLayout: "AWD" },
     },
   },
@@ -1797,15 +1813,20 @@ export const cars: Vehicle[] = [
     // to, LHD and RHD. So this is the rare case where an ICE twin's rating
     // legitimately covers the EV — the rating body did the extension work
     // itself, and refusing it would be over-applying the trap.
-    // It is still omitted, for a DIFFERENT reason: that rating EXPIRED on
-    // 1 January 2026. Euro NCAP results lapse after six years, the underlying
-    // crash was a 2019 diesel G350d under 2019 protocols, and `ncapRating` has
-    // no way to say "expired". Publishing "5 stars" on a marketplace today
-    // would read as current. See HANDOFF.md — other records may carry lapsed
-    // ratings too.
+    // It nearly stayed omitted for a DIFFERENT reason: that rating EXPIRED on
+    // 1 January 2026, six years after the 2019 diesel G350d crash under 2019
+    // protocols, and the schema had no way to say so.
+    // RESOLVED 2026-08-21: `ncapYear` now records the age, so the published
+    // result is preserved as the historical fact it is instead of being thrown
+    // away. `src/lib/vehicle-safety.ts` holds the six-year Euro NCAP/ANCAP
+    // window; this result renders as "5 Stars (Euro NCAP, 2019 — rating
+    // expired)" and is excluded from the Compare winner engine, the computed
+    // safety score and the homepage banner's star row, so nothing presents it
+    // as current.
     // Omitted: all dimensions, tyres, suspension, brakes, airbags — not sourced
     // for the India car.
     specs: {
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", ncapYear: 2019 },
       motor: { peakPowerKw: 432, peakTorqueNm: 1164, driveLayout: "AWD" },
     },
   },
@@ -1894,7 +1915,7 @@ export const cars: Vehicle[] = [
     // exactly what makes picking one unsafe. CLAUDE.md #28(c).
     specs: {
       dimensions: { lengthMm: 4964, heightMm: 1510, wheelbaseMm: 3120, bootSpaceLiters: 430 },
-      safety: { ncapRating: 5, ncapAgency: "Euro NCAP" },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", ncapYear: 2022 },
     },
   },
   {
@@ -1928,16 +1949,22 @@ export const cars: Vehicle[] = [
     // 55 quattro, matching this record's 114 kWh headline. Power is 300 kW,
     // quoted as "408 hp" which is the PS figure (300 kW = 407.9 PS), with
     // 664 Nm.
-    // NO ncapRating. Euro NCAP did test this car — as the Audi e-tron, in 2019,
-    // five stars at 91% adult occupant, and Euro NCAP carried the entry over
-    // when Audi renamed it the Q8 e-tron. It is born-electric with no ICE twin,
-    // so the usual check passes. The rating simply EXPIRED at the start of
-    // 2026, six years after the test. Third record in two sub-batches to fail
-    // on age rather than on attribution — see HANDOFF.md.
+    // ncapRating passes every attribution check: Euro NCAP tested this car
+    // itself — as the Audi e-tron, in 2019, five stars at 91% adult occupant —
+    // and carried the entry over when Audi renamed it the Q8 e-tron. It is
+    // born-electric with no ICE twin.
+    // It failed on AGE alone: the result EXPIRED at the start of 2026, six years
+    // after the test, and was omitted entirely because the schema could not say
+    // so. RESOLVED 2026-08-21 — `ncapYear` records it, and
+    // `src/lib/vehicle-safety.ts` marks it expired everywhere it is shown while
+    // keeping it out of every score. Third of the three records that failed on
+    // age rather than attribution (with the G 580 and EX40); all three are
+    // restored on the same basis.
     // Omitted: bootSpaceLiters, tyres, suspension, brakes, airbags — not
     // published for the India car.
     specs: {
       dimensions: { lengthMm: 4901, widthMm: 1935, heightMm: 1616, wheelbaseMm: 2928, kerbWeightKg: 2560 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", ncapYear: 2019 },
       motor: { peakPowerKw: 300, peakTorqueNm: 664, driveLayout: "AWD" },
     },
   },
@@ -2024,7 +2051,7 @@ export const cars: Vehicle[] = [
     // bootSpaceLiters is the 318 L seats-up figure; 904 L is seats-folded.
     specs: {
       dimensions: { lengthMm: 4233, widthMm: 1837, heightMm: 1549, wheelbaseMm: 2650, groundClearanceMm: 171, bootSpaceLiters: 318, kerbWeightKg: 1850 },
-      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", airbagsCount: 9 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", ncapYear: 2024, airbagsCount: 9 },
       motor: { peakPowerKw: 200, peakTorqueNm: 343, driveLayout: "RWD" },
       tyres: { size: "245/45 R19" },
       suspension: { front: "Independent, MacPherson strut", rear: "Independent, multi-link" },
@@ -2062,18 +2089,25 @@ export const cars: Vehicle[] = [
     // EX40 is the renamed XC40 Recharge. Power is the Twin Motor AWD's 300 kW
     // (quoted "408 PS") with 660 Nm, matching this record's 470 km headline —
     // the Single Motor Extended Range is 175 kW and goes ~565 km.
-    // ** NO ncapRating, and the reason is the same pairing as the Mercedes
-    // G 580 in sub-batch 11. ** Euro NCAP never crash-tested the electric
-    // XC40; it ran additional checks and EXTENDED the 2018 petrol XC40's
-    // five-star result onto the Recharge, which is a legitimate extension by
-    // the rating body rather than an ICE-twin mix-up. It is unusable anyway,
-    // because a 2018 result EXPIRED at the start of 2025. Compare the EC40
-    // below, which really was tested, in 2022, and keeps its rating.
+    // ** ncapRating here is the same pairing as the Mercedes G 580 in sub-batch
+    // 11. ** Euro NCAP never crash-tested the electric XC40; it ran additional
+    // checks and EXTENDED the 2018 petrol XC40's five-star result onto the
+    // Recharge — a legitimate extension by the rating body, not an ICE-twin
+    // mix-up. But a 2018 result EXPIRED at the start of 2025, and with no way to
+    // say that, the rating was omitted outright.
+    // RESOLVED 2026-08-21: recorded with `ncapYear: 2018` and presented as
+    // expired (see `src/lib/vehicle-safety.ts`). The EX40/EC40 contrast is
+    // unchanged and still the clearest case in the dataset — the EC40 below was
+    // crash-tested directly in 2022 and its rating is CURRENT, so
+    // /compare/volvo-ex40-vs-volvo-ec40 now reads "5 Stars (Euro NCAP, 2018 —
+    // rating expired)" against "5 Stars (Euro NCAP, 2022)", and only the EC40
+    // can win the safety metric.
     // Omitted: dimensions (published for the EC40 but not separately for the
     // taller EX40 body, and a coupe-roof sibling's height is not this car's);
     // kerbWeightKg, tyres, suspension, brakes, airbags.
     specs: {
       dimensions: { bootSpaceLiters: 460 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", ncapYear: 2018 },
       motor: { peakPowerKw: 300, peakTorqueNm: 660, driveLayout: "AWD" },
     },
   },
@@ -2115,7 +2149,7 @@ export const cars: Vehicle[] = [
     // this field means elsewhere in the dataset.
     specs: {
       dimensions: { lengthMm: 4440, widthMm: 1873, heightMm: 1591, wheelbaseMm: 2702, bootSpaceLiters: 404 },
-      safety: { ncapRating: 5, ncapAgency: "Euro NCAP" },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", ncapYear: 2022 },
       motor: { peakPowerKw: 300, peakTorqueNm: 660, driveLayout: "AWD" },
     },
   },

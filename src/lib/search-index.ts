@@ -1,4 +1,4 @@
-import { getAllVehicles, oems } from "@/lib/data";
+import { getCurrentVehicles, oems } from "@/lib/data";
 import { getOemBySlug } from "@/lib/data/oems";
 import type { SearchIndex } from "@/types/search-index";
 
@@ -18,7 +18,13 @@ import type { SearchIndex } from "@/types/search-index";
  */
 export function buildSearchIndex(): SearchIndex {
   return {
-    vehicles: getAllVehicles().map((vehicle) => ({
+    // Current vehicles only. Search is a discovery surface, so a scooter the
+    // brand has replaced should not come back as a suggestion — its detail
+    // page and comparison pages stay reachable by URL. See
+    // src/lib/vehicle-availability.ts, and note that a curated popular-search
+    // term naming a discontinued vehicle will now fail search.test.ts, which
+    // is the intended guard.
+    vehicles: getCurrentVehicles().map((vehicle) => ({
       id: vehicle.id,
       slug: vehicle.slug,
       category: vehicle.category,

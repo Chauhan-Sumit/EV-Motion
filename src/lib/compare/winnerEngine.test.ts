@@ -148,3 +148,63 @@ describe("boolToMetricValue", () => {
     expect(unknown.metricResults[0].state).toBe("insufficient-data");
   });
 });
+
+describe("comparable — the set-level gate", () => {
+  /**
+   * `value()` sees one item at a time and so cannot tell that two real,
+   * correctly-sourced numbers describe different quantities. The live case is
+   * two-wheeler torque: a hub motor's 140 Nm is measured at the wheel and a
+   * mid-drive's 26 Nm at the motor shaft, so ranking them crowns the hub
+   * scooter by five times on a definition. See src/lib/vehicle-torque.ts.
+   */
+  const gated = (comparable: (items: Item[]) => boolean): WinnerMetric<Item> => ({
+    ...higher,
+    comparable,
+  });
+
+  it("withholds the winner when the values are not measured the same way", () => {
+    const { metricResults, categoriesWon } = computeWinners(
+      [item("hub", 140), item("mid-drive", 26)],
+      [gated(() => false)],
+    );
+
+    expect(metricResults[0].state).toBe("insufficient-data");
+    expect(metricResults[0].winnerIndex).toBeNull();
+    // Nothing may leak into the Winner Ribbon's tally either.
+    expect(categoriesWon).toEqual([0, 0]);
+  });
+
+  it("still reports the real values, because they are still displayed", () => {
+    const { metricResults } = computeWinners([item("hub", 140), item("mid-drive", 26)], [gated(() => false)]);
+    // Withholding the ranking is not the same as hiding the data.
+    expect(metricResults[0].values).toEqual([140, 26]);
+  });
+
+  it("behaves exactly as before when the gate passes", () => {
+    const { metricResults, categoriesWon } = computeWinners(
+      [item("a", 26), item("b", 58)],
+      [gated(() => true)],
+    );
+
+    expect(metricResults[0].state).toBe("winner");
+    expect(metricResults[0].winnerIndex).toBe(1);
+    expect(categoriesWon).toEqual([0, 1]);
+  });
+
+  it("is not consulted when there was nothing to compare anyway", () => {
+    // Fewer than 2 known values short-circuits first, so a gate that would
+    // throw is never reached — order matters for cheapness, not correctness.
+    const explodes = gated(() => {
+      throw new Error("comparable() should not run without 2 known values");
+    });
+
+    expect(computeWinners([item("a", 26), item("b", null)], [explodes]).metricResults[0].state).toBe(
+      "insufficient-data",
+    );
+  });
+
+  it("leaves metrics without a gate untouched", () => {
+    const { metricResults } = computeWinners([item("a", 26), item("b", 58)], [higher]);
+    expect(metricResults[0].state).toBe("winner");
+  });
+});

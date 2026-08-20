@@ -37,7 +37,7 @@ export const twoWheelers: Vehicle[] = [
       "S1 Pro remains Ola Electric's performance flagship, chasing motorcycle-like acceleration in a scooter body.",
     specs: {
       dimensions: { lengthMm: 1859, widthMm: 712, heightMm: 1160, wheelbaseMm: 1359, groundClearanceMm: 165 },
-      motor: { peakPowerKw: 11, peakTorqueNm: 58, motorType: "Mid-Drive IPM Motor" },
+      motor: { peakPowerKw: 11, peakTorqueNm: 58, motorType: "Mid-Drive IPM Motor", torqueMeasuredAt: "shaft" },
       tyres: { size: "110/70 R12 (front & rear)" },
       brakes: { front: "disc", rear: "disc" },
     },
@@ -124,7 +124,7 @@ export const twoWheelers: Vehicle[] = [
     //     is not a source.
     specs: {
       dimensions: { lengthMm: 2015, widthMm: 831, heightMm: 1235, groundClearanceMm: 180 },
-      motor: { peakPowerKw: 11, peakTorqueNm: 58, motorType: "Mid-Drive IPM Motor" },
+      motor: { peakPowerKw: 11, peakTorqueNm: 58, motorType: "Mid-Drive IPM Motor", torqueMeasuredAt: "shaft" },
       tyres: { size: "80/100-18 front, 100/90-17 rear" },
       suspension: { front: "Telescopic, 130mm travel", rear: "Twin shock, adjustable" },
     },
@@ -160,7 +160,7 @@ export const twoWheelers: Vehicle[] = [
       "450X built Ather's reputation for punchy performance and slick software, with a dashboard that still leads the segment.",
     specs: {
       dimensions: { lengthMm: 1891, widthMm: 739, heightMm: 1114, wheelbaseMm: 1296, kerbWeightKg: 108 },
-      motor: { peakPowerKw: 6.4, peakTorqueNm: 26, motorType: "PMSM" },
+      motor: { peakPowerKw: 6.4, peakTorqueNm: 26, motorType: "PMSM", torqueMeasuredAt: "shaft" },
       tyres: { size: "90/90 R12 front, 100/80 R12 rear" },
       brakes: { front: "disc", rear: "disc" },
     },
@@ -201,7 +201,7 @@ export const twoWheelers: Vehicle[] = [
     // suspension; warranty.
     specs: {
       dimensions: { lengthMm: 1850, widthMm: 750, heightMm: 1140, wheelbaseMm: 1285, kerbWeightKg: 125 },
-      motor: { peakPowerKw: 4.3, peakTorqueNm: 22, motorType: "PMSM" },
+      motor: { peakPowerKw: 4.3, peakTorqueNm: 22, motorType: "PMSM", torqueMeasuredAt: "shaft" },
       brakes: { front: "disc", rear: "drum" },
     },
   },
@@ -238,7 +238,7 @@ export const twoWheelers: Vehicle[] = [
     // Omitted: suspension (not published per-variant); warranty.
     specs: {
       dimensions: { lengthMm: 1891, widthMm: 739, heightMm: 1114, wheelbaseMm: 1296, kerbWeightKg: 111.6 },
-      motor: { peakPowerKw: 7, peakTorqueNm: 26, motorType: "PMSM" },
+      motor: { peakPowerKw: 7, peakTorqueNm: 26, motorType: "PMSM", torqueMeasuredAt: "shaft" },
       tyres: { size: "90/90-12 front, 100/80-12 rear" },
       brakes: { front: "disc", rear: "disc" },
     },
@@ -247,12 +247,18 @@ export const twoWheelers: Vehicle[] = [
     // ⚠️ NOT IN BAJAJ'S CURRENT LINE-UP — superseded by the C-series. Bajaj now
     // sells C2501/C3001/C3501/C3502/C3503; there is no 3.2 kWh "Chetak Premium"
     // on chetak.com. Reconciled in Batch 7 sub-batch 9.
-    // NOT REMOVED, and here removal would also break three other things: this
-    // slug is a homepage compare pair (`derive.ts`'s cmp-bike-2), "Chetak
-    // Premium" is a curated popular-search term (`popular-searches.ts`), and
-    // `search.test.ts` asserts every curated term still resolves. Its
-    // researched `specs` below are from the Batch 6 pilot and remain valid for
-    // the scooter this record describes.
+    // RESOLVED 2026-08-21: marked `launchStatus: "discontinued"` rather than
+    // deleted. See `src/lib/vehicle-availability.ts` for which surfaces drop a
+    // discontinued vehicle and which keep serving it.
+    // The two references that made deletion expensive were re-pointed at a
+    // current Chetak instead of being dropped: `derive.ts`'s cmp-bike-2 homepage
+    // compare pair and the "Chetak Premium" chip in `popular-searches.ts` both
+    // now use `bajaj-chetak-c3501`. Promoting a scooter Bajaj no longer sells
+    // from the homepage was the actual problem there, not the coupling.
+    // Its Batch 6 pilot `specs` below stay as recorded — they remain true of the
+    // scooter this record describes. Note the 20 Nm carries no
+    // `torqueMeasuredAt`: the Series 35 trio's shaft convention was established
+    // for those C-series scooters, not for this superseded one.
     id: "tw-bajaj-chetak-premium",
     slug: "bajaj-chetak-premium",
     category: "2-wheeler",
@@ -266,7 +272,7 @@ export const twoWheelers: Vehicle[] = [
     batteryCapacityKwh: 3.2,
     chargingTimeSlowHr: 5,
     topSpeedKmph: 73,
-    launchStatus: "available",
+    launchStatus: "discontinued",
     launchDate: "2023-01",
     colors: ["Brooklyn Black", "Indigo Ink", "Ivory Ash"],
     images: {
@@ -328,7 +334,7 @@ export const twoWheelers: Vehicle[] = [
     // (published only as "R12", never as a section width).
     specs: {
       dimensions: { widthMm: 725, wheelbaseMm: 1355, bootSpaceLiters: 35 },
-      motor: { peakPowerKw: 4, peakTorqueNm: 20 },
+      motor: { peakPowerKw: 4, peakTorqueNm: 20, torqueMeasuredAt: "shaft" },
       suspension: { front: "Single-sided leading link", rear: "Monoshock" },
       brakes: { front: "disc", rear: "drum" },
       certifications: ["IP67 battery"],
@@ -340,10 +346,15 @@ export const twoWheelers: Vehicle[] = [
     // C2501 (Series 25), C3001 (Series 30), and C3501/C3502/C3503 (Series 35).
     // There is no 2.9 kWh Chetak and no model called 2901. This record most
     // likely descends from the 2903, an entry Chetak superseded by the C-series.
-    // NOT REMOVED HERE, deliberately: `LaunchStatus` is "available" |
-    // "just-launched" | "upcoming", with no way to say "discontinued", and
-    // deleting a scooter people still own and search for is a product decision
-    // rather than a data fix. See HANDOFF.md sub-batch 9 for the options.
+    // RESOLVED 2026-08-21: `LaunchStatus` gained "discontinued", so this record
+    // now says what it is instead of claiming to be on sale. It is kept, not
+    // deleted — people own this scooter, look it up, and hold its URL.
+    // `src/lib/vehicle-availability.ts` documents exactly which surfaces drop it
+    // (listings, homepage rails, related/similar, the compare picker, the search
+    // index) and which keep working (its detail page, comparison pages, sitemap
+    // entry, and structured data, which now reports schema.org/Discontinued).
+    // It will never carry `specs`: there is nothing to research, because it
+    // describes no scooter Bajaj lists.
     id: "tw-bajaj-chetak-2901",
     slug: "bajaj-chetak-2901",
     category: "2-wheeler",
@@ -357,7 +368,7 @@ export const twoWheelers: Vehicle[] = [
     batteryCapacityKwh: 2.9,
     chargingTimeSlowHr: 4.5,
     topSpeedKmph: 63,
-    launchStatus: "available",
+    launchStatus: "discontinued",
     launchDate: "2024-08",
     colors: ["Ivory Ash", "Indigo Ink"],
     images: { hero: "hero", gallery },
@@ -399,7 +410,7 @@ export const twoWheelers: Vehicle[] = [
     specs: {
       dimensions: { lengthMm: 1805, widthMm: 645, heightMm: 1140, wheelbaseMm: 1301, groundClearanceMm: 157, kerbWeightKg: 110 },
       warranty: { batteryYears: 3 },
-      motor: { peakPowerKw: 4.4, peakTorqueNm: 140, motorType: "Hub-mounted BLDC" },
+      motor: { peakPowerKw: 4.4, peakTorqueNm: 140, motorType: "Hub-mounted BLDC", torqueMeasuredAt: "wheel" },
       tyres: { size: "90/90 R12 (front & rear)" },
       brakes: { front: "disc", rear: "drum" },
       suspension: { front: "Telescopic", rear: "Hydraulic twin-tube shock absorber" },
@@ -441,11 +452,15 @@ export const twoWheelers: Vehicle[] = [
     // would crown the iQube by a factor of five on a difference that is purely
     // definitional. Structurally identical to the width-with-mirrors trap in
     // CLAUDE.md #28(b).
-    // ** The already-recorded `tvs-iqube` record carries `peakTorqueNm: 140`
-    // and has this exact problem live. It is left alone here because the fix is
-    // a decision, not a lookup: either omit it too, or add a torque-convention
-    // field to VehicleMotor, or exclude torque from the two-wheeler winner
-    // metrics. Flagged in HANDOFF.md. **
+    // ** RESOLVED 2026-08-21: `VehicleMotor.torqueMeasuredAt` now records where
+    // a torque figure was measured, and `src/lib/vehicle-torque.ts` refuses to
+    // rank figures across conventions (or against an unknown one). The base
+    // `tvs-iqube` record's 140 Nm is annotated `"wheel"` and no longer competes
+    // with Ather/Ola/Bajaj shaft figures. **
+    // This record still gets no `peakTorqueNm`: TVS publishes 140 Nm for the
+    // iQube *family*, and a family figure is not this variant's — the same
+    // reason its dimensions were omitted. The convention problem is fixed; the
+    // sourcing problem was always separate.
     // Also note for the staleness sweep: this record says 3.7 kWh / 155 km, but
     // TVS now sells the ST with a 5.3 kWh pack rated 212 km IDC. Core fields
     // left unchanged.
@@ -601,6 +616,21 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["121 km range", "7-inch TFT display", "Reverse mode"],
     description:
       "Nexus is Ampere's flagship model, adding a touch more tech and range over the brand's budget-focused lineup.",
+    // ** peakTorqueNm 35 deliberately carries NO `torqueMeasuredAt`, and that
+    // absence is the honest answer rather than an oversight. ** HANDOFF.md
+    // sub-batch 7 flagged this record as one to CHECK once the convention
+    // field existed; the field exists now, but no source consulted for this
+    // record states where the 35 Nm was measured. Ampere being described as a
+    // hub-motor brand is a brand-level generalisation, and inferring a
+    // measurement point from it is the same class of move as inferring a spec
+    // from a formula (CLAUDE.md #22) — 35 Nm sits nowhere near TVS's 140 Nm
+    // hub figure and much closer to the 20-26 Nm shaft cluster, so the
+    // generalisation does not even look safe here.
+    // Consequence, and it is the intended one: with an unknown measurement
+    // point this figure is excluded from Compare's Torque ranking by
+    // `src/lib/vehicle-torque.ts` while still being displayed. Establishing
+    // the point from an Ampere source is cheap research whenever the four
+    // unspecced Ampere records are picked up.
     specs: {
       dimensions: { wheelbaseMm: 1319, groundClearanceMm: 170 },
       warranty: { batteryYears: 5, batteryKm: 75000 },
@@ -610,6 +640,19 @@ export const twoWheelers: Vehicle[] = [
     },
   },
   {
+    // ** UNSPECCED, and no longer BLOCKED. ** This is one of the four Ampere
+    // records HANDOFF.md listed as hard-blocked on the hub-vs-shaft torque
+    // decision (sub-batches 7-8). That decision landed 2026-08-21:
+    // `VehicleMotor.torqueMeasuredAt` now records where a torque figure was
+    // measured, and `src/lib/vehicle-torque.ts` refuses to rank figures across
+    // conventions, so recording an Ampere torque no longer entrenches a fifth
+    // incomparable number.
+    // Nothing is recorded here yet, because that is research and none was done
+    // in the pass that removed the blocker. When these four are picked up:
+    // establish the measurement point FROM AN AMPERE SOURCE and record it
+    // beside the figure. Do not carry one across from `ampere-nexus` (whose own
+    // convention is still unresolved — see its note above) and do not infer one
+    // from the brand.
     id: "tw-ampere-magnus-ex",
     slug: "ampere-magnus-ex",
     category: "2-wheeler",
@@ -635,6 +678,8 @@ export const twoWheelers: Vehicle[] = [
       "Magnus EX has long been Ampere's volume seller, built for budget-conscious buyers who just need reliable daily transport.",
   },
   {
+    // Unspecced, and no longer blocked — see the Ampere torque note on
+    // `ampere-magnus-ex` above.
     id: "tw-ampere-primus",
     slug: "ampere-primus",
     category: "2-wheeler",
@@ -783,7 +828,7 @@ export const twoWheelers: Vehicle[] = [
     // for this variant even on a shared chassis); rear suspension type.
     specs: {
       dimensions: { lengthMm: 1891, widthMm: 739, heightMm: 1114, wheelbaseMm: 1296, kerbWeightKg: 108 },
-      motor: { peakPowerKw: 5.4, peakTorqueNm: 22, motorType: "PMSM" },
+      motor: { peakPowerKw: 5.4, peakTorqueNm: 22, motorType: "PMSM", torqueMeasuredAt: "shaft" },
       suspension: { front: "Telescopic forks" },
       brakes: { front: "disc", rear: "disc" },
     },
@@ -914,7 +959,7 @@ export const twoWheelers: Vehicle[] = [
     // NO warranty — see the C3501 note.
     specs: {
       dimensions: { widthMm: 725, wheelbaseMm: 1355, bootSpaceLiters: 35 },
-      motor: { peakPowerKw: 4, peakTorqueNm: 20 },
+      motor: { peakPowerKw: 4, peakTorqueNm: 20, torqueMeasuredAt: "shaft" },
       suspension: { front: "Single-sided leading link", rear: "Monoshock" },
     },
   },
@@ -956,7 +1001,7 @@ export const twoWheelers: Vehicle[] = [
     // NO warranty — see the C3501 note.
     specs: {
       dimensions: { widthMm: 725, wheelbaseMm: 1355, bootSpaceLiters: 35 },
-      motor: { peakPowerKw: 4, peakTorqueNm: 20 },
+      motor: { peakPowerKw: 4, peakTorqueNm: 20, torqueMeasuredAt: "shaft" },
       suspension: { front: "Single-sided leading link", rear: "Monoshock" },
       brakes: { front: "drum", rear: "drum" },
     },
@@ -985,11 +1030,11 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["175 km claimed IDC range", "4.4 kW hub motor", "0-40 km/h in 4.3 seconds"],
     description:
       "iQube S fills the gap between the base iQube and the range-topping ST, giving TVS buyers a bigger battery without the ST's full price premium.",
-    // NO peakTorqueNm — see the iQube ST record for the full reasoning. In
-    // short: TVS quotes hub-motor torque measured at the wheel, Ather and the
-    // other mid-drive scooters quote shaft torque that their belt drive then
-    // multiplies. Putting both in one Compare row measures two different
-    // quantities and hands the hub scooter a meaningless win.
+    // NO peakTorqueNm — and since 2026-08-21 that is a sourcing gap only, not
+    // the convention problem it originally was. `torqueMeasuredAt` can now
+    // express hub-vs-shaft (see the iQube ST record), so a figure attributed to
+    // *this variant* could be recorded as `"wheel"` whenever one is published.
+    // TVS's 140 Nm is quoted for the iQube family, not for the S.
     // Omitted: dimensions (the 1805/645/1140/1301 figures are published for the
     // iQube family, not attributed to this variant); tyres and suspension.
     specs: {
@@ -1048,6 +1093,8 @@ export const twoWheelers: Vehicle[] = [
       "Vida V2 Lite trims the V2's battery down to hit a lower price, giving Hero a sub-1-lakh entry point alongside its costlier Plus and Pro variants.",
   },
   {
+    // Unspecced, and no longer blocked — see the Ampere torque note on
+    // `ampere-magnus-ex` above.
     id: "tw-ampere-magnus-neo",
     slug: "ampere-magnus-neo",
     category: "2-wheeler",
@@ -1073,6 +1120,8 @@ export const twoWheelers: Vehicle[] = [
       "Magnus Neo refreshes Ampere's long-running Magnus nameplate with a longer-lasting LFP battery, taking over as the brand's mainstream commuter scooter.",
   },
   {
+    // Unspecced, and no longer blocked — see the Ampere torque note on
+    // `ampere-magnus-ex` above.
     id: "tw-ampere-reo-80",
     slug: "ampere-reo-80",
     category: "2-wheeler",

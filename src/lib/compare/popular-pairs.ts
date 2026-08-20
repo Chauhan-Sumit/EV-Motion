@@ -1,4 +1,4 @@
-import { getAllVehicles, getRelatedVehicles } from "@/lib/data";
+import { getCurrentVehicles, getRelatedVehicles } from "@/lib/data";
 import { buildCompareSlug } from "./slug";
 import type { Vehicle } from "@/types/vehicle";
 
@@ -36,7 +36,11 @@ export function popularComparisonPairs(neighbours = NEIGHBOURS_PER_VEHICLE): Com
   const seen = new Set<string>();
   const pairs: ComparisonPair[] = [];
 
-  for (const vehicle of getAllVehicles()) {
+  // Current vehicles only, on both sides: `getRelatedVehicles` already
+  // excludes discontinued candidates, and iterating them here would put
+  // comparisons of a superseded scooter into the sitemap. Those pages still
+  // render on demand — `dynamicParams` stays at its default `true`.
+  for (const vehicle of getCurrentVehicles()) {
     for (const related of getRelatedVehicles(vehicle, neighbours)) {
       // Order-independent key: A-vs-B and B-vs-A are the same page, and the
       // route canonicalises to whichever order `buildCompareSlug` produces.

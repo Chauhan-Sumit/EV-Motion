@@ -1,5 +1,17 @@
 export type VehicleCategory = "car" | "2-wheeler" | "commercial";
-export type LaunchStatus = "available" | "just-launched" | "upcoming";
+/**
+ * `"discontinued"` says the OEM no longer sells this vehicle. It exists so a
+ * record describing a real scooter/car that people still own and look up does
+ * not have to claim it is on sale — the alternative was deleting the record,
+ * which loses a working public URL and the data behind it.
+ *
+ * It is deliberately NOT a fourth availability filter chip: discontinued
+ * vehicles are excluded from listings, homepage rails, related/similar
+ * recommendations, the compare picker and the search index (see
+ * `src/lib/vehicle-availability.ts` for the one predicate all of those share),
+ * while their detail page, comparison pages and structured data keep working.
+ */
+export type LaunchStatus = "available" | "just-launched" | "upcoming" | "discontinued";
 export type CarBodyType = "hatchback" | "suv" | "sedan" | "muv";
 export type TwoWheelerType = "scooter" | "motorcycle";
 export type CommercialType =
@@ -55,6 +67,20 @@ export interface VehicleDimensions {
 export interface VehicleSafety {
   ncapRating?: number;
   ncapAgency?: string;
+  /**
+   * Calendar year the `ncapRating` was published. Records an age, and age is
+   * what decides whether a crash-test result is still a rating or only a
+   * historical fact: Euro NCAP and ANCAP results lapse six years after
+   * publication, so a 2019 five-star result stopped being current on
+   * 1 January 2026.
+   *
+   * Never present a rating whose year has lapsed as a current rating — read
+   * it through `ncapResultFor()` in `src/lib/vehicle-safety.ts`, which is the
+   * one place the expiry policy lives, rather than off `ncapRating` directly.
+   * Absent means the year was never sourced, not that the rating is current;
+   * such a rating is shown without a year and cannot be checked for expiry.
+   */
+  ncapYear?: number;
   airbagsCount?: number;
   adas?: boolean;
   abs?: boolean;
@@ -96,11 +122,38 @@ export interface VehicleChargingExtra {
   chargingNetworkPartner?: string;
 }
 
+/**
+ * Where a published torque figure was measured. Two OEMs can both publish an
+ * honest "peak torque" and mean different quantities:
+ *
+ * - `"shaft"` — at the motor's output shaft, before any belt/gear reduction.
+ *   The convention for every car, and for mid-drive two-wheelers (Ather, Ola,
+ *   Bajaj's belt-driven Chetak).
+ * - `"wheel"` — at the wheel, with no reduction in between. The convention for
+ *   hub-motor two-wheelers (TVS iQube).
+ *
+ * TVS's 140 Nm and Ather's 26 Nm are not a 5× difference, they are a
+ * definition — see CLAUDE.md #28(b2). Nothing here converts between the two:
+ * the reduction ratio is not published, so a conversion would be invention.
+ */
+export type TorqueMeasurementPoint = "shaft" | "wheel";
+
 export interface VehicleMotor {
   motorType?: string;
   driveLayout?: "FWD" | "RWD" | "AWD";
   peakPowerKw?: number;
   peakTorqueNm?: number;
+  /**
+   * Where `peakTorqueNm` was measured, when it has been established from the
+   * source. Only meaningful alongside a `peakTorqueNm`.
+   *
+   * Absent does NOT mean "shaft" — for a car it resolves to the category
+   * default (see `torqueMeasurementPointFor()` in
+   * `src/lib/vehicle-torque.ts`), but for a two-wheeler, where both
+   * conventions are in live use, absent means *unknown* and the figure is
+   * excluded from torque comparison rather than assumed comparable.
+   */
+  torqueMeasuredAt?: TorqueMeasurementPoint;
   driveModes?: string[];
   regenBraking?: boolean;
 }

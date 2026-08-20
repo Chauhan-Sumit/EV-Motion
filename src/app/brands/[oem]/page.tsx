@@ -5,6 +5,7 @@ import { BrandLogo } from "@/components/brands/BrandLogo";
 import { Container } from "@/components/ui/Container";
 import { getOemBySlug, getVehiclesByOem, oems } from "@/lib/data";
 import { CATEGORIES } from "@/lib/data/categories";
+import { isCurrentlySold } from "@/lib/vehicle-availability";
 
 export function generateStaticParams() {
   return oems.map((oem) => ({ oem: oem.slug }));
@@ -28,7 +29,10 @@ export default async function BrandPage(props: PageProps<"/brands/[oem]">) {
 
   if (!oem) notFound();
 
-  const vehicles = getVehiclesByOem(oem.key);
+  // A brand page is a listing of what the brand sells, so discontinued
+  // records are filtered out here too — their own detail pages still work.
+  // See src/lib/vehicle-availability.ts.
+  const vehicles = getVehiclesByOem(oem.key).filter(isCurrentlySold);
 
   return (
     <Container className="py-6 sm:py-8">

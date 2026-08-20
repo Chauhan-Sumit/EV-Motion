@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/command";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
 import { oemColorOf } from "@/lib/data/ev-motion/derive";
-import { getVehiclesByCategory } from "@/lib/data";
+import { getCurrentVehiclesByCategory } from "@/lib/data";
 import { POPULAR_SEARCHES_BY_SCOPE } from "@/lib/popular-searches";
 import { loadRecentSearches, saveRecentSearch } from "@/lib/search-history";
 import type { Vehicle, VehicleCategory } from "@/types/vehicle";
@@ -41,7 +41,10 @@ export function ChangeVehicleModal({ open, onOpenChange, category, excludeSlugs,
   const [recentSlugs, setRecentSlugs] = useState<string[]>(() => loadRecentSearches(RECENT_KEY));
 
   const eligible = useMemo(
-    () => getVehiclesByCategory(category).filter((v) => !excludeSlugs.includes(v.slug)),
+    // Discontinued vehicles aren't offered as something to add to a
+    // comparison. One already IN the comparison stays — it arrives from the
+    // URL, not from this picker, so an existing /compare link keeps working.
+    () => getCurrentVehiclesByCategory(category).filter((v) => !excludeSlugs.includes(v.slug)),
     [category, excludeSlugs],
   );
 

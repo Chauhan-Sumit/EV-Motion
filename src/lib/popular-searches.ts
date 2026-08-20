@@ -18,9 +18,17 @@ import type { SearchScope } from "@/lib/search";
  * compare page's vehicle picker, tests) can read it without pulling a React
  * component and its ImageKit dependency along with it.
  */
+/**
+ * A term must also name something the site currently SELLS. "Chetak Premium"
+ * was replaced by "Chetak C3501" on 2026-08-21 when that record became
+ * `discontinued`: discontinued vehicles are out of the search index, so the
+ * term would have failed the resolution test above — but the real objection is
+ * that a "Popular Searches" chip is a recommendation, and recommending a
+ * scooter Bajaj no longer sells is the same mistake in a smaller box.
+ */
 export const POPULAR_SEARCHES_BY_SCOPE: Record<SearchScope, string[]> = {
   car: ["Nexon EV", "SUV", "Creta Electric", "Hatchback", "Windsor EV", "Sedan"],
-  "2-wheeler": ["S1 Pro", "Scooter", "450X", "Motorcycle", "iQube", "Chetak Premium"],
+  "2-wheeler": ["S1 Pro", "Scooter", "450X", "Motorcycle", "iQube", "Chetak C3501"],
   commercial: ["3-Wheeler", "Truck", "Van", "Bus"],
   all: ["Nexon EV", "SUV", "S1 Pro", "Scooter", "450X", "Creta Electric"],
 };

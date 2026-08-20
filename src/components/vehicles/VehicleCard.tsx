@@ -15,6 +15,11 @@ const BADGE_CLASSES: Record<Vehicle["launchStatus"], string> = {
   available: "bg-primary text-white",
   "just-launched": "bg-hot text-white",
   upcoming: "border border-border-strong bg-surface text-ink-secondary",
+  // Muted rather than coloured — a discontinued card only reaches a user on a
+  // surface that deliberately still serves one (see
+  // src/lib/vehicle-availability.ts), and it should read as a note, not a
+  // promotion.
+  discontinued: "bg-ink-muted text-white",
 };
 
 export function VehicleCard({ vehicle }: { vehicle: Vehicle }) {

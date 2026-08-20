@@ -18,6 +18,21 @@ export interface WinnerMetric<T> {
   direction: WinnerDirection;
   /** Returns null when this vehicle has no value for this metric — excluded from scoring, not treated as zero. */
   value: (item: T) => number | null;
+  /**
+   * Optional SET-level gate, checked before any winner is picked: return false
+   * when the compared items' values are not measurable against each other at
+   * all, and the metric resolves to `insufficient-data`.
+   *
+   * `value()` is per-item and so cannot see this — two vehicles can each hold
+   * a real, correctly-sourced number that still describes a different
+   * quantity. The live case is two-wheeler torque: a hub motor's 140 Nm is
+   * measured at the wheel and a mid-drive's 26 Nm at the motor shaft, so
+   * ranking them crowns the hub scooter by five times on a definition (see
+   * `src/lib/vehicle-torque.ts`, CLAUDE.md #28(b2)). The same shape recurs
+   * wherever OEMs measure differently — width with or without mirrors is the
+   * next candidate.
+   */
+  comparable?: (items: T[]) => boolean;
   format?: (value: number) => string;
 }
 
@@ -54,6 +69,13 @@ export function computeWinners<T>(items: T[], metrics: WinnerMetric<T>[]): Winne
     // single known value among N unknowns has nothing to actually beat, so
     // it stays "insufficient-data" too, not an automatic win.
     if (knownIndices.length < 2) {
+      return { key: metric.key, state: "insufficient-data", winnerIndex: null, values };
+    }
+
+    // Values are still returned — they are real and get displayed. What is
+    // withheld is the ranking, because these particular numbers do not
+    // measure one thing.
+    if (metric.comparable && !metric.comparable(items)) {
       return { key: metric.key, state: "insufficient-data", winnerIndex: null, values };
     }
 

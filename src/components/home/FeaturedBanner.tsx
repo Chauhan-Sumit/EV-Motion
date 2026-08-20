@@ -9,6 +9,7 @@ import { LeadCaptureDialog } from "@/components/common/LeadCaptureDialog";
 import { useVehiclePricing } from "@/hooks/useVehiclePricing";
 import { vehiclePricingSubject } from "@/lib/vehicle-pricing";
 import { formatPriceLakh } from "@/lib/utils";
+import { ncapResultFor } from "@/lib/vehicle-safety";
 import type { Vehicle } from "@/types/vehicle";
 
 /**
@@ -21,7 +22,11 @@ import type { Vehicle } from "@/types/vehicle";
 export function FeaturedBanner({ featured }: { featured: Vehicle }) {
   const oem = getOemBySlug(featured.oem);
   const featuredName = `${oem?.name ?? ""} ${featured.modelName}`.trim();
-  const safety = featured.specs?.safety;
+  // A row of gold stars is the strongest "this car is safe, today" claim on
+  // the homepage and has no room for a caveat, so a LAPSED rating is dropped
+  // here rather than shown with an expiry note — the Compare page's Safety
+  // row is where the historical result stays visible in full.
+  const ncap = ncapResultFor(featured.specs?.safety);
   const pricing = useVehiclePricing(vehiclePricingSubject(featured));
 
   return (
@@ -41,13 +46,16 @@ export function FeaturedBanner({ featured }: { featured: Vehicle }) {
             <Spec icon={Gauge} label="Range" value={`${featured.rangeKm} km`} />
             <Spec icon={BatteryCharging} label="Battery" value={`${featured.batteryCapacityKwh} kWh`} />
             <Spec icon={Timer} label="Fast Charging" value={featured.chargingTimeFastMin ? `${featured.chargingTimeFastMin} min` : "—"} />
-            {safety?.ncapRating ? (
+            {ncap && !ncap.expired ? (
               <div className="flex items-center gap-1.5">
                 <ShieldCheck size={14} className="text-primary-bright" />
                 <div>
-                  <div className="text-white/50">{safety.ncapAgency ?? "NCAP"}</div>
+                  <div className="text-white/50">
+                    {ncap.agency}
+                    {ncap.year !== undefined ? ` ${ncap.year}` : ""}
+                  </div>
                   <div className="flex gap-0.5">
-                    {Array.from({ length: safety.ncapRating }).map((_, i) => (
+                    {Array.from({ length: ncap.rating }).map((_, i) => (
                       <Star key={i} size={10} className="fill-amber-400 text-amber-400" />
                     ))}
                   </div>

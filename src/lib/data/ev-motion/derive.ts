@@ -1,4 +1,4 @@
-import { getAllVehicles, getVehiclesByCategory, oems, getOemBySlug } from "@/lib/data";
+import { getCurrentVehicles, getCurrentVehiclesByCategory, oems, getOemBySlug } from "@/lib/data";
 import { vehicleHref } from "@/lib/search";
 import { formatPriceRangeLakh } from "@/lib/utils";
 import type { Vehicle, VehicleCategory } from "@/types/vehicle";
@@ -89,10 +89,16 @@ export function toUpcomingItem(vehicle: Vehicle): UpcomingItemData {
  * `popularBikes`-style twin exports) — so a new category from
  * `src/lib/data/categories.ts` gets homepage-ready data for free instead of
  * needing a new pair of consts written by hand.
+ *
+ * They all read `getCurrentVehiclesByCategory`, never the raw catalogue: every
+ * one of them feeds a homepage rail that presents a vehicle as something to
+ * buy, and a discontinued record has no business in "Popular", "Trending",
+ * "Highest Range" or the "EVs Listed" count. See
+ * `src/lib/vehicle-availability.ts`.
  */
 
 export function getPopularByCategory(category: VehicleCategory, limit = 6): ListingCardData[] {
-  return getVehiclesByCategory(category)
+  return getCurrentVehiclesByCategory(category)
     .filter((v) => v.launchStatus !== "upcoming")
     .sort((a, b) => a.priceRangeLakh[0] - b.priceRangeLakh[0])
     .slice(0, limit)
@@ -100,18 +106,18 @@ export function getPopularByCategory(category: VehicleCategory, limit = 6): List
 }
 
 export function getTrendingByCategory(category: VehicleCategory): TrendingCompactItemData[] {
-  return getVehiclesByCategory(category).map((v, i) => toTrendingCompactItem(v, i === 0));
+  return getCurrentVehiclesByCategory(category).map((v, i) => toTrendingCompactItem(v, i === 0));
 }
 
 export function getRankedByCategory(category: VehicleCategory, limit = 8): RankedVehicleData[] {
-  return [...getVehiclesByCategory(category)]
+  return [...getCurrentVehiclesByCategory(category)]
     .sort((a, b) => b.rangeKm - a.rangeKm)
     .slice(0, limit)
     .map((v, i) => toRankedVehicle(v, i + 1));
 }
 
 export function getUpcomingByCategory(category: VehicleCategory): UpcomingItemData[] {
-  return getVehiclesByCategory(category).filter((v) => v.launchStatus === "upcoming").map(toUpcomingItem);
+  return getCurrentVehiclesByCategory(category).filter((v) => v.launchStatus === "upcoming").map(toUpcomingItem);
 }
 
 export function getBrandsByCategory(category: VehicleCategory): BrandCardData[] {
@@ -121,7 +127,7 @@ export function getBrandsByCategory(category: VehicleCategory): BrandCardData[] 
 }
 
 function comparePair(id: string, category: VehicleCategory, slugA: string, slugB: string): CompareCardPairData | null {
-  const pool = getVehiclesByCategory(category);
+  const pool = getCurrentVehiclesByCategory(category);
   const a = pool.find((v) => v.slug === slugA);
   const b = pool.find((v) => v.slug === slugB);
   if (!a || !b) return null;
@@ -148,7 +154,7 @@ export const carComparisons: CompareCardPairData[] = [
  * this project's "real data, honest empty states" convention.
  */
 export function getHomeHighlights(): HighlightItemData[] {
-  const all = getAllVehicles();
+  const all = getCurrentVehicles();
   const trending = getTrendingByCategory("car")[0];
   const newLaunchCount = all.filter((v) => v.launchStatus === "just-launched").length;
   const [highestRange] = getRankedByCategory("car", 1);
@@ -166,6 +172,10 @@ export function getHomeHighlights(): HighlightItemData[] {
 
 export const bikeComparisons: CompareCardPairData[] = [
   comparePair("cmp-bike-1", "2-wheeler", "ola-s1-pro", "ather-450x"),
-  comparePair("cmp-bike-2", "2-wheeler", "tvs-iqube", "bajaj-chetak-premium"),
+  // Re-pointed 2026-08-21 from `bajaj-chetak-premium`, which is now
+  // `discontinued` — the homepage should not invite a comparison against a
+  // scooter Bajaj has replaced. `bajaj-chetak-c3501` is the current Series 35
+  // flagship and carries researched specs, so the pair is still a real one.
+  comparePair("cmp-bike-2", "2-wheeler", "tvs-iqube", "bajaj-chetak-c3501"),
   comparePair("cmp-bike-3", "2-wheeler", "ola-s1-x", "ampere-nexus"),
 ].filter((p): p is CompareCardPairData => p !== null);
