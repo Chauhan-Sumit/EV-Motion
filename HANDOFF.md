@@ -17,7 +17,7 @@ Verified against the codebase and the live database, not from memory. Last check
 | --- | --- | --- |
 | Cars / two-wheelers data | ✅ **DONE** | 54 + 68 = **122 vehicles**, 46 OEMs |
 | Commercial data | ⛔ **NOT STARTED** | `commercial.ts` is `[]`. Architecture complete; category auto-gated everywhere |
-| `Vehicle.specs` coverage | 🟡 **IN PROGRESS** | **33 of 122 (27%)** — cars 27/54, two-wheelers 6/68. The rest render "Not specified" |
+| `Vehicle.specs` coverage | 🟡 **IN PROGRESS** | **37 of 122 (30%)** — cars 31/54, two-wheelers 6/68. The rest render "Not specified" |
 | Vehicle photography (real) | 🚫 **BLOCKED** | **0 of 122**. Pipeline + credentials verified working; blocked on a licensing decision, not code. `photoUrl` is deliberately still empty everywhere |
 | Vehicle-type illustrations (AI) | 🟡 **5 of 6** | NEW 2026-08-17. Generic per-**body-type** AI art replacing the SVG placeholder — *not* per-model, *not* photoreal, and not in `photoUrl`. Scooter blocked on a provider generation cap |
 | Data honesty (Batch 1) | ✅ **DONE** | No spec is derived. Guarded by tests |
@@ -26,7 +26,7 @@ Verified against the codebase and the live database, not from memory. Last check
 | Test suite (Batch 4) | ✅ **DONE** | **167 tests**, 9 files, ~8s |
 | Lead capture (Batch 5) | ✅ **DONE** | Live, verified end to end. RLS deny-all |
 | Analytics + errors (Batch 6) | ✅ **DONE** | Live, verified. Cookie-less, no PII, no IP |
-| Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 5 sub-batches done. Tata, MG, Mahindra, Hyundai **and Kia** complete. 89 vehicles left |
+| Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 6 sub-batches done. Tata, MG, Mahindra, Hyundai, Kia **and BYD** complete — every partially-done brand is now finished. 85 vehicles left |
 | Homepage hero (2.5D) | ✅ **DONE** | NEW 2026-08-18. Vehicle + generated environment at `lg`+, CSS/DOM parallax, no Three.js. Hero height unchanged. **Motion never watched in a browser** — see the section |
 | `loading.tsx` | ⛔ **BLOCKED** | Hangs at every level, dev and prod. Root cause unknown |
 | Auth / admin view for leads | ⛔ **NOT STARTED** | RLS denies all reads; only the Supabase dashboard can see leads |
@@ -733,6 +733,44 @@ The Syros EV's 45 kWh pack **does not exist** — it was a pre-launch guess. Add
 - **Carens Clavis EV boot and ground clearance** — not published for the EV; Kia states only a 25 L frunk.
 - **Kerb weights throughout**, and EV9 tyres/suspension (not published for the India car).
 - **Trim-gated features on the Carens Clavis EV** (BOSE audio, panoramic sunroof, ventilated seats) are real but higher-trim only, and `VehicleFeatures` has no trim axis.
+
+### Sub-batch 6 — BYD (2026-08-20)
+
+**33 → 37 of 122.** Seal, e6, eMAX 7 and Sealion 7 gain specs; **BYD is complete (5/5)** and, with it, **every partially-populated brand in the dataset is now finished.** Six brands done: Tata, MG, Mahindra, Hyundai, Kia, BYD. Everything remaining starts from zero. Quality gate clean: 167 tests, `tsc`, `eslint`, `npm run build` (421 routes). Purely additive, 88 insertions, no deletions.
+
+**The shared-motor trap, caught before it shipped this time.** The Seal and Sealion 7 use the same two BYD motors, and the sources print their outputs as **"313hp"** and **"530hp"**. Those are PS values — 230 kW is 312.6 PS and 390 kW is 530.2 PS — and at least one aggregator back-converts them into **"233 kW"** and **"396 kW"**. Recording those would have given one of two cars sharing a motor a **false Power crown over the other**: exactly the BE 6 / XEV 9e failure from sub-batch 2, in the same shape, on the same kind of sibling pair. The round OEM figures are recorded instead, and Autocar's Seal page prints "313 hp / 230 kW" and "530 hp / 390 kW" explicitly, which is the corroboration that makes 230/390 safe. **Verified in the build: `/compare/byd-sealion-7-vs-byd-seal` shows 230 kW on both sides — a real tie, no crown.**
+
+**`batteryChemistry` is recorded on all four**, as `"LFP Blade Battery"`, matching the Atto 3. BYD remains the *only* OEM in this dataset where this field is populated, and the reason is worth restating: BYD states its chemistry officially, whereas "NMC" is exactly the value `toVehicleDetail.ts` used to fabricate for every other vehicle (CLAUDE.md #22). This field being BYD-only is a signal of correctness, not a gap to fill.
+
+**NCAP:**
+
+- **Seal** — 5-star Euro NCAP 2023, **safe**: BYD builds no ICE version.
+- **Sealion 7** — 5-star Euro NCAP 2025, same reasoning.
+- **e6 and eMAX 7 — no rating.** Neither has a Euro NCAP, Bharat NCAP or ASEAN NCAP result. The eMAX 7 in particular is a platform relative of BYD's Song Max line, which makes any rating quoted near it worth distrusting on the usual grounds.
+
+**Omissions**
+
+- **Seal has no `peakTorqueNm`.** Autocar's own page lists **"370Nm"** against the 390 kW Performance AWD while launch coverage quotes **670 Nm** for that same variant, and neither states the Premium RWD's figure outright. A 300 Nm spread is not a rounding artifact — it is one of the two being wrong — so the field is omitted rather than picked between.
+- **Sealion 7 has no `kerbWeightKg`** — Autocar says 2340 kg, 91Wheels 2225 kg.
+- **eMAX 7 and e6 have no tyres/suspension/brakes**, and the e6 no `airbagsCount` — not published for the India cars.
+- **No `warranty` on any of the four.** BYD India's terms are uniform and are already on the Atto 3 record (6yr/150,000 km vehicle, 8yr/150,000 km battery and motor), but they were not re-verified this session, and propagating a figure from another record is not sourcing it. **This is the cheapest remaining win in the brand** — one lookup would fill four records.
+
+**One staleness flag, deliberately not acted on.** At least one aggregator lists the e6 as *"BYD E6 Electric 2021-2024 — Discontinued"*, while the record says `launchStatus: "available"`. The sourcing is an aggregator's label rather than a BYD India statement, so it was left alone and noted inline. It belongs in the staleness sweep flagged in sub-batch 5 — which, after two consecutive sub-batches turning one up, is now the third such finding.
+
+### Where this leaves Batch 7
+
+**85 vehicles left, and the character of the work changes from here.** Every brand that was partway done is finished, so the superlinear clustering payoff that justified the OEM-by-OEM order — `winnerEngine`'s ≥2-known-values rule plus `getRelatedVehicles()`'s same-OEM-first pairing — no longer picks an obvious next target. What remains:
+
+| Brand | Cars | Note |
+| --- | --- | --- |
+| BMW | 5 | Largest untouched car brand |
+| Mercedes-Benz | 4 | |
+| Volvo | 3 | |
+| Audi, Lotus, MINI, Porsche, VinFast | 2 each | |
+| Rolls-Royce | 1 | |
+| **Two-wheelers** | **62** | **The real bulk — 6 of 68 done, untouched since the Batch 6 pilot** |
+
+The two-wheeler side is now the larger gap by a wide margin and has had no attention since the pilot. If the goal is coverage percentage rather than premium-car comparison quality, that is where the remaining 85 mostly live.
 
 ## HOMEPAGE HERO — 2.5D VEHICLE + ENVIRONMENT (2026-08-18)
 
