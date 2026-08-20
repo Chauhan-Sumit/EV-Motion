@@ -1225,6 +1225,29 @@ export const cars: Vehicle[] = [
     highlights: ["7-seat flagship SUV", "561 km range", "Level 3 autonomous-ready hardware"],
     description:
       "EV9 is Kia's largest and most tech-laden EV yet, aimed squarely at premium 3-row SUV buyers looking to go electric.",
+    // India-spec GT-Line AWD, the single variant Kia India sells.
+    // Power reconciles across every unit it is quoted in: 283 kW appears as
+    // "384 PS", "385 hp" and "380 bhp", and Autocar India's India-spec 282.6 kW
+    // rounds to the same OEM figure.
+    // ncapRating is safe: the EV9 is born-electric with no ICE twin, so the
+    // 5-star Euro NCAP 2023 result (84% adult occupant) can only be this
+    // vehicle's own.
+    // Omitted: bootSpaceLiters (three-row SUV — sources quote behind-3rd-row
+    // and behind-2nd-row figures without labelling which, the same problem as
+    // the Ioniq 9); tyres and suspension (not published for the India car);
+    // kerbWeightKg (2625 kg is the global GT-Line AWD, not an India figure);
+    // groundClearanceMm (not published); regenBraking (not stated).
+    specs: {
+      dimensions: { lengthMm: 5015, widthMm: 1980, heightMm: 1780, wheelbaseMm: 3100 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", airbagsCount: 10, adas: true },
+      chargingExtra: { v2l: true },
+      motor: {
+        motorType: "Permanent Magnet Synchronous Motor (PMSM)",
+        peakPowerKw: 283,
+        peakTorqueNm: 700,
+        driveLayout: "AWD",
+      },
+    },
   },
   {
     id: "car-kia-carens-clavis-ev",
@@ -1254,6 +1277,36 @@ export const cars: Vehicle[] = [
     highlights: ["490 km ARAI range on the Extended Range pack", "6- and 7-seat layouts", "Battery-as-a-Service option"],
     description:
       "Carens Clavis EV electrifies Kia's practical MPV, offering flexible 6- or 7-seat family layouts alongside two battery choices.",
+    // OEM-primary: dimensions, safety kit, brakes and V2L are from Kia India's
+    // own Carens Clavis EV specification page; motor, suspension and tyres from
+    // Autocar India.
+    // Power is the 51.4 kWh figure (126 kW / 171 PS), matching this record's
+    // headline battery — the 42 kWh pack is 135 PS. Same shared Hyundai-Kia
+    // unit as the Creta Electric and Syros EV.
+    // NO NCAP RATING: Bharat NCAP has not tested the Carens Clavis EV. The
+    // 3-star Global NCAP result that circulates near this car belongs to the
+    // pre-facelift petrol Carens, which is neither this bodyshell nor this
+    // powertrain — CLAUDE.md #28(a) again.
+    // Omitted: bootSpaceLiters and groundClearanceMm (not published for the EV;
+    // Kia states only a 25 L frunk); kerbWeightKg (1725 kg is quoted without
+    // saying which battery pack); motorType (Autocar lists only "electric");
+    // battery warranty (first-owner-only lifetime scheme, as above);
+    // trim-gated features (BOSE audio, panoramic sunroof and ventilated seats
+    // are real but only on higher trims, and VehicleFeatures has no trim axis).
+    specs: {
+      dimensions: { lengthMm: 4550, widthMm: 1800, heightMm: 1730, wheelbaseMm: 2780 },
+      safety: { airbagsCount: 6, adas: true, abs: true, esc: true, hillHoldControl: true, camera360: true, tpms: true, isofix: true, parkingSensors: "both" },
+      features: { connectedCarApp: true, otaUpdates: true, digitalCluster: true },
+      chargingExtra: { v2l: true },
+      motor: {
+        peakPowerKw: 126,
+        peakTorqueNm: 255,
+        driveLayout: "FWD",
+      },
+      tyres: { size: "215/55 R17" },
+      suspension: { front: "Independent, MacPherson strut", rear: "Coupled torsion beam axle" },
+      brakes: { front: "disc", rear: "disc" },
+    },
   },
   {
     id: "car-kia-syros-ev",
@@ -1286,6 +1339,39 @@ export const cars: Vehicle[] = [
     highlights: ["Boxy, upright cabin space", "460 km range", "Segment-first dual-pane sunroof"],
     description:
       "Syros EV takes Kia's boxy new crossover design language electric, aiming at buyers cross-shopping compact SUVs under 20 lakh.",
+    // OEM-primary where possible: dimensions, boot space, brakes, airbags,
+    // ADAS and V2L are from Kia India's own Syros EV pages; suspension, tyres,
+    // ground clearance and torque from Autocar India, which publishes what
+    // Kia's pages don't.
+    // Power: Kia India states "171 PS" and Autocar India "171 hp" — both the
+    // same 126 kW Hyundai-Kia unit the Creta Electric and Carens Clavis EV
+    // carry, all three quoted at 171 PS / 255 Nm, which is what makes 126 safe
+    // to record rather than back-converted. This is the 51.4 kWh Extended
+    // Range figure, matching this record's headline pack; 42 kWh is 133 PS.
+    // NO NCAP RATING, and this is the ICE-twin trap in its purest form: the
+    // widely reported 5-star Bharat NCAP result — the first ever for a
+    // made-in-India Kia — belongs to the petrol/diesel Syros. The Syros EV has
+    // not been crash-tested. CLAUDE.md #28(a), fifth sighting.
+    // Omitted: tyres (215/60 R16 and 215/55 R17 are both factory fitments by
+    // trim, so one size would misdescribe it); kerbWeightKg (not published);
+    // battery warranty (Kia's "Lifetime" cover is 15 years / unlimited km for
+    // the FIRST OWNER only — VehicleWarranty's single-number fields cannot
+    // express that without misrepresenting a second owner, see sub-batch 2);
+    // regenBraking (not stated on either source page).
+    specs: {
+      dimensions: { lengthMm: 3995, widthMm: 1805, heightMm: 1670, wheelbaseMm: 2550, groundClearanceMm: 197, bootSpaceLiters: 390 },
+      safety: { airbagsCount: 6, adas: true, esc: true, camera360: true },
+      features: { connectedCarApp: true, otaUpdates: true },
+      chargingExtra: { v2l: true },
+      motor: {
+        motorType: "Permanent Magnet Synchronous Motor (PMSM)",
+        peakPowerKw: 126,
+        peakTorqueNm: 255,
+        driveLayout: "FWD",
+      },
+      suspension: { front: "Independent, MacPherson strut", rear: "Coupled torsion beam axle" },
+      brakes: { front: "disc", rear: "disc" },
+    },
   },
   {
     id: "car-bmw-ix1-lwb",
