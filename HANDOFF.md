@@ -15,18 +15,18 @@ Verified against the codebase and the live database, not from memory. Last check
 
 | | Status | Detail |
 | --- | --- | --- |
-| Cars / two-wheelers data | ✅ **DONE** | 54 + 68 = **122 vehicles**, 46 OEMs |
+| Cars / two-wheelers data | ✅ **DONE** | 54 + 69 = **123 vehicles**, 46 OEMs |
 | Commercial data | ⛔ **NOT STARTED** | `commercial.ts` is `[]`. Architecture complete; category auto-gated everywhere |
-| `Vehicle.specs` coverage | 🟡 **IN PROGRESS** | **46 of 122 (38%)** — cars 31/54, two-wheelers 15/68. The rest render "Not specified" |
+| `Vehicle.specs` coverage | 🟡 **IN PROGRESS** | **46 of 123 (37%)** — cars 31/54, two-wheelers 15/69. The rest render "Not specified" |
 | Vehicle photography (real) | 🚫 **BLOCKED** | **0 of 122**. Pipeline + credentials verified working; blocked on a licensing decision, not code. `photoUrl` is deliberately still empty everywhere |
 | Vehicle-type illustrations (AI) | 🟡 **5 of 6** | NEW 2026-08-17. Generic per-**body-type** AI art replacing the SVG placeholder — *not* per-model, *not* photoreal, and not in `photoUrl`. Scooter blocked on a provider generation cap |
 | Data honesty (Batch 1) | ✅ **DONE** | No spec is derived. Guarded by tests |
 | Client bundle (Batch 2) | ✅ **DONE** | Catalog out of the browser; −110-130 KB/page. `/compare` is the documented exception |
-| SEO + routing (Batch 3) | ✅ **DONE** | 421 routes, 241 comparisons pre-rendered, 414 sitemap URLs |
+| SEO + routing (Batch 3) | ✅ **DONE** | 425 routes, 244 comparisons pre-rendered, 418 sitemap URLs |
 | Test suite (Batch 4) | ✅ **DONE** | **167 tests**, 9 files, ~8s |
 | Lead capture (Batch 5) | ✅ **DONE** | Live, verified end to end. RLS deny-all |
 | Analytics + errors (Batch 6) | ✅ **DONE** | Live, verified. Cookie-less, no PII, no IP |
-| Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 8 sub-batches done. Cars: Tata, MG, Mahindra, Hyundai, Kia, BYD. Two-wheelers: Ather, TVS, **Ola**. 76 vehicles left. **Bajaj is blocked** — see sub-batch 8 |
+| Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 9 sub-batches done. Cars: Tata, MG, Mahindra, Hyundai, Kia, BYD. Two-wheelers: Ather, TVS, Ola. 77 vehicles left. **Bajaj unblocked** — line-up reconciled in sub-batch 9, specs still to do |
 | Homepage hero (2.5D) | ✅ **DONE** | NEW 2026-08-18. Vehicle + generated environment at `lg`+, CSS/DOM parallax, no Three.js. Hero height unchanged. **Motion never watched in a browser** — see the section |
 | `loading.tsx` | ⛔ **BLOCKED** | Hangs at every level, dev and prod. Root cause unknown |
 | Auth / admin view for leads | ⛔ **NOT STARTED** | RLS denies all reads; only the Supabase dashboard can see leads |
@@ -869,6 +869,62 @@ That is the sixth stale record in five consecutive sub-batches. **Every sub-batc
 ### Remaining: 76 vehicles
 
 **23 cars** (BMW 5, Mercedes-Benz 4, Volvo 3, Audi/Lotus/MINI/Porsche/VinFast 2 each, Rolls-Royce 1 — all from zero) and **53 two-wheelers**, of which Bajaj 5 and Ampere 4 are blocked as above. The largest genuinely-available clusters left on the two-wheeler side are Ultraviolette 3, Simple Energy 3, Pure EV 3, Okinawa 3, BGauss 3 and Hero 5.
+
+### Sub-batch 9 — Bajaj line-up reconciliation (2026-08-20)
+
+**Identity work only. No `Vehicle.specs` researched or added** — deliberately deferred until the records were known to describe real scooters. Coverage is unchanged at 46, but the denominator moves: **46 of 123**, because the catalogue gained a vehicle.
+
+Sub-batch 8 stopped on Bajaj because its records couldn't honestly receive specs. This resolves that. Everything below is from Bajaj's own model pages on `chetak.com` — no aggregators were used as authority, per CLAUDE.md's sourcing rules.
+
+**Bajaj's current line-up is exactly five scooters**, under a 'C-series' naming scheme:
+
+| Model | Series | Battery | IDC range | Top speed | Ex-showroom |
+| --- | --- | --- | --- | --- | --- |
+| C2501 | 25 | 2.5 kWh | 113 km | 60 km/h | ₹95,802 |
+| C3001 | 30 | 3.0 kWh | 127 km | 70 km/h | ₹1,14,270 |
+| C3501 | 35 | 3.5 kWh | 153 km | 80 km/h | ₹1,52,140 |
+| C3502 | 35 | 3.5 kWh | 153 km | 63 (80 with TecPac) | ₹1,36,939 |
+| C3503 | 35 | 3.5 kWh | 151 km | 70 km/h | ₹1,24,157 |
+
+### Before / after mapping
+
+| Existing record | Actual Bajaj model | Action | Reason |
+| --- | --- | --- | --- |
+| `bajaj-chetak-c2501` | **C2501** (Series 25) | **Keep**, figures corrected | Identity was already right. Top speed was 63, Bajaj says 60; price was an invented ₹0.91-0.98L range for a single-variant model |
+| `bajaj-chetak-c3001` | **C3001** (Series 30) | **Keep**, figures corrected | Identity right, three figures wrong: range 115→127, top speed 63→70, price →₹1.14L |
+| `bajaj-chetak-3501` | **C3501** (Series 35) | **Re-keyed** to `bajaj-chetak-c3501` + figures corrected | Same scooter, wrong name. Its siblings were already C-prefixed; the mismatch is most of why this brand read as having duplicate records. Range 158→153, top speed 73→80, price →₹1.52L |
+| `bajaj-chetak-c3502` | **C3502** (Series 35) | **Keep**, figures corrected | Identity right. Top speed 73→63, price →₹1.37L |
+| `bajaj-chetak-2901` | **none** | **Kept + annotated** | No 2.9 kWh Chetak exists. Almost certainly descends from the 2903, an entry model the C-series replaced |
+| `bajaj-chetak-premium` | **none** | **Kept + annotated** | Superseded by the C-series. No 3.2 kWh "Chetak Premium" on chetak.com |
+| *(missing)* | **C3503** (Series 35) | **Added** as `bajaj-chetak-c3503` | Bajaj sells three Series 35 scooters; the dataset had two |
+
+### Why the two discontinued records were not deleted
+
+**`LaunchStatus` is `"available" | "just-launched" | "upcoming"` — there is no way to say "discontinued."** Marking them honestly needs a schema change; leaving them as `"available"` is wrong; deleting scooters people own and search for is a product decision rather than a data fix. So both are annotated in place and the choice is left open.
+
+Removing `bajaj-chetak-premium` specifically would also break three things, which is worth knowing before anyone tries:
+
+1. `derive.ts`'s `cmp-bike-2` homepage compare pair references its slug.
+2. `"Chetak Premium"` is a curated term in `popular-searches.ts`.
+3. `search.test.ts` asserts every curated popular term still resolves — so the deletion would fail the suite rather than fail silently. That guard working as designed is a small vindication of CLAUDE.md #10.
+
+**Three options when this is decided:** add a `"discontinued"` launch status and gate it out of listings; or delete both and clean up the three references above; or keep them as historical entries and accept that the catalogue includes scooters no longer sold.
+
+### The 73 km/h that wasn't anything
+
+Three records carried a 73 km/h top speed. It matches **no** current Chetak. It is the **old Chetak Premium's** figure, which had propagated across the range — a single wrong number replicated until it looked like a house style. Worth remembering as a failure mode: a value repeated across sibling records reads as corroborated when it may only be copied.
+
+### One judgement call, flagged
+
+**C3502's top speed is recorded as 63, not 80.** Bajaj publishes both: 63 km/h as sold, 80 km/h once the optional **TecPac** accessory pack is fitted. Recording the accessory-unlocked number would overstate what a buyer gets — the same error as quoting a variant's figure as the model's. The consequence is that the C3502 reads *slower* than the cheaper C3503 (70 km/h), which is genuinely how Bajaj specs them. Flagged inline so it does not get "fixed" later.
+
+### Build effects worth expecting
+
+Route count **421 → 425**, comparisons **241 → 244**, sitemap **414 → 418**. The new scooter adds pages; changing Bajaj prices also reshuffles which pairs win `getRelatedVehicles()`'s price-proximity selection, so the comparison set is not simply the old set plus three. **`/two-wheelers/bajaj-chetak-3501` no longer resolves** — the re-key changes a public URL, and there is no redirect layer for two-wheeler slugs (only `/compare` has one).
+
+### What this unblocks
+
+Bajaj's five current records now provably describe five real scooters, so **specs research for them is straightforward whenever it is wanted** — and it should cover the five C-series models only, not the two annotated legacy records. Ampere remains blocked on the separate hub-vs-shaft torque decision from sub-batch 7.
 
 ## HOMEPAGE HERO — 2.5D VEHICLE + ENVIRONMENT (2026-08-18)
 
