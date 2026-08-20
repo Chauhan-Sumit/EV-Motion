@@ -17,7 +17,7 @@ Verified against the codebase and the live database, not from memory. Last check
 | --- | --- | --- |
 | Cars / two-wheelers data | ✅ **DONE** | 54 + 69 = **123 vehicles**, 46 OEMs |
 | Commercial data | ⛔ **NOT STARTED** | `commercial.ts` is `[]`. Architecture complete; category auto-gated everywhere |
-| `Vehicle.specs` coverage | 🟡 **IN PROGRESS** | **56 of 123 (46%)** — cars 36/54, two-wheelers 20/69. The rest render "Not specified" |
+| `Vehicle.specs` coverage | 🟡 **IN PROGRESS** | **60 of 123 (49%)** — cars 40/54, two-wheelers 20/69. The rest render "Not specified" |
 | Vehicle photography (real) | 🚫 **BLOCKED** | **0 of 122**. Pipeline + credentials verified working; blocked on a licensing decision, not code. `photoUrl` is deliberately still empty everywhere |
 | Vehicle-type illustrations (AI) | 🟡 **5 of 6** | NEW 2026-08-17. Generic per-**body-type** AI art replacing the SVG placeholder — *not* per-model, *not* photoreal, and not in `photoUrl`. Scooter blocked on a provider generation cap |
 | Data honesty (Batch 1) | ✅ **DONE** | No spec is derived. Guarded by tests |
@@ -26,7 +26,7 @@ Verified against the codebase and the live database, not from memory. Last check
 | Test suite (Batch 4) | ✅ **DONE** | **167 tests**, 9 files, ~8s |
 | Lead capture (Batch 5) | ✅ **DONE** | Live, verified end to end. RLS deny-all |
 | Analytics + errors (Batch 6) | ✅ **DONE** | Live, verified. Cookie-less, no PII, no IP |
-| Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 10 sub-batches done. Cars: Tata, MG, Mahindra, Hyundai, Kia, BYD, **BMW**. Two-wheelers: Ather, TVS, Ola, Bajaj. 67 vehicles left |
+| Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 11 sub-batches done. Cars: Tata, MG, Mahindra, Hyundai, Kia, BYD, BMW, **Mercedes-Benz**. Two-wheelers: Ather, TVS, Ola, Bajaj. 63 left; **~12 more sub-batches** — see sub-batch 11 |
 | Homepage hero (2.5D) | ✅ **DONE** | NEW 2026-08-18. Vehicle + generated environment at `lg`+, CSS/DOM parallax, no Three.js. Hero height unchanged. **Motion never watched in a browser** — see the section |
 | `loading.tsx` | ⛔ **BLOCKED** | Hangs at every level, dev and prod. Root cause unknown |
 | Auth / admin view for leads | ⛔ **NOT STARTED** | RLS denies all reads; only the Supabase dashboard can see leads |
@@ -1000,6 +1000,57 @@ The **iX** record claims 635 km while Autocar India currently lists 504 km. Thos
 ### Remaining: 67 vehicles
 
 **18 cars** — Mercedes-Benz 4, Volvo 3, Audi/Lotus/MINI/Porsche/VinFast 2 each, Rolls-Royce 1 — and **49 two-wheelers**. Finishing the premium-German cluster (Mercedes 4, then Audi and Porsche at 2 each) is now the highest-value car work, because BMW being populated makes each of those immediately comparable rather than one-sided. **Ampere's 4 records remain the only explicit blocker**, still waiting on the hub-vs-shaft torque decision from sub-batch 7.
+
+### Sub-batch 11 — Mercedes-Benz (2026-08-20)
+
+**56 → 60 of 123** (cars 36 → 40 of 54). **Mercedes-Benz is complete (4/4)** — the eighth brand finished and the second of the premium-German cluster. Coverage crosses **49%**. Quality gate clean: 167 tests, `tsc`, `eslint`, `npm run build` (425 routes). Purely additive.
+
+**Three distinct traps fired in one brand**, the most any sub-batch has produced.
+
+### 1. The inverse of #28(a) — and then an expiry problem underneath it
+
+The **G 580 with EQ Technology** looked like a textbook ICE-twin case and turned out to be the opposite. **Euro NCAP's own G-Class assessment page explicitly lists "Electric - G580 with EQ Technology"** among the variants its 2019 five-star result applies to, LHD and RHD. The crash test was performed on a diesel **G350d**, and Euro NCAP itself did the extension work.
+
+So this is the rare case where **an ICE twin's rating legitimately covers the EV** — and refusing it would be *over-applying* the trap. Worth internalising alongside the MG ZS EV case from sub-batch 5: the check cuts both ways, and mechanically deleting anything with an ICE sibling destroys real data.
+
+**It is still omitted, for a completely different reason: that rating expired on 1 January 2026.** Euro NCAP results lapse after six years. The underlying crash was a 2019 diesel under 2019 protocols, and `ncapRating` has no way to express "expired". Publishing "5 Stars (Euro NCAP)" on a marketplace today would read as current.
+
+**⚠️ This raises a question beyond this record.** Euro NCAP and ANCAP ratings both lapse after six years, so anything tested in 2019 or earlier has now expired. **Three recorded ratings are in that window and should be reviewed:** `mg-zs-ev` (Euro NCAP 2019), `hyundai-kona-electric` (ANCAP 2019, itself corrected in sub-batch 4), and this one. The schema has no expiry concept — the options are a `ncapYear` field, an `ncapExpired` flag, or accepting that ratings are historical statements. **Not acted on; it is a schema decision.**
+
+### 2. Width-with-mirrors, on the EQE
+
+Its published **1961mm is a MAXIMUM width including mirrors**. This dataset records body width (#28(b)). No body figure was sourced, so width is omitted rather than mixed in — a mirror-inflated width silently crowns a false winner in Compare, exactly as it nearly did on the Harrier EV in sub-batch 2.
+
+### 3. Sedan/SUV conflation, on the EQE
+
+Mercedes sells an **EQE saloon and an EQE SUV**, and aggregator pages for "EQE" serve SUV figures freely. The SUV is 4863mm on a 3030mm wheelbase with a 520 L boot; this record is the **saloon** at 4964mm on 3120mm with 430 L. Caught before anything was written, and guarded with an explicit note in the record so the next session does not re-import the SUV's numbers.
+
+### A correction to a normally-reliable source
+
+Autocar India's EQS launch piece prints **"385 kW / 885 Nm"**. Both figures are wrong. Three independent sources agree on **400 kW** — expressed as 400 kW, 544 PS and 536 hp, which reconciles exactly — and on **858 Nm**, of which "885" looks like a transposition. Recorded 400/858. **A wrong number from an otherwise reliable outlet is still a wrong number**; the reconciliation check is what caught it, not the source's reputation.
+
+### Other omissions
+
+- **Maybach EQS SUV `ncapRating`** — the five-star results circulating near it belong to the **EQE SUV (2023)** and the **EQS saloon (2021)**. It is two shells removed from a real result.
+- **EQE motor** — sources split irreconcilably between **300 kW (402 bhp)** and **330 kW (449 PS)**, most likely a mid-life revision. Both are internally consistent, which is precisely what makes choosing between them unsafe.
+- **G 580 and Maybach dimensions** — not published for the India cars in any source checked, so both records are motor-only. Thin, but honest.
+
+### How much is left — and how many sub-batches
+
+**63 records remain, but three numbers matter more than the total:**
+
+| | Count | Note |
+| --- | --- | --- |
+| Cars | **14** | Volvo 3, Audi 2, Lotus 2, MINI 2, Porsche 2, VinFast 2, Rolls-Royce 1 |
+| Two-wheelers | **48** | Hero 5, Ultraviolette 3, Simple Energy 3, Pure EV 3, Okinawa 3, BGauss 3, then 11 brands of 1-2 |
+| **Blocked** | **4** | Ampere — hub-vs-shaft torque decision, open since sub-batch 7 |
+| **Never** | **1** | `bajaj-chetak-2901` — describes no real scooter |
+
+**Estimate: ~12 more sub-batches** (range 11-14), taking Batch 7 to roughly sub-batch 23.
+
+The reasoning, since a bare number is not much use: sub-batches have averaged **4.2 vehicles**. The 14 cars group into about **3 sub-batches** if small brands are bundled (Volvo+Audi, Porsche+Lotus+MINI, VinFast+Rolls-Royce). The 48 two-wheelers are the long tail and the harder estimate — **17 of the 28 remaining brands have a single model**, so the OEM-clustering rationale that has ordered this entire batch stops paying, and sub-batches will mean bundling four to six unrelated brands. That is **9-11 sub-batches**, possibly fewer if scooter records prove quicker than car records, which they have so far: a scooter spec set is roughly half a car's fields and needs no NCAP research.
+
+**The pace is roughly constant; the value per sub-batch is not.** Coverage has moved from 23% to 49% in eleven sub-batches, but the remaining brands are progressively smaller and less cross-shopped, so each further sub-batch improves fewer comparison pages than the last.
 
 ## HOMEPAGE HERO — 2.5D VEHICLE + ENVIRONMENT (2026-08-18)
 
