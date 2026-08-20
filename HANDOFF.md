@@ -17,7 +17,7 @@ Verified against the codebase and the live database, not from memory. Last check
 | --- | --- | --- |
 | Cars / two-wheelers data | ✅ **DONE** | 54 + 69 = **123 vehicles**, 46 OEMs |
 | Commercial data | ⛔ **NOT STARTED** | `commercial.ts` is `[]`. Architecture complete; category auto-gated everywhere |
-| `Vehicle.specs` coverage | 🟡 **IN PROGRESS** | **60 of 123 (49%)** — cars 40/54, two-wheelers 20/69. The rest render "Not specified" |
+| `Vehicle.specs` coverage | 🟡 **IN PROGRESS** | **65 of 123 (53%)** — cars 45/54, two-wheelers 20/69. The rest render "Not specified" |
 | Vehicle photography (real) | 🚫 **BLOCKED** | **0 of 122**. Pipeline + credentials verified working; blocked on a licensing decision, not code. `photoUrl` is deliberately still empty everywhere |
 | Vehicle-type illustrations (AI) | 🟡 **5 of 6** | NEW 2026-08-17. Generic per-**body-type** AI art replacing the SVG placeholder — *not* per-model, *not* photoreal, and not in `photoUrl`. Scooter blocked on a provider generation cap |
 | Data honesty (Batch 1) | ✅ **DONE** | No spec is derived. Guarded by tests |
@@ -26,7 +26,7 @@ Verified against the codebase and the live database, not from memory. Last check
 | Test suite (Batch 4) | ✅ **DONE** | **167 tests**, 9 files, ~8s |
 | Lead capture (Batch 5) | ✅ **DONE** | Live, verified end to end. RLS deny-all |
 | Analytics + errors (Batch 6) | ✅ **DONE** | Live, verified. Cookie-less, no PII, no IP |
-| Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 11 sub-batches done. Cars: Tata, MG, Mahindra, Hyundai, Kia, BYD, BMW, **Mercedes-Benz**. Two-wheelers: Ather, TVS, Ola, Bajaj. 63 left; **~12 more sub-batches** — see sub-batch 11 |
+| Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 12 sub-batches done. Cars: Tata, MG, Mahindra, Hyundai, Kia, BYD, BMW, Mercedes-Benz, **Volvo, Audi**. Two-wheelers: Ather, TVS, Ola, Bajaj. 58 left (9 cars, 49 two-wheelers); **~11 more sub-batches** |
 | Homepage hero (2.5D) | ✅ **DONE** | NEW 2026-08-18. Vehicle + generated environment at `lg`+, CSS/DOM parallax, no Three.js. Hero height unchanged. **Motion never watched in a browser** — see the section |
 | `loading.tsx` | ⛔ **BLOCKED** | Hangs at every level, dev and prod. Root cause unknown |
 | Auth / admin view for leads | ⛔ **NOT STARTED** | RLS denies all reads; only the Supabase dashboard can see leads |
@@ -1051,6 +1051,58 @@ Autocar India's EQS launch piece prints **"385 kW / 885 Nm"**. Both figures are 
 The reasoning, since a bare number is not much use: sub-batches have averaged **4.2 vehicles**. The 14 cars group into about **3 sub-batches** if small brands are bundled (Volvo+Audi, Porsche+Lotus+MINI, VinFast+Rolls-Royce). The 48 two-wheelers are the long tail and the harder estimate — **17 of the 28 remaining brands have a single model**, so the OEM-clustering rationale that has ordered this entire batch stops paying, and sub-batches will mean bundling four to six unrelated brands. That is **9-11 sub-batches**, possibly fewer if scooter records prove quicker than car records, which they have so far: a scooter spec set is roughly half a car's fields and needs no NCAP research.
 
 **The pace is roughly constant; the value per sub-batch is not.** Coverage has moved from 23% to 49% in eleven sub-batches, but the remaining brands are progressively smaller and less cross-shopped, so each further sub-batch improves fewer comparison pages than the last.
+
+### Sub-batch 12 — Volvo + Audi (2026-08-20)
+
+**60 → 65 of 123** (cars 40 → 45 of 54). **Volvo (3/3) and Audi (2/2)** complete — the ninth and tenth brands, bundled because both are small and the car side is now a long tail. Coverage crosses **53%**. Quality gate clean: 167 tests, `tsc`, `eslint`, `npm run build` (425 routes). Purely additive.
+
+### Five records, two ratings, and three different reasons for the gaps
+
+This is the clearest demonstration yet that **"does this car have an NCAP rating" is the wrong question.** All three omissions here would have been recorded as five stars by anyone checking only whether a rating exists.
+
+| Record | Rating exists? | Recorded? | Why |
+| --- | --- | --- | --- |
+| **EX30** | Euro NCAP 2024, 5★ | ✅ | Born-electric, tested itself, result current. **The baseline the others fail against.** |
+| **EC40** | Euro NCAP 2022, 5★ | ✅ | C40 has no petrol version, so Euro NCAP tested the car directly. Current until 2028. |
+| **EX40** | 2018 XC40 5★, extended | ❌ | Legitimate extension by Euro NCAP — but **expired start of 2025** |
+| **Q8 e-tron** | Euro NCAP 2019, 5★ | ❌ | Its own result, born-electric, no twin — but **expired start of 2026** |
+| **e-tron GT** | — | ❌ | **Never tested.** The five stars quoted belongs to the **Porsche Taycan** |
+
+**The EX40/EC40 pair is the cleanest case in the dataset.** Same brand, same platform family, near-identical cars, opposite outcomes — entirely because the C40 has no petrol version, so Euro NCAP crash-tested it directly in 2022, while the electric XC40 only ever received an extension of the 2018 petrol car's result. Verified rendered: `/compare/volvo-ex40-vs-volvo-ec40` shows **"Not available"** against **"5 Stars (Euro NCAP)"**.
+
+### A fourth distinct shape of the attribution trap
+
+The **e-tron GT** is not an ICE twin (#28(a)), not a different bodyshell (the iX1 LWB case), and not an expired extension (G 580, EX40). It is a **platform sibling from a different manufacturer**: Euro NCAP has never tested it, and the five-star result quoted alongside it belongs to the **Porsche Taycan**, with which it shares the J1 platform.
+
+**Sharing a platform with a rated car is not a rating.** If it were, half this catalogue could claim its siblings' results.
+
+The full taxonomy now stands at four shapes, all seen in real records here:
+
+1. **ICE twin** — Tiago EV, Punch EV, Sierra EV, Syros EV, Carens Clavis EV, Kona Electric *(recorded in error, corrected)*
+2. **Different bodyshell of the same EV** — iX1 LWB (2800mm vs the tested 2692mm)
+3. **Legitimate extension, but expired** — G 580, EX40, Q8 e-tron
+4. **Platform sibling, different manufacturer** — e-tron GT ← Taycan
+
+And two counter-cases where the check must *not* fire: **MG ZS EV** (the EV really was tested, and scored better than its petrol twin) and **G 580** (Euro NCAP itself extended the rating — it failed on age, not attribution).
+
+### Expiry is now a pattern, not an incident
+
+**Three records in two sub-batches** have failed on age alone: G 580 (2019), EX40 (2018), Q8 e-tron (2019). Plus the two flagged in sub-batch 11 that are already **recorded** and now lapsed — `mg-zs-ev` (Euro NCAP 2019) and `hyundai-kona-electric` (ANCAP 2019).
+
+`ncapRating` still cannot express any of this. **This is now the highest-value schema change available** — an `ncapYear` field would let the UI decide how to present a lapsed result, and would have made three of this sub-batch's five records richer rather than emptier. Still not acted on; still an owner decision.
+
+### Other omissions
+
+- **e-tron GT power** — the quoted "522.99 bhp" is a conversion of **390 kW**, which is the *overboost* output, not the **350 kW** nominal. Two legitimate numbers for one car depending on which the record's variant quotes, so neither is recorded. Torque is unambiguous and is.
+- **EX40 dimensions** — the published figures are the **EC40's**. A coupe-roof sibling's height is not this car's.
+
+### Ninth staleness flag
+
+Sources say **Audi India discontinued the e-tron GT in May 2026**, while the record says `launchStatus: "available"`.
+
+### Remaining: 58 vehicles, ~11 sub-batches
+
+**9 cars** — VinFast 2, Porsche 2, MINI 2, Lotus 2, Rolls-Royce 1 — which is **two sub-batches**, and then the car side is finished at 54/54. **49 two-wheelers** after that, of which Ampere's 4 remain blocked on the torque decision and `bajaj-chetak-2901` will never be specced.
 
 ## HOMEPAGE HERO — 2.5D VEHICLE + ENVIRONMENT (2026-08-18)
 
