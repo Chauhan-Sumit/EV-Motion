@@ -11,13 +11,13 @@
 
 ## CURRENT STATUS AT A GLANCE
 
-Verified against the codebase and the live database, not from memory. Last checked 2026-08-17.
+Verified against the codebase and the live database, not from memory. Last checked 2026-08-20.
 
 | | Status | Detail |
 | --- | --- | --- |
 | Cars / two-wheelers data | ✅ **DONE** | 54 + 68 = **122 vehicles**, 46 OEMs |
 | Commercial data | ⛔ **NOT STARTED** | `commercial.ts` is `[]`. Architecture complete; category auto-gated everywhere |
-| `Vehicle.specs` coverage | 🟡 **IN PROGRESS** | **28 of 122 (23%)** — cars 22/54, two-wheelers 6/68. The rest render "Not specified" |
+| `Vehicle.specs` coverage | 🟡 **IN PROGRESS** | **30 of 122 (25%)** — cars 24/54, two-wheelers 6/68. The rest render "Not specified" |
 | Vehicle photography (real) | 🚫 **BLOCKED** | **0 of 122**. Pipeline + credentials verified working; blocked on a licensing decision, not code. `photoUrl` is deliberately still empty everywhere |
 | Vehicle-type illustrations (AI) | 🟡 **5 of 6** | NEW 2026-08-17. Generic per-**body-type** AI art replacing the SVG placeholder — *not* per-model, *not* photoreal, and not in `photoUrl`. Scooter blocked on a provider generation cap |
 | Data honesty (Batch 1) | ✅ **DONE** | No spec is derived. Guarded by tests |
@@ -26,7 +26,7 @@ Verified against the codebase and the live database, not from memory. Last check
 | Test suite (Batch 4) | ✅ **DONE** | **167 tests**, 9 files, ~8s |
 | Lead capture (Batch 5) | ✅ **DONE** | Live, verified end to end. RLS deny-all |
 | Analytics + errors (Batch 6) | ✅ **DONE** | Live, verified. Cookie-less, no PII, no IP |
-| Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 3 sub-batches done (`f168351`). Tata, MG, Mahindra complete + Hyundai partial. 94 vehicles left |
+| Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 4 sub-batches done. Tata, MG, Mahindra **and Hyundai** complete. 92 vehicles left |
 | Homepage hero (2.5D) | ✅ **DONE** | NEW 2026-08-18. Vehicle + generated environment at `lg`+, CSS/DOM parallax, no Three.js. Hero height unchanged. **Motion never watched in a browser** — see the section |
 | `loading.tsx` | ⛔ **BLOCKED** | Hangs at every level, dev and prod. Root cause unknown |
 | Auth / admin view for leads | ⛔ **NOT STARTED** | RLS denies all reads; only the Supabase dashboard can see leads |
@@ -665,6 +665,35 @@ Two omissions where the obvious value was wrong, and both generalise:
 - **XUV 3XO EV has no `lengthMm`.** Autocar prints 3900mm, but its width and wheelbase match the petrol 3XO exactly and Indian sub-4m cars sit at 3990-3995 for the tax bracket, so 3900 reads as a dropped digit. One wrong dimension silently decides a Compare winner.
 
 `ncapRating` is absent for all five — none is crash-tested in India, and Mahindra's "5-star intent" for the XEV 9S is not a result.
+
+### Sub-batch 4 — Hyundai (2026-08-20)
+
+**28 → 30 of 122.** Ioniq 6 and Ioniq 9 gain specs; **Hyundai is now complete (5/5)**, joining Tata, MG and Mahindra. Quality gate clean: 167 tests, `tsc`, `eslint`, `npm run build` (421 routes, unchanged).
+
+Both cars are **unlaunched in India**, so there is no India spec sheet and every figure recorded is the global/Korean one, labelled as such inline. Dimensions, motor and suspension travel across markets; warranty, connector type and airbag counts do not, and were omitted for exactly that reason.
+
+Power passes the reconciliation test on both: Ioniq 6's **168 kW** is simultaneously the quoted "225 bhp" and "228 PS"; Ioniq 9's **230 kW** is the Long Range AWD's "313 PS / 308 hp".
+
+**Two corrections to existing data, both of which would have produced a false Compare result.**
+
+1. **Kona Electric's NCAP rating was attributed to the wrong agency — and this is the ICE-twin trap appearing for a fourth time, this time as a shipped error rather than a near-miss.** The record claimed **5 stars from Euro NCAP**. Euro NCAP has *never* crash-tested the Kona *Electric*; its 2017 5-star result belongs to the **petrol Kona**. ANCAP did test the Kona Electric itself, in 2019, and awarded 5 stars — so the rating survives and the agency is now `"ANCAP"`. The three prior instances (Tiago EV, Punch EV, Sierra EV) were all caught *before* being written; this one was already in the dataset from the Batch 6 pilot, which is the argument for re-checking pilot-era `ncapAgency` values rather than trusting them. (Separately: the *second*-generation Kona scored 4 stars at Euro NCAP, petrol and electric alike. This record is the first-generation India car.)
+2. **Ioniq 6's `accelerationSec0To100` was 5.1s, which is the 239 kW Long Range AWD's figure.** The only variant this record lists is the 168 kW Long Range **RWD**, which Hyundai quotes at **7.4s**. Corrected. Same class of error as the BE 6 power artifact in sub-batch 2: invisible on a spec sheet, decisive in the winner engine.
+
+**Omissions worth carrying forward.**
+
+- **Ioniq 9 has no `bootSpaceLiters`.** Sources quote 828 L, 620 L and 1,323 L without agreeing which is behind the third row, behind the second, or seats-folded. A three-row SUV needs the convention stated before the number is usable.
+- **Ioniq 9 has no `tyres`.** 255/50 R20 and 285/45 R21 are both factory fitments by trim — this is trim variance, not the Cyberster's staggered-axle case, so one string would misdescribe it.
+- **Ioniq 9 has no `batteryChemistry`.** NCM is widely reported but not from an OEM-primary source, and NMC is precisely the value `toVehicleDetail.ts` used to fabricate for every vehicle — same bar applied to the MG M9 in sub-batch 3.
+- **Neither car records `connectorType`.** CCS2 in Europe/Korea, NACS in the US, and no India spec exists to choose between them.
+- **Neither records `kerbWeightKg`** (Ioniq 6 spans ~1,930-2,095 kg by market and wheel; Ioniq 9 spans 2,505-2,680 kg by variant).
+
+**One record left internally inconsistent on purpose.** The Ioniq 9's headline fields straddle three variants: its 620 km WLTP range is the Long Range **RWD**'s (160 kW, a variant this record doesn't list), and its 5.2s 0-100 is the **Performance AWD**'s (320 kW). Recorded power is the Long Range AWD's 230 kW, matching the first variant. The core fields were left alone because changing `rangeKm` moves listing filters and sort order — **this is an owner decision, not a research one.** Same question, smaller, applies to whether an unlaunched car should carry `launchStatus: "available"` at all, as the Ioniq 6 does.
+
+### Also found this session (not part of the sub-batch)
+
+- **The AI vehicle-type illustrations were dead in Production and nobody had noticed.** `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` was unset in the Vercel environment, so `src/lib/imagekit.ts`'s `?? ""` fallback made `@imagekit/next` emit the bare path `/illustrations/vehicle-types/car-suv.png`, which 404s against the site's own origin. Every card rendered an OEM gradient with nothing on it. The assets themselves were fine — all five returned 200 from ImageKit throughout. Fixed by setting the variable and redeploying (`NEXT_PUBLIC_*` is inlined at build time, so the redeploy is not optional). **The underlying defect is still open:** a missing endpoint degrades to a broken image rather than falling back to the SVG icon, because `illustrationFor()` consults a static registry that knows nothing about whether delivery is configured. Worth making `illustrationFor()` return `null` on an empty endpoint, and/or failing the production build instead of warning only in dev.
+- **`NEXT_PUBLIC_SITE_URL` is set in Production and the site serves from `https://www.evmotion.in`.** `robots.txt` reads `Allow: /` with a real sitemap URL. Several paragraphs in this file still describe a placeholder domain with crawling disabled — that is stale. `www.evmotion.in` and `ev-motion.vercel.app` serve byte-identical builds.
+- **`stash@{0}` holds an earlier, unapproved MG draft that is not a subset of what shipped.** For Cyberster it carries `abs`/`esc`, `chargingExtra.connectorType` and `suspension` that `f168351` doesn't; for M9, `connectorType`, `tyres` and `suspension`. Conversely `f168351` has Cyberster's `peakPowerKw: 375` and M9's `lengthMm` that the draft omits, and the two disagree on Cyberster's dimensions by 1mm across the board (two different sources). Folding the extra fields in is a genuine improvement but needs re-verification, **not a `stash pop`.**
 
 ## HOMEPAGE HERO — 2.5D VEHICLE + ENVIRONMENT (2026-08-18)
 
