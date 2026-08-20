@@ -1204,25 +1204,30 @@ export const cars: Vehicle[] = [
     modelName: "EV9",
     tagline: "Full-size 3-row electric flagship",
     bodyType: "suv",
-    priceRangeLakh: [80.0, 90.0],
+    // Core fields corrected in Batch 7 sub-batch 5: this record described the
+    // EV9 as upcoming at Rs 80-90 lakh with 7 seats. Kia launched it in India
+    // in October 2024 at Rs 129.90 lakh, as a single fully-loaded GT-Line AWD
+    // in a SIX-seat layout with second-row captain seats. 0-100 is the
+    // GT-Line AWD's 5.3s, not the 6.0s previously carried.
+    priceRangeLakh: [129.9, 129.9],
     rangeKm: 561,
     batteryCapacityKwh: 99.8,
     chargingTimeFastMin: 24,
     chargingTimeSlowHr: 12,
     topSpeedKmph: 200,
-    accelerationSec0To100: 6.0,
-    seatingCapacity: 7,
-    launchStatus: "upcoming",
-    launchDate: "2026-10 (Tentative)",
+    accelerationSec0To100: 5.3,
+    seatingCapacity: 6,
+    launchStatus: "available",
+    launchDate: "2024-10",
     colors: ["Aurora Black", "Snow White Pearl", "Mineral Blue"],
     images: {
       hero: "hero",
       gallery,
     },
     variants: [
-      { id: "gt-line-awd", name: "GT Line AWD", priceLakh: 90.0, rangeKm: 561, batteryKwh: 99.8, topSpeedKmph: 200, fastChargeTimeMin: 24 },
+      { id: "gt-line-awd", name: "GT Line AWD", priceLakh: 129.9, rangeKm: 561, batteryKwh: 99.8, topSpeedKmph: 200, fastChargeTimeMin: 24 },
     ],
-    highlights: ["7-seat flagship SUV", "561 km range", "Level 3 autonomous-ready hardware"],
+    highlights: ["6-seat flagship SUV with second-row captain seats", "561 km range", "Level 3 autonomous-ready hardware"],
     description:
       "EV9 is Kia's largest and most tech-laden EV yet, aimed squarely at premium 3-row SUV buyers looking to go electric.",
     // India-spec GT-Line AWD, the single variant Kia India sells.
@@ -1317,26 +1322,32 @@ export const cars: Vehicle[] = [
     modelName: "Syros EV",
     tagline: "Compact electric crossover for the city",
     bodyType: "suv",
-    priceRangeLakh: [16.5, 20.5],
-    rangeKm: 460,
-    batteryCapacityKwh: 45,
-    chargingTimeFastMin: 45,
-    chargingTimeSlowHr: 7,
+    // Core fields corrected in Batch 7 sub-batch 5: this record described an
+    // upcoming 45 kWh / 460 km Syros EV at Rs 16.5-20.5 lakh. No 45 kWh Syros
+    // EV exists. Kia launched the car on 23 July 2026 from Rs 13.49 lakh with
+    // two real packs — 42 kWh / 443 km and 51.4 kWh Extended Range / 526 km
+    // (ARAI MIDC-Full) — DC fast charging 10-80% in 39 min and 11 kW AC in
+    // 4h50m. Top speed and 0-100 are left as they were: Kia publishes neither.
+    priceRangeLakh: [13.49, 20.0],
+    rangeKm: 526,
+    batteryCapacityKwh: 51.4,
+    chargingTimeFastMin: 39,
+    chargingTimeSlowHr: 4.83,
     topSpeedKmph: 155,
     accelerationSec0To100: 8.8,
     seatingCapacity: 5,
-    launchStatus: "upcoming",
-    launchDate: "2026-12 (Tentative)",
+    launchStatus: "available",
+    launchDate: "2026-07",
     colors: ["Pulse Red", "Snow White Pearl", "Aurora Black"],
     images: {
       hero: "hero",
       gallery,
     },
     variants: [
-      { id: "tech-line", name: "Tech Line", priceLakh: 16.5, rangeKm: 460, batteryKwh: 45, topSpeedKmph: 155 },
-      { id: "gt-line", name: "GT Line", priceLakh: 20.5, rangeKm: 460, batteryKwh: 45, topSpeedKmph: 155, fastChargeTimeMin: 45 },
+      { id: "htk", name: "HTK", priceLakh: 13.49, rangeKm: 443, batteryKwh: 42, topSpeedKmph: 155 },
+      { id: "x-line-er", name: "X-Line ER", priceLakh: 20.0, rangeKm: 526, batteryKwh: 51.4, topSpeedKmph: 155, fastChargeTimeMin: 39 },
     ],
-    highlights: ["Boxy, upright cabin space", "460 km range", "Segment-first dual-pane sunroof"],
+    highlights: ["Boxy, upright cabin space", "526 km ARAI range on the Extended Range pack", "Segment-first dual-pane sunroof"],
     description:
       "Syros EV takes Kia's boxy new crossover design language electric, aiming at buyers cross-shopping compact SUVs under 20 lakh.",
     // OEM-primary where possible: dimensions, boot space, brakes, airbags,
