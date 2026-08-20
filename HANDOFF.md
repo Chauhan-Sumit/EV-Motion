@@ -1,7 +1,7 @@
 # EV Motion — Project Handoff
 
 **Project directory:** `C:\Users\sumit\EV-Motion` (renamed from `ev-wale` at some point after the paths below were first written — verify with `pwd`, don't trust the literal string in older paragraphs of this doc)
-**Last updated:** 2026-08-21 (Batch 7 sub-batches 4-12, researched 2026-08-20 — nine sub-batches of vehicle-specification research taking `Vehicle.specs` coverage from 28 to 65 of 123, a Bajaj line-up reconciliation against chetak.com that added the Chetak C3503 and re-keyed another record, and correction of several records that had gone stale against cars which launched. All merged to `main` and deployed. See [Batch 7 — Current Status](#batch-7--current-status-verified-2026-08-21).) Previously 2026-08-18 (homepage hero — a 2.5D vehicle + generated environment at `lg` and up, replacing an abandoned Three.js/R3F attempt. See [Homepage Hero](#homepage-hero--25d-vehicle--environment-2026-08-18).)
+**Last updated:** 2026-08-21 (**data-model decisions** — the four Batch 7 blockers resolved: `torqueMeasuredAt`, `ncapYear`, a `discontinued` launch status, and keeping the Kia commit, plus ImageKit fallback hardening. On branch `data-model-decisions`, **not pushed**. See [Data-Model Decisions](#data-model-decisions--2026-08-21).) Previously 2026-08-21 (Batch 7 sub-batches 4-12, researched 2026-08-20 — nine sub-batches of vehicle-specification research taking `Vehicle.specs` coverage from 28 to 65 of 123, a Bajaj line-up reconciliation against chetak.com that added the Chetak C3503 and re-keyed another record, and correction of several records that had gone stale against cars which launched. All merged to `main` and deployed. See [Batch 7 — Current Status](#batch-7--current-status-verified-2026-08-21).) Previously 2026-08-18 (homepage hero — a 2.5D vehicle + generated environment at `lg` and up, replacing an abandoned Three.js/R3F attempt. See [Homepage Hero](#homepage-hero--25d-vehicle--environment-2026-08-18).)
 **⚠️ Design system and layout direction are LOCKED as of 2026-08-15** — see [Design System — Locked Decisions](#design-system--locked-decisions-do-not-revert). Read that section before touching the homepage or `/compare`. The 2026-08-16 hardening pass changed *what data pages display* and *how much JavaScript they ship*, deliberately not the visual direction.
 **Status:** Feature-complete demo marketplace (cars + two-wheelers) that has been through **seven** major work sessions on top of the original build: a full production-readiness QA cycle, a session that replaced every visual-only interaction (location/filters/search) with real logic and generalized the app into a multi-category (car/2-wheeler/commercial) architecture, a **production polish pass** that re-audited the whole site end-to-end, fixed a page-wide layout bug and a root-cause search-navigation bug, and closed out most of the UX rough edges flagged as "known follow-ups" in the vehicle-data batch log, a **Compare page premium polish pass** that took the already-functional Compare page (below) and gave it a full UI/UX upgrade: bigger hero cards, a computed "Quick Verdict" summary, a minimal 3-instance-responsive sidebar with a single sticky ad, premium spec tables with visual bars and a graceful missing-data treatment, and a "Keep Exploring" ending section — see [Compare Page Premium Polish Pass](#compare-page-premium-polish-pass-2026-08-02) — and, most recently, a **site-wide pricing redesign and refactor** (2026-08-02) that replaced an earlier, narrower VDP-only pricing pass (same day, superseded — see below): the VDP price card is now a compact, CarWale-inspired block, and a single centralized pricing system (`src/lib/vehicle-pricing/`) now drives ex-showroom pricing — genuinely varying by city, not just the on-road extras on top of it — everywhere a price appears: VDP, homepage Featured Vehicle/cards, listing and brand pages, and the Compare page. See [Site-Wide Centralized Pricing Architecture](#site-wide-centralized-pricing-architecture-2026-08-02) — and, most recently, a **homepage redesign** (2026-08-15) that restructured Hero/Search/Trending/Key Highlights into a single cohesive top section with a runtime-measured (not hardcoded) sticky sidebar, replaced the flat green Sponsored banner with a premium Featured-EV banner, redesigned the Popular Cars/Scooters and Upcoming cards to a single-row horizontal-scroll layout, added a "Compare EVs Instantly" promo, an honest-empty-state "Latest EV News" section, and rebuilt the right sidebar (EV Tools, Popular Comparisons, Advertiser). **This pass also discovered pre-existing, previously-uncommitted ImageKit real-photo infrastructure** (`src/lib/imagekit.ts`, `VehicleImage.tsx` now on `@imagekit/next`, `photoUrl`/`gallery` fields on `VehicleImages`) from an earlier, undocumented session — wired in but still unpopulated with real photo data — see [Homepage Redesign — Premium Direction](#homepage-redesign--premium-direction-2026-08-15) and [Known Limitations](#known-limitations). Separately, the project is mid-expansion of the **vehicle dataset itself** into full India-market coverage, working one OEM group at a time — **Batches 1-4 (cars: Tata/Mahindra/MG/Hyundai/Kia/BYD/BMW/Mercedes-Benz/Audi/Volvo/MINI/Porsche/Lotus/Rolls-Royce/VinFast; two-wheelers: every active scooter and motorcycle brand) are complete**, Batch 5 (commercial EVs) is not started — see [Full-Market Expansion — Batch Log](#full-market-expansion--batch-log). The category *architecture* (commercial EVs, N-category system) is complete and verified; the commercial *data* is not — see [Known Limitations](#known-limitations) and [Next Session Instructions](#how-the-next-claude-session-should-continue). Check `git status`/`git log` before assuming what's committed — see [Project Status](#project-status).
 
@@ -15,15 +15,15 @@ Verified against the codebase and the live database, not from memory. Last check
 
 | | Status | Detail |
 | --- | --- | --- |
-| Cars / two-wheelers data | ✅ **DONE** | 54 + 69 = **123 vehicles**, 46 OEMs |
+| Cars / two-wheelers data | ✅ **DONE** | 54 + 69 = **123 vehicles**, 46 OEMs. **121 currently listed** — 2 are `discontinued` (2026-08-21) and excluded from listings/search while their pages keep working |
 | Commercial data | ⛔ **NOT STARTED** | `commercial.ts` is `[]`. Architecture complete; category auto-gated everywhere |
 | `Vehicle.specs` coverage | 🟡 **IN PROGRESS** | **65 of 123 (53%)** — cars 45/54, two-wheelers 20/69. The rest render "Not specified" |
 | Vehicle photography (real) | 🚫 **BLOCKED** | **0 of 122**. Pipeline + credentials verified working; blocked on a licensing decision, not code. `photoUrl` is deliberately still empty everywhere |
-| Vehicle-type illustrations (AI) | 🟡 **5 of 6** | NEW 2026-08-17. Generic per-**body-type** AI art replacing the SVG placeholder — *not* per-model, *not* photoreal, and not in `photoUrl`. Scooter blocked on a provider generation cap |
+| Vehicle-type illustrations (AI) | 🟡 **5 of 6** | NEW 2026-08-17. Generic per-**body-type** AI art replacing the SVG placeholder — *not* per-model, *not* photoreal, and not in `photoUrl`. Scooter blocked on a provider generation cap. **Hardened 2026-08-21**: a missing ImageKit endpoint now falls back to the SVG icon instead of rendering broken images |
 | Data honesty (Batch 1) | ✅ **DONE** | No spec is derived. Guarded by tests |
 | Client bundle (Batch 2) | ✅ **DONE** | Catalog out of the browser; −110-130 KB/page. `/compare` is the documented exception |
-| SEO + routing (Batch 3) | ✅ **DONE** | 425 routes, 244 comparisons pre-rendered, 418 sitemap URLs |
-| Test suite (Batch 4) | ✅ **DONE** | **167 tests**, 9 files, ~8s |
+| SEO + routing (Batch 3) | ✅ **DONE** | **419 routes, 238 comparisons pre-rendered** (was 425/244 — the two discontinued scooters no longer seed comparison pairs; those pages still render on demand) |
+| Test suite (Batch 4) | ✅ **DONE** | **221 tests**, 13 files, ~12s |
 | Lead capture (Batch 5) | ✅ **DONE** | Live, verified end to end. RLS deny-all |
 | Analytics + errors (Batch 6) | ✅ **DONE** | Live, verified. Cookie-less, no PII, no IP |
 | Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 12 sub-batches done. Cars: Tata, MG, Mahindra, Hyundai, Kia, BYD, BMW, Mercedes-Benz, **Volvo, Audi**. Two-wheelers: Ather, TVS, Ola, Bajaj. 58 left (9 cars, 49 two-wheelers); **~11 more sub-batches** |
@@ -36,13 +36,15 @@ Verified against the codebase and the live database, not from memory. Last check
 
 **Quality gate (all four clean):** `npm test` · `npx tsc --noEmit` · `npx eslint .` · `npm run build`
 
-**Git:** `master` and `origin/main` are both at **`7e5a856`** as of 2026-08-21 (verify, don't trust — this line has been stale three times before). **Batch 7 sub-batches 4 through 12 are merged and pushed:** `main` was fast-forwarded from `c252e85` to `7e5a856`, 22 commits, `c252e85..7e5a856`. No merge commit, no force push, no rebase — the history is linear and nothing was overwritten. The work was developed on `batch-7-sub-batch-4-hyundai`, whose name only ever described its first sub-batch; it is fully merged and **can be deleted**. So can `batch-7-specs-and-ai-illustrations` (`cdd6f15`) and `production-hardening` (`1333bda`), both long since merged. Working tree clean. Two stashes remain: `stash@{0}` is the unapproved sub-batch 3 MG draft, which is **not** a subset of what shipped (see sub-batch 3's notes) and needs re-verification rather than a `pop`; `stash@{1}` is a deliberately-reverted homepage redesign from 2026-08-02.
+**Git:** ⚠️ **There is unpushed work.** `master` and `origin/main` are both at **`6993c77`**; branch **`data-model-decisions`** sits three commits ahead of it (`5816cb0` ImageKit hardening, `f995b24` the three schema decisions, plus the docs commit) and **has not been pushed** — the owner asked to stop before pushing. Nothing was reset, rebased or force-pushed, and the MG stash was left alone. Below this line, `7e5a856` refers to the state Batch 7 was merged at; the sub-batch log is unchanged history. (Verify all of this rather than trusting it — this line has been stale three times before.)
+
+**Previously:** `master` and `origin/main` were both at **`7e5a856`** as of 2026-08-21. **Batch 7 sub-batches 4 through 12 are merged and pushed:** `main` was fast-forwarded from `c252e85` to `7e5a856`, 22 commits, `c252e85..7e5a856`. No merge commit, no force push, no rebase — the history is linear and nothing was overwritten. The work was developed on `batch-7-sub-batch-4-hyundai`, whose name only ever described its first sub-batch; it is fully merged and **can be deleted**. So can `batch-7-specs-and-ai-illustrations` (`cdd6f15`) and `production-hardening` (`1333bda`), both long since merged. Working tree clean. Two stashes remain: `stash@{0}` is the unapproved sub-batch 3 MG draft, which is **not** a subset of what shipped (see sub-batch 3's notes) and needs re-verification rather than a `pop`; `stash@{1}` is a deliberately-reverted homepage redesign from 2026-08-02.
 
 **Deployment:** Vercel builds `main` as Production, and the `7e5a856` deployment is **live and verified on 2026-08-21** at the canonical domain **https://www.evmotion.in** (`ev-motion.vercel.app` serves the identical build; per-deployment `*.vercel.app` URLs sit behind Vercel Authentication, so probe the canonical domain). Spot-checked one record per sub-batch, all serving the new data: Ioniq 6 `168 kW`, Syros EV `126 kW`, Sealion 7 `230 kW`, Ather 450 Apex `7 kW`, Ola Roadster X `58 Nm`, Chetak C3503 `35 L`, BMW i4 `250 kW`, EQS `400 kW`, EC40 `300 kW`. Sitemap serves **418 URLs including 244 pre-rendered comparisons**; the newly-added `bajaj-chetak-c3503` is present and the re-keyed `bajaj-chetak-3501` is gone from both the sitemap and the site (it now 404s — the re-key changed a public URL and there is no redirect layer for two-wheeler slugs, only `/compare` has one). `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` are both set in the Vercel environment; the latter was **unset until 2026-08-20**, which had silently broken every AI vehicle illustration in Production (fixed 2026-08-20) — see the note in sub-batch 4's section.
 
 **Supabase** (project `dzloqeyqpddjcyxzsvcz`): `0001_leads.sql` and `0003_analytics_events.sql` are **applied**. `0002_leads_publishable_key_policy.sql` is **deliberately not applied** — it is the alternative path for publishable-key setups, and this app runs on a secret key (verified: a publishable-key insert is rejected with 401/42501).
 
-**Next up: continue Batch 7 — see [Batch 7 — Current Status](#batch-7--current-status-verified-2026-08-21) for coverage, blockers, remaining work and the sub-batch log.** 58 vehicles left, roughly 11 sub-batches; 9 of those vehicles are cars, so **two more sub-batches finish the car side at 54/54** — a defensible stopping point if full coverage isn't wanted. Four blockers all need an owner decision rather than research: the hub-vs-shaft torque convention (hard-blocks Ampere), NCAP expiry, a "discontinued" launch status, and whether to keep commit `3174b15`. **Real photography** remains blocked on a licensing decision only the owner can make; the one missing AI illustration (scooter) still needs a re-run once ImageKit's generation cap resets. See [Future Roadmap](#future-roadmap).
+**Next up: continue Batch 7 — see [Batch 7 — Current Status](#batch-7--current-status-verified-2026-08-21) for coverage, blockers, remaining work and the sub-batch log.** 58 vehicles left, roughly 11 sub-batches; 9 of those vehicles are cars, so **two more sub-batches finish the car side at 54/54** — a defensible stopping point if full coverage isn't wanted. **The four blockers that used to head this list are resolved** (2026-08-21 — see [Data-Model Decisions](#data-model-decisions--2026-08-21)), so nothing in Batch 7 is now waiting on a decision; what is left is research. Ampere's 4 records are unblocked but still unspecced. **Real photography** remains blocked on a licensing decision only the owner can make; the one missing AI illustration (scooter) still needs a re-run once ImageKit's generation cap resets. See [Future Roadmap](#future-roadmap).
 
 ---
 
@@ -75,14 +77,16 @@ Started this run at 28/123. The catalogue itself grew by one (122 → 123) when 
 
 **Ten brands complete:** Tata, MG, Mahindra, Hyundai, Kia, BYD, BMW, Mercedes-Benz, Volvo, Audi (cars); Ather, TVS, Ola, Bajaj (two-wheelers).
 
-### Blockers — all four need an owner decision, none need research
+### Blockers — ✅ all four resolved 2026-08-21
 
-| Blocker | Blocks | Options |
+All four were owner decisions rather than research, and all four were taken on 2026-08-21. Full write-up: [Data-Model Decisions](#data-model-decisions--2026-08-21).
+
+| Blocker | Decision | Outcome |
 | --- | --- | --- |
-| **Hub-vs-shaft torque convention** | **Ampere, 4 records — hard-blocked** | Omit torque on hub-motor scooters / add `torqueMeasuredAt: "shaft" \| "wheel"` to `VehicleMotor` and refuse cross-convention comparison / drop torque from two-wheeler winner metrics. `tvs-iqube`'s `peakTorqueNm: 140` has this problem **live** |
-| **NCAP expiry** | **5 records** | 3 omitted for age (G 580, EX40, Q8 e-tron) + 2 recorded and now lapsed (`mg-zs-ev` 2019, `hyundai-kona-electric` ANCAP 2019). An `ncapYear` field is the highest-value schema change available |
-| **No "discontinued" launch status** | 2 records | `bajaj-chetak-2901` and `bajaj-chetak-premium` describe scooters Bajaj no longer sells. Removing the Premium would break `derive.ts`'s `cmp-bike-2`, a curated popular-search term, and `search.test.ts` |
-| **Kia commit `3174b15`** | — | EV9/Syros price + launch-status corrections were kept separately revertable in case the owner would rather set commercial figures personally. Never confirmed; still in |
+| **Hub-vs-shaft torque convention** | Added `torqueMeasuredAt: "shaft" \| "wheel"` to `VehicleMotor` and made the comparison refuse across conventions | `tvs-iqube`'s live 140-Nm false win is gone. **Ampere's 4 records are unblocked but still unresearched** — the field exists, the figures do not |
+| **NCAP expiry** | Added `ncapYear`; `src/lib/vehicle-safety.ts` owns the six-year Euro NCAP/ANCAP window | 3 ratings dropped for age are **restored** (G 580, EX40, Q8 e-tron), 13 more carry a year, and the 2 lapsed ones no longer read as current |
+| **No "discontinued" launch status** | Added `"discontinued"` to `LaunchStatus`; kept both records | Gone from listings/search/rails, still served on their own pages. `cmp-bike-2` and the popular-search chip were **re-pointed** at `bajaj-chetak-c3501`, not dropped |
+| **Kia commit `3174b15`** | **Kept**, per owner instruction | EV9/Syros price + launch-status corrections stand. No longer held as separately revertable |
 
 ### Staleness — eight open flags
 
@@ -92,11 +96,13 @@ Records whose headline data no longer matches reality, all **deliberately unchan
 
 **Every sub-batch since #4 has surfaced at least one.** Bajaj was an entire brand of them and needed a dedicated reconciliation pass (sub-batch 9) before its specs could be researched at all. **A standalone staleness sweep is the highest-value non-research work left.**
 
+**Still eight, and still all open after 2026-08-21.** Two of them — `byd-e6` and `audi-e-tron-gt` — describe vehicles reported as discontinued, and `LaunchStatus` can now express that. **Neither record was changed:** the new field makes the fix expressible, not sourced, and both need a source check that this pass did no research to support. They are the obvious first two items for the sweep now that marking them costs nothing.
+
 ### Remaining: 58 vehicles, ~11 sub-batches
 
 **9 cars** — VinFast 2, Porsche 2, MINI 2, Lotus 2, Rolls-Royce 1. That is **two sub-batches**, after which cars are 54/54. **This is the natural stopping point** if full coverage is not wanted: it completes the half of the catalogue where `/compare` is most used.
 
-**49 two-wheelers** — Hero 5, Ampere 4 (blocked), Ultraviolette 3, Simple Energy 3, Pure EV 3, Okinawa 3, BGauss 3, then eleven brands of one or two. **17 of the 28 remaining brands have a single model**, so the OEM-clustering rationale that ordered this whole batch stops paying and sub-batches become bundles of unrelated brands. Roughly **9 sub-batches**, possibly fewer — scooter records have consistently been quicker than cars.
+**49 two-wheelers** — Hero 5, **Ampere 4 (unblocked 2026-08-21, still unresearched)**, Ultraviolette 3, Simple Energy 3, Pure EV 3, Okinawa 3, BGauss 3, then eleven brands of one or two. **17 of the 28 remaining brands have a single model**, so the OEM-clustering rationale that ordered this whole batch stops paying and sub-batches become bundles of unrelated brands. Roughly **9 sub-batches**, possibly fewer — scooter records have consistently been quicker than cars.
 
 `bajaj-chetak-2901` will never be specced: it describes no scooter Bajaj sells.
 
@@ -1166,6 +1172,100 @@ Sources say **Audi India discontinued the e-tron GT in May 2026**, while the rec
 
 **9 cars** — VinFast 2, Porsche 2, MINI 2, Lotus 2, Rolls-Royce 1 — which is **two sub-batches**, and then the car side is finished at 54/54. **49 two-wheelers** after that, of which Ampere's 4 remain blocked on the torque decision and `bajaj-chetak-2901` will never be specced.
 
+## DATA-MODEL DECISIONS — 2026-08-21
+
+Four blockers that Batch 7 had been carrying since sub-batch 7, all of them owner decisions rather than research. Taken together they are one change of kind: **the schema learned to say three things it previously could not, and in each case the missing vocabulary had been costing real data.**
+
+Branch `data-model-decisions`, three commits on top of `6993c77`. **Not pushed.** Quality gate clean: **221 tests** (was 167), `tsc`, `eslint`, `npm run build` (**419 routes**, was 425).
+
+### The shape of the problem, and why it kept recurring
+
+All three data decisions share a structure worth naming, because a fourth instance of it is already visible in the dataset.
+
+**A value can be real, correctly sourced, and still not mean what the value beside it means.** TVS's 140 Nm is real. Ather's 26 Nm is real. Neither is wrong, and putting them in one column is. The same is true of a 2019 Euro NCAP result beside a 2024 one, and of a scooter Bajaj sells beside one it discontinued. In every case the old schema had exactly one slot — `peakTorqueNm`, `ncapRating`, `launchStatus` — and no way to record the qualifier that makes the number interpretable.
+
+And in every case the workaround had been **to drop the data**: torque omitted on three TVS records, NCAP ratings omitted on three cars, and two Bajaj records left claiming to be on sale because the honest alternative was deletion. **Omission looked like caution and was actually a second inaccuracy** — a marketplace showing "Not available" for a car with a real, published five-star crash test is not being careful, it is being wrong more quietly.
+
+**The fourth instance is already logged and not yet fixed: width-with-mirrors (CLAUDE.md #28(b)).** Published widths sometimes include mirrors and sometimes do not, this dataset records body width, and figures that mix the conventions have already been omitted rather than recorded (EQE, and nearly the Harrier EV). That is the same problem and now has the same solution available — `WinnerMetric.comparable`/`SpecRow.comparable` are general, not torque-specific.
+
+### 1. Torque convention — `VehicleMotor.torqueMeasuredAt`
+
+`"shaft" | "wheel"`, plus `src/lib/vehicle-torque.ts` as the one place that decides comparability.
+
+**Nothing converts between the two, and that is deliberate.** A conversion needs the belt/gear reduction ratio; no OEM in this catalogue publishes one. Inventing a ratio to produce a comparable number would be precisely the derived-but-displayed value the 2026-08-16 hardening pass spent a whole batch removing (CLAUDE.md #22). The module refuses the comparison instead.
+
+**The asymmetric default is the load-bearing part.** Cars and commercial vehicles default to `"shaft"` — a car's published torque is always its motor's output, no hub-motor car exists here, and annotating all 41 car records by hand would add nothing. **Two-wheelers deliberately have no default**, so an unannotated two-wheeler figure resolves to *unknown* and drops out of ranking. Defaulting them to `"shaft"` would silently re-admit the exact bug — a hub figure read as a shaft figure, winning by five times. A test pins this: adding a `2-wheeler` default fails three assertions.
+
+**What was annotated, and what deliberately was not.** Ather (450X/450S/450 Apex/Rizta), Ola (S1 Pro, Roadster X) and the Bajaj Series 35 trio are `"shaft"`; `tvs-iqube` is `"wheel"`. Two records keep a torque figure with no convention on purpose:
+
+- **`ampere-nexus` (35 Nm)** — sub-batch 7 flagged it as one to *check*. Checking it needs an Ampere source, and none consulted states where the figure was measured. "Ampere is a hub-motor brand" is a brand-level generalisation, and 35 Nm sits nowhere near TVS's 140 and much closer to the 20-26 shaft cluster, so the generalisation does not even look safe here. It displays and does not rank.
+- **`bajaj-chetak-premium` (20 Nm)** — the Series 35 trio's shaft convention was established for the *C-series*, not for this superseded model. Its Batch 6 pilot specs stand as recorded.
+
+**Ampere's four unspecced records are unblocked, not done.** The blocker was that recording an Ampere torque would entrench a fifth incomparable figure; it can now be recorded correctly. No figures were added, because that is research and none was in scope. The records carry an inline note saying to establish the measurement point from an Ampere source rather than carrying one across from `ampere-nexus` or inferring it from the brand.
+
+**Mechanism: a set-level gate.** `WinnerMetric.comparable` and `SpecRow.comparable` were added because `value()` sees one vehicle at a time and structurally cannot notice that two numbers describe different quantities. A gated metric resolves to `insufficient-data`, contributes nothing to the Winner Ribbon tally, and **loses its proportional bar** — a bar 7× longer than its neighbour is a ranking whether or not a crown sits on it. `ratings.ts` gates the Performance score the same way, since `normalize()` is also a ranking.
+
+Verified live on `/compare/tvs-iqube-vs-ather-450x`: **"140 Nm (at wheel)" against "26 Nm (at motor)", no crown, no bars** — while Power on the same table still crowns the 450X normally. The gate is scoped to the metric, not a blanket disable.
+
+### 2. NCAP expiry — `VehicleSafety.ncapYear`
+
+`src/lib/vehicle-safety.ts` owns the policy: Euro NCAP and ANCAP results lapse six years after publication (a 2019 result is current through 2025 and expires 1 January 2026). **Bharat NCAP and Global NCAP publish no lapse window, so their results do not expire** rather than having a window guessed for them.
+
+**Three ratings previously omitted entirely for age are now recorded** with their year and rendered as expired: **G 580** (Euro NCAP 2019, an extension Euro NCAP itself performed), **Volvo EX40** (2018 XC40 result, extended), **Audi Q8 e-tron** (2019, its own result as the e-tron). Thirteen more ratings gained a year, every one already documented in-repo. The two known-lapsed ones — `mg-zs-ev` (2019) and `hyundai-kona-electric` (ANCAP 2019) — were rendering as plain current ratings and no longer do.
+
+**Ratings that failed on *attribution* stay absent, and `ncapYear` must not be read as licence to restore them.** The e-tron GT's five stars still belong to the Porsche Taycan; the iX1 LWB's still belong to a shorter-wheelbase shell. A test asserts both remain empty. Expiry was shape (iii) of the four-shape taxonomy in CLAUDE.md #28(a); shapes (i), (ii) and (iv) are unchanged and still reasons to omit.
+
+**Presentation, not scoring.** A lapsed result renders as `"5 Stars (Euro NCAP, 2019 — rating expired)"` and is excluded from the winner engine, the computed safety score, and the homepage banner's star row — the banner drops it entirely rather than showing a caveat, because a row of gold stars is the strongest "safe today" claim on the site and has no room for one.
+
+Verified live on `/compare/volvo-ex40-vs-volvo-ec40`, which was the pair singled out in sub-batch 12 as the clearest case in the dataset. It used to read **"Not available" against "5 Stars (Euro NCAP)"**. It now reads **"5 Stars (Euro NCAP, 2018 — rating expired)" against "5 Stars (Euro NCAP, 2022)"** — strictly more information, and the contrast it was always meant to demonstrate is now legible instead of looking like missing data.
+
+The expiry tests pass a **fixed reference year** rather than reading the clock, so the suite cannot start failing on 1 January of some future year. Note the real consequence of that time-dependence: on a statically rendered page "now" is **build time**, so a rating that lapses between deploys is only re-evaluated on the next build.
+
+### 3. Discontinued — `LaunchStatus: "discontinued"`
+
+`bajaj-chetak-2901` and `bajaj-chetak-premium` describe scooters Bajaj replaced with the C-series (sub-batch 9). Both were `"available"`. **Marked, not deleted** — people own these scooters, search for them, and hold their URLs.
+
+`src/lib/vehicle-availability.ts` holds the split, and the split is the whole decision:
+
+| Excluded — presents a vehicle as buyable | Kept working — the vehicle *is* what was asked for |
+| --- | --- |
+| `/cars`, `/two-wheelers`, `/commercial` listings | its detail page, and that page's static params |
+| brand pages | comparison pages naming it (`dynamicParams` stays `true`) |
+| every homepage rail, incl. the "EVs Listed" count | its sitemap entry |
+| related/similar recommendations | its structured data — now `schema.org/Discontinued` |
+| the pre-rendered comparison set | its researched `specs`, unchanged |
+| the compare picker and the search index | |
+
+**It is deliberately not a fourth availability filter chip.** A listing is what the site sells; an "also show discontinued" toggle would make that a user preference rather than a statement.
+
+**`getAllVehicles()`/`getVehiclesByCategory()` stay unfiltered on purpose** — static params, the sitemap, slug lookup and the honesty tests all need the full catalogue, and filtering there would 404 the pages this decision exists to preserve. Discovery surfaces call `getCurrentVehicles()`/`getCurrentVehiclesByCategory()` instead.
+
+**The two references that made deletion expensive were re-pointed, not dropped.** Sub-batch 9 noted that removing `bajaj-chetak-premium` would break `derive.ts`'s `cmp-bike-2` homepage compare pair, the `"Chetak Premium"` popular-search chip, and `search.test.ts`. Both now use `bajaj-chetak-c3501` — the current Series 35 flagship, which carries researched specs, so the pair is still a real comparison. That coupling was never the actual problem; **promoting a scooter Bajaj no longer sells from the homepage was.**
+
+**Build effects:** routes **425 → 419**, pre-rendered comparisons **244 → 238** (the two records no longer seed pairs; their comparison pages still render on demand). `/two-wheelers` shows **67**, the site lists **121** of a **123**-vehicle catalogue. Vehicle detail routes are unchanged at 54 + 69.
+
+Verified live: `/two-wheelers` lists exactly Bajaj's five current C-series scooters; `/two-wheelers/bajaj-chetak-premium` still renders, its status line reads **"Discontinued"**, its JSON-LD reports `schema.org/Discontinued`, and its "similar vehicles" rail is full of current scooters.
+
+### 4. Kia commit `3174b15` — kept
+
+Per owner instruction. The EV9 and Syros EV price and launch-status corrections stand, and the commit is no longer held as separately revertable. Sub-batch 5's note about it being provisional is now closed.
+
+### 5. ImageKit hardening
+
+**`@imagekit/next` does not fail loudly without a URL endpoint.** `<Image>` and `buildSrc` still emit a `src` — one with no host in front of the path — so a missing `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` produces **broken images rather than no images**. That is exactly what happened: the variable was unset in the Vercel environment until 2026-08-20 and silently broke every AI vehicle illustration in Production.
+
+`IMAGEKIT_CONFIGURED` (`src/lib/imagekit.ts`) is now the single condition all four render paths branch on: `PlaceholderImage` → its hand-drawn SVG category icon, `VehicleImage` → the branded placeholder, `VehicleGallery` → its "photo coming soon" slots, `structured-data.ts` → no `image` property rather than a broken URL. Same principle as the illustration registry's "never declare a `path` before the asset exists" (CLAUDE.md #26).
+
+**Verified by reproducing the failure**: a production build with the variable emptied renders `/cars/tata-nexon-ev` with **zero ImageKit URLs, zero host-less `/illustrations` srcs, and 15 SVG category icons** — against 15 ImageKit images and zero icons in the normal build. The two branches are mutually exclusive, so the complementary counts are the fallback firing.
+
+### What this does not change
+
+- **`Vehicle.specs` coverage is unchanged at 65/123 (53%)** — cars 45/54, two-wheelers 20/69. No specs were researched; the three restored NCAP ratings went onto records that already had a `specs` block.
+- **Real photography is still 0 of 123** and still blocked on a licensing decision.
+- **The `2-wheeler:scooter` illustration** is still missing, still waiting on ImageKit's generation cap to reset.
+- **The staleness sweep is still the highest-value non-research work left** — see below. Two of its nine flags are now *partly* addressed (`byd-e6` "listed discontinued" and `audi-e-tron-gt` "discontinued May 2026" now have a status that can express it), but **neither record was changed**: both need a source check first, and this pass did no research.
+
+---
 ## HOMEPAGE HERO — 2.5D VEHICLE + ENVIRONMENT (2026-08-18)
 
 The homepage hero gained a vehicle and a lit environment. This is the **first change to the hero since the 2026-08-15 redesign** and it was explicitly requested and iterated on by the owner, so it supersedes the "Hero is image + headline only" description in the redesign section above. **Sub-`lg` the hero is untouched** — same 300px height, same centred copy, same background — every change here is `lg` and up.
@@ -1503,7 +1603,7 @@ As a demonstration of what a polished, fully data-driven, multi-category EV mark
 12. **Any grid container with a horizontal-scroll (`.scroll-row`) descendant needs `minmax(0, 1fr)` on its fractional track, not a bare `1fr`** — see [Architectural Decisions](#architectural-decisions) for the page-wide overflow bug this caused in `MainLayout.tsx`. Check this first if a new horizontal-scroll section is added inside any grid.
 13. **If adding or changing curated "popular search" or similar hand-authored query terms**, verify they actually resolve via `searchVehicles()` before shipping — `search.ts`'s substring matcher can silently fail on any "OEM full name + model name" combination where a brand's real name isn't a single word (see Known Limitations). Bare model names, single words, and exact-keyword category terms are safe.
 14. **This browser-automation environment's synthetic "Enter" keypress reports `e.key === "Unidentified"`, not `"Enter"`** — if a live keyboard-navigation test silently fails to navigate, check `e.key` before assuming the app is broken; verify via an equivalent click interaction instead.
-15. **Run the quality gate before calling anything finished — it is four parts now**: `npm test`, `npx tsc --noEmit`, `npx eslint .`, `npm run build`. All four are clean as of 2026-08-17 (167 tests, 421 routes).
+15. **Run the quality gate before calling anything finished — it is four parts now**: `npm test`, `npx tsc --noEmit`, `npx eslint .`, `npm run build`. All four are clean as of 2026-08-21 (**221 tests, 419 routes**).
 16. **If doing UI/responsive work, verify live in a browser at multiple widths**, including exact pixel widths where content is suspected to be tight — use `document.documentElement.scrollWidth`/`clientWidth` comparisons if visual inspection isn't available. Test the *default* state as well as any "worst case" content — the `MainLayout.tsx` overflow bug was present at the default city too, not only with a long one.
 17. **Don't assume the codebase matches this document's memory of it.** Re-verify with `git log`, `git status`, and a fresh read of the relevant source before making changes — this file has been kept current across every batch and the polish pass, but always verify.
 18. **`src/components/compare/SpecTable.tsx` must stay a Server Component.** See [Compare Page Premium Polish Pass](#compare-page-premium-polish-pass-2026-08-02) and `CLAUDE.md` point 16 — every Compare section passes it a `SPEC_ROWS` array containing `render`/`barValue` functions, which crashes at runtime (not caught by `tsc`/`eslint`/`build`) the instant `SpecTable` gets `"use client"`. Any new interactive behavior on it belongs in a leaf client child that receives pre-rendered JSX as `children`, following `UnavailableRowsToggle.tsx`'s pattern — not one that receives the row data directly.
@@ -1515,7 +1615,7 @@ As a demonstration of what a polished, fully data-driven, multi-category EV mark
 24. **Never import `@/lib/data` from a `"use client"` component**, or anything that transitively reaches it. The barrel drags all 122 records into that route's bundle even if you only wanted `getOemBySlug`. Use `@/lib/data/oems` etc. directly, or hoist the lookup into a Server Component parent and pass a prop. `/compare` is the accepted exception. See CLAUDE.md point 23 for the regression check.
 25. **Lead capture is real and handles personal data.** `POST /api/leads` → `src/lib/leads/`. The Supabase secret key bypasses RLS and is server-side only — never `NEXT_PUBLIC_`, never imported from a client file. `public.leads` is RLS-deny-all on purpose; don't add a permissive read policy to make something work from the browser. Never log a lead object. See CLAUDE.md point 24.
 25a. **Analytics is cookie-less and carries no personal data, deliberately.** `POST /api/events` → `src/lib/analytics/`. Four properties keep it that way and none is negotiable in a code review: no cookies or durable id (session id is `sessionStorage`, dies with the tab), no IP stored, no PII in payloads (a `lead_submitted` event carries the CTA and vehicle, never the contact details), and `analytics_events` is RLS-deny-all. Those four are why the site needs no consent banner — changing any of them is a privacy-policy decision. `track()` must never throw and never block. See CLAUDE.md point 25.
-26. **Run `npm test` first when picking up work in `src/lib/`** (167 tests, ~8s). The suite covers pricing, the winner engine, slug round-tripping, search, the data-honesty invariant, filter-bound drift, and the AI-illustration honesty guards — a failure there usually means a real regression, not a stale test. Its key assertions were mutation-checked, so if you change one of those modules and everything still passes, be suspicious rather than reassured.
+26. **Run `npm test` first when picking up work in `src/lib/`** (221 tests, ~12s). The suite covers pricing, the winner engine, slug round-tripping, search, the data-honesty invariant, filter-bound drift, the AI-illustration honesty guards, and — since 2026-08-21 — torque comparability, NCAP expiry, discontinued-vehicle gating and the ImageKit fallback flag — a failure there usually means a real regression, not a stale test. Its key assertions were mutation-checked, so if you change one of those modules and everything still passes, be suspicious rather than reassured.
 27. **AI-generated imagery is placeholder art keyed to body type — never a depiction of a specific model, never photoreal, never in `photoUrl`.** See [Batch 7, sub-batch 2](#batch-7-sub-batch-2--2026-08-17-specs--ai-illustrations) and locked decision 6. `src/lib/vehicle-illustrations.ts`'s header explains the reasoning and `vehicle-illustrations.test.ts` enforces it. Regenerating or adding one is `scripts/generate-vehicle-illustrations.mts`; read the header before editing a prompt.
 28. **When recording a spec, three traps have now bitten this project repeatedly.** (a) An NCAP rating quoted next to an EV often belongs to its **petrol twin** — Tiago EV, Punch EV and Sierra EV have all been caught; if an ICE version exists, assume the rating is the twin's until proven otherwise. (b) A published **width** may include mirrors; this dataset records body width, and mixing the two crowns false winners in the Compare table. (c) A figure that **reconciles across units** (110 kW = 147.51 bhp = 149.55 PS) is trustworthy; one that doesn't is a guess wearing precision, and belongs omitted.
 27. **Batch 5 in this document's [batch log](#full-market-expansion--batch-log) means commercial-EV *data*; "Batch 5" in the 2026-08-16 hardening pass means *lead capture*.** Two unrelated numbering schemes that unfortunately collide — check which section is being referenced before acting on a "Batch N" instruction.
