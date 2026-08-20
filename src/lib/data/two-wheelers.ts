@@ -296,19 +296,19 @@ export const twoWheelers: Vehicle[] = [
     modelName: "Chetak C3501",
     tagline: "Long-range Chetak for bigger commutes",
     twoWheelerType: "scooter",
-    priceRangeLakh: [1.35, 1.45],
-    rangeKm: 158,
+    priceRangeLakh: [1.52, 1.52],
+    rangeKm: 153,
     batteryCapacityKwh: 3.5,
     chargingTimeSlowHr: 5.5,
-    topSpeedKmph: 73,
+    topSpeedKmph: 80,
     launchStatus: "available",
     launchDate: "2024-08",
     colors: ["Brooklyn Black", "Indigo Ink"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "c3501", name: "C3501", priceLakh: 1.35, rangeKm: 158, batteryKwh: 3.5, topSpeedKmph: 73 },
+      { id: "c3501", name: "C3501", priceLakh: 1.35, rangeKm: 153, batteryKwh: 3.5, topSpeedKmph: 73 },
     ],
-    highlights: ["158 km range", "Reverse assist mode", "Metal body durability"],
+    highlights: ["153 km claimed range", "Reverse assist mode", "Metal body durability"],
     description:
       "Chetak 3501 stretches the Chetak's legs with a bigger battery, aimed at riders who need more range between charges.",
   },
@@ -775,17 +775,17 @@ export const twoWheelers: Vehicle[] = [
     modelName: "Chetak C2501",
     tagline: "Bajaj's most affordable current-generation Chetak",
     twoWheelerType: "scooter",
-    priceRangeLakh: [0.91, 0.98],
+    priceRangeLakh: [0.96, 0.96],
     rangeKm: 113,
     batteryCapacityKwh: 2.5,
     chargingTimeSlowHr: 3.5,
-    topSpeedKmph: 63,
+    topSpeedKmph: 60,
     launchStatus: "available",
     launchDate: "2026-01",
     colors: ["Ocean Teal", "Classic White", "Racing Red", "Brooklyn Black"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "c2501", name: "C2501", priceLakh: 0.91, rangeKm: 113, batteryKwh: 2.5, topSpeedKmph: 63 },
+      { id: "c2501", name: "C2501", priceLakh: 0.96, rangeKm: 113, batteryKwh: 2.5, topSpeedKmph: 60 },
     ],
     highlights: ["Entry point into Bajaj's C-series Chetak lineup", "113 km claimed range", "Metal-body construction at a lower price"],
     description:
@@ -800,19 +800,19 @@ export const twoWheelers: Vehicle[] = [
     modelName: "Chetak C3001",
     tagline: "Mid-tier Chetak with a bump in range",
     twoWheelerType: "scooter",
-    priceRangeLakh: [0.98, 1.02],
-    rangeKm: 115,
+    priceRangeLakh: [1.14, 1.14],
+    rangeKm: 127,
     batteryCapacityKwh: 3.0,
     chargingTimeSlowHr: 3.7,
-    topSpeedKmph: 63,
+    topSpeedKmph: 70,
     launchStatus: "available",
     launchDate: "2026-01",
     colors: ["Racing Red", "Brooklyn Black", "Azure Blue"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "c3001", name: "C3001", priceLakh: 0.98, rangeKm: 115, batteryKwh: 3.0, topSpeedKmph: 63 },
+      { id: "c3001", name: "C3001", priceLakh: 0.98, rangeKm: 127, batteryKwh: 3.0, topSpeedKmph: 63 },
     ],
-    highlights: ["Replaces the older Chetak 2903 in Bajaj's lineup", "115 km claimed range", "Entry point into the C35-derived platform"],
+    highlights: ["Replaces the older Chetak 2903 in Bajaj's lineup", "127 km claimed range", "Entry point into the C35-derived platform"],
     description:
       "Chetak C3001 slots above the C2501 with a larger battery pack, giving buyers a bit more range before stepping up to the faster C35-series models.",
   },
@@ -825,21 +825,27 @@ export const twoWheelers: Vehicle[] = [
     modelName: "Chetak C3502",
     tagline: "Higher-spec Chetak with quicker performance",
     twoWheelerType: "scooter",
-    priceRangeLakh: [1.2, 1.22],
+    // topSpeedKmph is 63, not 80. Bajaj publishes both for this scooter: 63 as
+    // sold, 80 once the optional TecPac accessory pack is fitted. Recording the
+    // accessory-unlocked number as the scooter's top speed would overstate what
+    // a buyer actually gets, the same way quoting a variant's figure as the
+    // model's does. Flagged because it makes the C3502 read slower than the
+    // cheaper C3503 (70 km/h), which is genuinely how Bajaj specs them.
+    priceRangeLakh: [1.37, 1.37],
     rangeKm: 153,
     batteryCapacityKwh: 3.5,
     chargingTimeSlowHr: 5.0,
-    topSpeedKmph: 73,
+    topSpeedKmph: 63,
     launchStatus: "available",
     launchDate: "2026-01",
     colors: ["Brooklyn Black", "Indigo Ink", "Ivory Ash"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "c3502", name: "C3502", priceLakh: 1.2, rangeKm: 153, batteryKwh: 3.5, topSpeedKmph: 73 },
+      { id: "c3502", name: "C3502", priceLakh: 1.37, rangeKm: 153, batteryKwh: 3.5, topSpeedKmph: 63 },
     ],
     highlights: ["153 km claimed range", "IP67-rated, all-metal body", "App connectivity with live tracking and accident detection"],
     description:
-      "Chetak C3502 sits in the upper half of Bajaj's current Chetak range, pairing a bigger battery with the faster 73 km/h top speed of the C35 series.",
+      "Chetak C3502 sits in the upper half of Bajaj's current Chetak range, pairing the 3.5 kWh Series 35 pack with a 63 km/h top speed that Bajaj's optional TecPac raises to 80 km/h.",
   },
   {
     // ADDED in Batch 7 sub-batch 9's lineup reconciliation. Bajaj sells three
