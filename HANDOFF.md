@@ -17,7 +17,7 @@ Verified against the codebase and the live database, not from memory. Last check
 | --- | --- | --- |
 | Cars / two-wheelers data | ✅ **DONE** | 54 + 68 = **122 vehicles**, 46 OEMs |
 | Commercial data | ⛔ **NOT STARTED** | `commercial.ts` is `[]`. Architecture complete; category auto-gated everywhere |
-| `Vehicle.specs` coverage | 🟡 **IN PROGRESS** | **43 of 122 (35%)** — cars 31/54, two-wheelers 12/68. The rest render "Not specified" |
+| `Vehicle.specs` coverage | 🟡 **IN PROGRESS** | **46 of 122 (38%)** — cars 31/54, two-wheelers 15/68. The rest render "Not specified" |
 | Vehicle photography (real) | 🚫 **BLOCKED** | **0 of 122**. Pipeline + credentials verified working; blocked on a licensing decision, not code. `photoUrl` is deliberately still empty everywhere |
 | Vehicle-type illustrations (AI) | 🟡 **5 of 6** | NEW 2026-08-17. Generic per-**body-type** AI art replacing the SVG placeholder — *not* per-model, *not* photoreal, and not in `photoUrl`. Scooter blocked on a provider generation cap |
 | Data honesty (Batch 1) | ✅ **DONE** | No spec is derived. Guarded by tests |
@@ -26,7 +26,7 @@ Verified against the codebase and the live database, not from memory. Last check
 | Test suite (Batch 4) | ✅ **DONE** | **167 tests**, 9 files, ~8s |
 | Lead capture (Batch 5) | ✅ **DONE** | Live, verified end to end. RLS deny-all |
 | Analytics + errors (Batch 6) | ✅ **DONE** | Live, verified. Cookie-less, no PII, no IP |
-| Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 7 sub-batches done. Cars: Tata, MG, Mahindra, Hyundai, Kia, BYD. Two-wheelers: **Ather, TVS**. 79 vehicles left |
+| Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 8 sub-batches done. Cars: Tata, MG, Mahindra, Hyundai, Kia, BYD. Two-wheelers: Ather, TVS, **Ola**. 76 vehicles left. **Bajaj is blocked** — see sub-batch 8 |
 | Homepage hero (2.5D) | ✅ **DONE** | NEW 2026-08-18. Vehicle + generated environment at `lg`+, CSS/DOM parallax, no Three.js. Hero height unchanged. **Motion never watched in a browser** — see the section |
 | `loading.tsx` | ⛔ **BLOCKED** | Hangs at every level, dev and prod. Root cause unknown |
 | Auth / admin view for leads | ⛔ **NOT STARTED** | RLS denies all reads; only the Supabase dashboard can see leads |
@@ -818,6 +818,57 @@ That is the **fourth and fifth** stale record found in four consecutive sub-batc
 ### Remaining after this sub-batch
 
 **79 vehicles: 23 cars, 56 two-wheelers.** Cars left are BMW 5, Mercedes-Benz 4, Volvo 3, Audi/Lotus/MINI/Porsche/VinFast 2 each, Rolls-Royce 1 — all from zero. Two-wheelers still have three partially-done brands worth finishing first on the clustering argument: **Ola 2/5, Bajaj 1/6, Ampere 1/5.**
+
+### Sub-batch 8 — Ola (2026-08-20)
+
+**43 → 46 of 122** (two-wheelers 12 → 15 of 68). **Ola Electric is complete (5/5)** — the third two-wheeler brand finished, after Ather and TVS. Quality gate clean: 167 tests, `tsc`, `eslint`, `npm run build` (421 routes). Purely additive, 56 insertions.
+
+**Bajaj and Ampere were both in scope and neither was done.** Both for stated reasons, below — not for lack of time.
+
+### ⛔ Bajaj is blocked on a record-identity problem, not on research
+
+The six Bajaj records cannot honestly receive specs until it is settled **which scooters they actually are.** Comparing the dataset against Bajaj's own site (`chetak.com`):
+
+| Record | Record says | Bajaj publishes |
+| --- | --- | --- |
+| `bajaj-chetak-3501` | 3.5 kWh, **158 km**, **73 km/h**, ₹1.35-1.45L | C3501: 3.5 kWh, **153 km**, **80 km/h** |
+| `bajaj-chetak-c3502` | 3.5 kWh, 153 km, **73 km/h**, ₹1.20-1.22L | C3502: 153 km, **80 km/h**, cheaper than C3501 |
+| `bajaj-chetak-c3001` | 3.0 kWh, **115 km**, **63 km/h** | C3001: 3.0 kWh, **131 km**, **70 km/h** |
+| `bajaj-chetak-c2501` | 2.5 kWh, 113 km, **63 km/h** | C2501: 2.5 kWh, 113 km, **60 km/h** |
+| `bajaj-chetak-2901` | 2.9 kWh, 101 km, 63 km/h | no current 2901 in Bajaj's line-up |
+| — | — | **C3503 exists (151 km, 70 km/h) and has no record** |
+
+So: `3501` and `c3502` look like two records for overlapping members of one series with figures matching neither; top speeds are wrong across the range; one record may describe a discontinued model; and one real model is missing entirely. **Attaching researched dimensions and motor figures to that set would give wrong records the appearance of authority** — the same failure mode as the Kia Syros EV's invented 45 kWh pack, except five times over.
+
+**What it needs first** is a lineup reconciliation against Bajaj's own site: which Chetaks are currently sold, under which names, with which range and top speed, and whether `2901` should be retired and `C3503` added. That is verification work, not spec research — and it is the same job the staleness sweep needs doing anyway. **Specs for Bajaj should come after, and will then be cheap.**
+
+### ⛔ Ampere is waiting on the sub-batch 7 decision
+
+Ampere is a hub-motor brand, so all four unpopulated records run straight into the **hub-vs-shaft torque convention** problem documented in sub-batch 7 and CLAUDE.md #28(b2). Researching them now would mean either omitting torque on four more records or entrenching a fifth incomparable figure. **Pick one of the three fixes first** and Ampere becomes straightforward.
+
+### What Ola contributed
+
+**A source conflict resolved rather than split.** Several aggregators print both **"11 kW"** and **"5.5 kW"** for the S1 X+, which reads as a disagreement and is actually **peak versus rated** power. Recorded as peak, with the pairing explained inline so the next session doesn't re-litigate it. The same pairing (13 kW peak / 5.5 kW rated) appears on the S1 Pro+.
+
+**Torque recorded only where published.** The Roadster X gets 58 Nm — stated for both its variants, which is why it survives the variant-mismatch test. The S1 Pro+ and S1 X+ get none. The already-recorded S1 Pro's 58 Nm was deliberately **not** carried across: same brand and same drive layout is not the same motor.
+
+**The Roadster X is the catalogue's first researched motorcycle-format record**, and its numbers are properly a motorcycle's — 2015 mm long, 180 mm ground clearance, an 18-inch front wheel on a 17-inch rear.
+
+### Three omissions worth the words they cost
+
+- **Roadster X wheelbase** — published as **"1301.9 mm"**, which is an inch conversion wearing false precision (51.25 in exactly). A real specification would be round. This is CLAUDE.md #28(c) showing up in a new disguise: not a unit disagreement, a unit *conversion* passed off as a measurement.
+- **Roadster X kerb weight** — 123.4 kg is attributed to the base RoadsterX, not the X+ this record's headline describes.
+- **Roadster X brakes** — sources list drum/drum for the base variant. On a 126 km/h X+ that is almost certainly not the fitment, and "almost certainly" is not a source.
+
+### Staleness count: six
+
+The **S1 Pro+** headline says 5.3 kWh / 141 km/h; current sources list the top variant at 5.2 kWh / 130 km/h. Ola has re-specced the S1 line across generations more than once and aggregators mix them freely, so the core fields were left alone rather than swapped on a source that may itself describe a different generation.
+
+That is the sixth stale record in five consecutive sub-batches. **Every sub-batch since #4 has found at least one, and Bajaj above is now a whole brand of them.** The sweep is no longer a nice-to-have.
+
+### Remaining: 76 vehicles
+
+**23 cars** (BMW 5, Mercedes-Benz 4, Volvo 3, Audi/Lotus/MINI/Porsche/VinFast 2 each, Rolls-Royce 1 — all from zero) and **53 two-wheelers**, of which Bajaj 5 and Ampere 4 are blocked as above. The largest genuinely-available clusters left on the two-wheeler side are Ultraviolette 3, Simple Energy 3, Pure EV 3, Okinawa 3, BGauss 3 and Hero 5.
 
 ## HOMEPAGE HERO — 2.5D VEHICLE + ENVIRONMENT (2026-08-18)
 
