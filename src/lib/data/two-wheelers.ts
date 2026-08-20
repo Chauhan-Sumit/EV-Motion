@@ -244,6 +244,15 @@ export const twoWheelers: Vehicle[] = [
     },
   },
   {
+    // ⚠️ NOT IN BAJAJ'S CURRENT LINE-UP — superseded by the C-series. Bajaj now
+    // sells C2501/C3001/C3501/C3502/C3503; there is no 3.2 kWh "Chetak Premium"
+    // on chetak.com. Reconciled in Batch 7 sub-batch 9.
+    // NOT REMOVED, and here removal would also break three other things: this
+    // slug is a homepage compare pair (`derive.ts`'s cmp-bike-2), "Chetak
+    // Premium" is a curated popular-search term (`popular-searches.ts`), and
+    // `search.test.ts` asserts every curated term still resolves. Its
+    // researched `specs` below are from the Batch 6 pilot and remain valid for
+    // the scooter this record describes.
     id: "tw-bajaj-chetak-premium",
     slug: "bajaj-chetak-premium",
     category: "2-wheeler",
@@ -279,12 +288,12 @@ export const twoWheelers: Vehicle[] = [
     },
   },
   {
-    id: "tw-bajaj-chetak-3501",
-    slug: "bajaj-chetak-3501",
+    id: "tw-bajaj-chetak-c3501",
+    slug: "bajaj-chetak-c3501",
     category: "2-wheeler",
     oem: "bajaj",
     oemName: "Bajaj",
-    modelName: "Chetak 3501",
+    modelName: "Chetak C3501",
     tagline: "Long-range Chetak for bigger commutes",
     twoWheelerType: "scooter",
     priceRangeLakh: [1.35, 1.45],
@@ -297,13 +306,22 @@ export const twoWheelers: Vehicle[] = [
     colors: ["Brooklyn Black", "Indigo Ink"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "3501", name: "3501", priceLakh: 1.35, rangeKm: 158, batteryKwh: 3.5, topSpeedKmph: 73 },
+      { id: "c3501", name: "C3501", priceLakh: 1.35, rangeKm: 158, batteryKwh: 3.5, topSpeedKmph: 73 },
     ],
     highlights: ["158 km range", "Reverse assist mode", "Metal body durability"],
     description:
       "Chetak 3501 stretches the Chetak's legs with a bigger battery, aimed at riders who need more range between charges.",
   },
   {
+    // ⚠️ NOT IN BAJAJ'S CURRENT LINE-UP. Batch 7 sub-batch 9 reconciled every
+    // Chetak record against chetak.com: Bajaj sells exactly five scooters —
+    // C2501 (Series 25), C3001 (Series 30), and C3501/C3502/C3503 (Series 35).
+    // There is no 2.9 kWh Chetak and no model called 2901. This record most
+    // likely descends from the 2903, an entry Chetak superseded by the C-series.
+    // NOT REMOVED HERE, deliberately: `LaunchStatus` is "available" |
+    // "just-launched" | "upcoming", with no way to say "discontinued", and
+    // deleting a scooter people still own and search for is a product decision
+    // rather than a data fix. See HANDOFF.md sub-batch 9 for the options.
     id: "tw-bajaj-chetak-2901",
     slug: "bajaj-chetak-2901",
     category: "2-wheeler",
@@ -822,6 +840,39 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["153 km claimed range", "IP67-rated, all-metal body", "App connectivity with live tracking and accident detection"],
     description:
       "Chetak C3502 sits in the upper half of Bajaj's current Chetak range, pairing a bigger battery with the faster 73 km/h top speed of the C35 series.",
+  },
+  {
+    // ADDED in Batch 7 sub-batch 9's lineup reconciliation. Bajaj sells three
+    // Series 35 scooters — C3501, C3502 and C3503 — and this dataset carried
+    // only the first two. Every figure below is from Bajaj's own
+    // chetak.com/series-35/chetak-c3503 page.
+    // chargingTimeSlowHr is the one number NOT independently sourced: Bajaj
+    // publishes 0-80% times only (3 hr 25 m here). 5.0 is carried from the
+    // C3502, which has the identical 3.5 kWh pack and the identical 3 hr 25 m
+    // 0-80% figure, and is flagged rather than presented as a Bajaj number.
+    id: "tw-bajaj-chetak-c3503",
+    slug: "bajaj-chetak-c3503",
+    category: "2-wheeler",
+    oem: "bajaj",
+    oemName: "Bajaj",
+    modelName: "Chetak C3503",
+    tagline: "The most affordable Series 35 Chetak",
+    twoWheelerType: "scooter",
+    priceRangeLakh: [1.24, 1.24],
+    rangeKm: 151,
+    batteryCapacityKwh: 3.5,
+    chargingTimeSlowHr: 5.0,
+    topSpeedKmph: 70,
+    launchStatus: "available",
+    launchDate: "2026-01",
+    colors: ["Brooklyn Black", "Cyber White", "Indigo Blue", "Matt Grey"],
+    images: { hero: "hero", gallery },
+    variants: [
+      { id: "c3503", name: "C3503", priceLakh: 1.24, rangeKm: 151, batteryKwh: 3.5, topSpeedKmph: 70 },
+    ],
+    highlights: ["151 km claimed range", "35 L boot space", "All-metal body"],
+    description:
+      "Chetak C3503 is the entry point into Bajaj's Series 35, pairing the same 3.5 kWh pack as its siblings with a lower top speed, drum brakes and Bluetooth-only connectivity to reach a keener price.",
   },
   {
     id: "tw-tvs-iqube-s",
