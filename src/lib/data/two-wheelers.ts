@@ -311,6 +311,28 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["153 km claimed range", "Reverse assist mode", "Metal body durability"],
     description:
       "Chetak 3501 stretches the Chetak's legs with a bigger battery, aimed at riders who need more range between charges.",
+    // Series 35 shares one powertrain across C3501/C3502/C3503: 4.0 kW and
+    // 20 Nm, each confirmed by two independent sources. The "4.8 kW" that one
+    // summary reports is contradicted by both and is not recorded.
+    // The torque here is SHAFT torque on a mid-drive, belt-driven scooter —
+    // the same convention as Ather and Ola, which is why 20 Nm sits sensibly
+    // beside Ather's 22-26 Nm and can be compared with it. It is NOT the
+    // hub-motor wheel figure that makes the TVS records incomparable; see
+    // CLAUDE.md #28(b2).
+    // Brakes, wheelbase and boot space are Bajaj's own; width and suspension
+    // are corroborated across the range.
+    // NO warranty: chetak.com's spec block says "5 Years or first 70,000
+    // Kilometers" while the FAQ on the same page says "3 yrs or 50,000 km".
+    // Omitted: length, height, ground clearance, kerbWeightKg ("approximately
+    // 125 kg" is an approximation, not a specification) and tyre size
+    // (published only as "R12", never as a section width).
+    specs: {
+      dimensions: { widthMm: 725, wheelbaseMm: 1355, bootSpaceLiters: 35 },
+      motor: { peakPowerKw: 4, peakTorqueNm: 20 },
+      suspension: { front: "Single-sided leading link", rear: "Monoshock" },
+      brakes: { front: "disc", rear: "drum" },
+      certifications: ["IP67 battery"],
+    },
   },
   {
     // ⚠️ NOT IN BAJAJ'S CURRENT LINE-UP. Batch 7 sub-batch 9 reconciled every
@@ -790,6 +812,24 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["Entry point into Bajaj's C-series Chetak lineup", "113 km claimed range", "Metal-body construction at a lower price"],
     description:
       "Chetak C2501 opens up Bajaj's newest Chetak generation at its lowest price point, trimming battery size while keeping the model's signature metal body.",
+    // Bajaj publishes remarkably little for the Chetak range: no motor output,
+    // no length/height, no ground clearance, no tyre size and no suspension
+    // appears on any chetak.com model page. Everything recorded across these
+    // five records is either Bajaj's own or corroborated by two independent
+    // sources; the rest is omitted rather than filled from one aggregator.
+    // NO warranty, and the reason is worth knowing: chetak.com's C3501 and
+    // C3503 pages state "5 Years or first 70,000 Kilometers" while the FAQ
+    // block ON THE SAME PAGE states "3 yrs or 50,000 km". The OEM's own site
+    // contradicts itself, so neither figure is recorded — CLAUDE.md #28(c)
+    // applies to a manufacturer disagreeing with itself just as it does to two
+    // aggregators disagreeing.
+    // Omitted here specifically: peakPowerKw (one aggregator says 3 kW and
+    // nothing corroborates it); every dimension except boot space.
+    specs: {
+      dimensions: { bootSpaceLiters: 25 },
+      brakes: { front: "disc", rear: "drum" },
+      certifications: ["IP67 battery"],
+    },
   },
   {
     id: "tw-bajaj-chetak-c3001",
@@ -815,6 +855,22 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["Replaces the older Chetak 2903 in Bajaj's lineup", "127 km claimed range", "Entry point into the C35-derived platform"],
     description:
       "Chetak C3001 slots above the C2501 with a larger battery pack, giving buyers a bit more range before stepping up to the faster C35-series models.",
+    // Motor is the one figure here with real corroboration: 3.1 kW appears in
+    // two independent sources, with PMSM alongside it. Torque is NOT recorded —
+    // the "20 Nm" that circulates for Chetaks is a Series 35 figure and is not
+    // carried across to the Series 30.
+    // Wheelbase 1355mm is independently confirmed by Bajaj's own C3501 page,
+    // so the C-series shares it rather than this being a lone claim.
+    // The single-sided leading-link front is the Chetak's signature layout,
+    // unchanged from the scooter's original design and consistent across the
+    // range in both sources that state it.
+    // NO warranty — see the C3501 note.
+    specs: {
+      dimensions: { wheelbaseMm: 1355, groundClearanceMm: 168, bootSpaceLiters: 35 },
+      motor: { peakPowerKw: 3.1, motorType: "PMSM" },
+      suspension: { front: "Single-sided leading link", rear: "Monoshock" },
+      brakes: { front: "drum", rear: "drum" },
+    },
   },
   {
     id: "tw-bajaj-chetak-c3502",
@@ -846,6 +902,21 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["153 km claimed range", "IP67-rated, all-metal body", "App connectivity with live tracking and accident detection"],
     description:
       "Chetak C3502 sits in the upper half of Bajaj's current Chetak range, pairing the 3.5 kWh Series 35 pack with a 63 km/h top speed that Bajaj's optional TecPac raises to 80 km/h.",
+    // Same Series 35 hardware as the C3501. Bajaj's own comparison lists the
+    // differences between them as sequential blinkers, document storage and
+    // charge time — none dimensional or mechanical — which is what makes the
+    // shared 4.0 kW / 20 Nm / 725mm / 1355mm figures sourcing rather than
+    // inference from a shared badge.
+    // NO brakes: Bajaj does not state this variant's fitment, and secondary
+    // sources disagree over whether the front disc is standard or arrives with
+    // the optional TecPac pack. The C3501's disc and the C3503's drum are both
+    // published; this one is not, so it stays empty.
+    // NO warranty — see the C3501 note.
+    specs: {
+      dimensions: { widthMm: 725, wheelbaseMm: 1355, bootSpaceLiters: 35 },
+      motor: { peakPowerKw: 4, peakTorqueNm: 20 },
+      suspension: { front: "Single-sided leading link", rear: "Monoshock" },
+    },
   },
   {
     // ADDED in Batch 7 sub-batch 9's lineup reconciliation. Bajaj sells three
@@ -879,6 +950,16 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["151 km claimed range", "35 L boot space", "All-metal body"],
     description:
       "Chetak C3503 is the entry point into Bajaj's Series 35, pairing the same 3.5 kWh pack as its siblings with a lower top speed, drum brakes and Bluetooth-only connectivity to reach a keener price.",
+    // Same Series 35 hardware as the C3501, detuned to 70 km/h and specified
+    // down: Bajaj's own page states drum brakes front and rear where the C3501
+    // has a front disc, plus Bluetooth-only connectivity.
+    // NO warranty — see the C3501 note.
+    specs: {
+      dimensions: { widthMm: 725, wheelbaseMm: 1355, bootSpaceLiters: 35 },
+      motor: { peakPowerKw: 4, peakTorqueNm: 20 },
+      suspension: { front: "Single-sided leading link", rear: "Monoshock" },
+      brakes: { front: "drum", rear: "drum" },
+    },
   },
   {
     id: "tw-tvs-iqube-s",
