@@ -1925,6 +1925,21 @@ export const cars: Vehicle[] = [
     highlights: ["600 km range on the 55 Quattro", "Quattro AWD standard across the range", "22kW AC charger included"],
     description:
       "Q8 e-tron is Audi's full-size electric SUV, offered in two battery sizes with Quattro all-wheel drive standard on every variant.",
+    // 55 quattro, matching this record's 114 kWh headline. Power is 300 kW,
+    // quoted as "408 hp" which is the PS figure (300 kW = 407.9 PS), with
+    // 664 Nm.
+    // NO ncapRating. Euro NCAP did test this car — as the Audi e-tron, in 2019,
+    // five stars at 91% adult occupant, and Euro NCAP carried the entry over
+    // when Audi renamed it the Q8 e-tron. It is born-electric with no ICE twin,
+    // so the usual check passes. The rating simply EXPIRED at the start of
+    // 2026, six years after the test. Third record in two sub-batches to fail
+    // on age rather than on attribution — see HANDOFF.md.
+    // Omitted: bootSpaceLiters, tyres, suspension, brakes, airbags — not
+    // published for the India car.
+    specs: {
+      dimensions: { lengthMm: 4901, widthMm: 1935, heightMm: 1616, wheelbaseMm: 2928, kerbWeightKg: 2560 },
+      motor: { peakPowerKw: 300, peakTorqueNm: 664, driveLayout: "AWD" },
+    },
   },
   {
     id: "car-audi-e-tron-gt",
@@ -1954,6 +1969,24 @@ export const cars: Vehicle[] = [
     highlights: ["2.8s 0-100 km/h on the RS", "270kW ultra-fast DC charging", "500+ km range"],
     description:
       "e-tron GT is Audi's electric grand tourer, sharing its underpinnings with the Porsche Taycan and topping out in a track-focused RS variant.",
+    // ** NO ncapRating, and this is a FOURTH distinct shape of the attribution
+    // trap — not an ICE twin, not a different bodyshell, but a platform sibling
+    // from a DIFFERENT MANUFACTURER. ** Euro NCAP has never tested the e-tron
+    // GT. The five-star result quoted alongside it belongs to the Porsche
+    // Taycan, with which it shares the J1 platform. Sharing a platform with a
+    // rated car is not a rating; if it were, half this catalogue could claim
+    // its siblings' results.
+    // NO peakPowerKw either. The quoted "522.99 bhp" is a conversion of 390 kW
+    // (390 x 1.341 = 523.0), and 390 kW is the e-tron GT quattro's OVERBOOST
+    // output, not its 350 kW nominal. Two legitimate numbers for one car
+    // depending on which the record's variant is quoting, so neither is
+    // recorded. Torque is quoted unambiguously and is.
+    // NOTE for the staleness sweep: sources say Audi India discontinued the
+    // e-tron GT in May 2026, while this record says launchStatus "available".
+    // Eighth such flag; core field left alone.
+    specs: {
+      motor: { peakTorqueNm: 630, driveLayout: "AWD" },
+    },
   },
   {
     id: "car-volvo-ex30",
@@ -1982,6 +2015,21 @@ export const cars: Vehicle[] = [
     highlights: ["Entry point to Volvo's electric range", "480 km claimed range", "Compact footprint for city driving"],
     description:
       "EX30 is Volvo's smallest and most affordable EV, bringing the brand's safety-first approach to the compact SUV segment.",
+    // Single Motor Extended Range: 200 kW, quoted as "272 hp" which is the PS
+    // figure (200 kW = 272.0 PS), and 343 Nm.
+    // ncapRating is clean on every axis for once: the EX30 is born-electric
+    // with no ICE twin, Euro NCAP crash-tested the car itself, and the 2024
+    // result (88% adult occupant) is current rather than expired. Worth noting
+    // as the baseline case that the EX40 and G 580 fail against.
+    // bootSpaceLiters is the 318 L seats-up figure; 904 L is seats-folded.
+    specs: {
+      dimensions: { lengthMm: 4233, widthMm: 1837, heightMm: 1549, wheelbaseMm: 2650, groundClearanceMm: 171, bootSpaceLiters: 318, kerbWeightKg: 1850 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", airbagsCount: 9 },
+      motor: { peakPowerKw: 200, peakTorqueNm: 343, driveLayout: "RWD" },
+      tyres: { size: "245/45 R19" },
+      suspension: { front: "Independent, MacPherson strut", rear: "Independent, multi-link" },
+      brakes: { front: "disc", rear: "disc" },
+    },
   },
   {
     id: "car-volvo-ex40",
@@ -2011,6 +2059,23 @@ export const cars: Vehicle[] = [
     highlights: ["Renamed from XC40 Recharge", "470 km range on the Ultimate", "250kW DC fast charging"],
     description:
       "EX40 continues Volvo's original compact electric SUV under a new name, offered in Plus and longer-range Ultimate trims.",
+    // EX40 is the renamed XC40 Recharge. Power is the Twin Motor AWD's 300 kW
+    // (quoted "408 PS") with 660 Nm, matching this record's 470 km headline —
+    // the Single Motor Extended Range is 175 kW and goes ~565 km.
+    // ** NO ncapRating, and the reason is the same pairing as the Mercedes
+    // G 580 in sub-batch 11. ** Euro NCAP never crash-tested the electric
+    // XC40; it ran additional checks and EXTENDED the 2018 petrol XC40's
+    // five-star result onto the Recharge, which is a legitimate extension by
+    // the rating body rather than an ICE-twin mix-up. It is unusable anyway,
+    // because a 2018 result EXPIRED at the start of 2025. Compare the EC40
+    // below, which really was tested, in 2022, and keeps its rating.
+    // Omitted: dimensions (published for the EC40 but not separately for the
+    // taller EX40 body, and a coupe-roof sibling's height is not this car's);
+    // kerbWeightKg, tyres, suspension, brakes, airbags.
+    specs: {
+      dimensions: { bootSpaceLiters: 460 },
+      motor: { peakPowerKw: 300, peakTorqueNm: 660, driveLayout: "AWD" },
+    },
   },
   {
     id: "car-volvo-ec40",
@@ -2039,6 +2104,20 @@ export const cars: Vehicle[] = [
     highlights: ["Coupe-SUV roofline", "Dual-motor AWD, 405hp", "530 km range"],
     description:
       "EC40 gives Volvo's compact electric platform a sleeker coupe-SUV roofline, sold as a single fully-loaded dual-motor variant.",
+    // EC40 is the renamed C40 Recharge, Twin Motor AWD — 300 kW, quoted around
+    // "405bhp" (300 kW = 407.9 PS = 402.3 bhp), and 660 Nm stated outright.
+    // ncapRating IS recorded here, and the contrast with the EX40 above is the
+    // point: the C40 has NO petrol version, so Euro NCAP crash-tested the car
+    // itself in 2022 rather than extending a rating onto it. That test is also
+    // still current — 2022 results run to 2028. Same brand, same platform
+    // family, opposite outcome, entirely because of what was tested and when.
+    // bootSpaceLiters is the 404 L rear compartment; the 31 L frunk is not what
+    // this field means elsewhere in the dataset.
+    specs: {
+      dimensions: { lengthMm: 4440, widthMm: 1873, heightMm: 1591, wheelbaseMm: 2702, bootSpaceLiters: 404 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP" },
+      motor: { peakPowerKw: 300, peakTorqueNm: 660, driveLayout: "AWD" },
+    },
   },
   {
     id: "car-mini-countryman-electric",
