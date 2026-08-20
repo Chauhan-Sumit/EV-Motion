@@ -170,6 +170,19 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["Widest seat in the segment", "Large under-seat storage", "Magic Twist reverse assist"],
     description:
       "Rizta widens Ather's appeal beyond performance buyers, prioritising comfort and practicality for family use.",
+    // Ather's family scooter, and a genuinely different vehicle from the 450
+    // line rather than a trim of it — longer wheelbase, taller, 17 kg heavier,
+    // and detuned to 4.3 kW. Recording it as its own set of numbers is the
+    // point; nothing here is carried over from the 450X.
+    // 22 Nm is shaft torque, same convention as the rest of the Ather range.
+    // kerbWeightKg is the 3.7 kWh Z, matching this record's headline battery.
+    // Omitted: tyres (sources name the MRF Zapper fitment but state no size);
+    // suspension; warranty.
+    specs: {
+      dimensions: { lengthMm: 1850, widthMm: 750, heightMm: 1140, wheelbaseMm: 1285, kerbWeightKg: 125 },
+      motor: { peakPowerKw: 4.3, peakTorqueNm: 22, motorType: "PMSM" },
+      brakes: { front: "disc", rear: "drum" },
+    },
   },
   {
     id: "tw-ather-450-apex",
@@ -196,6 +209,18 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["3.3s 0-40 km/h", "105 km/h top speed", "Track mode with launch control"],
     description:
       "450 Apex sits above the 450X as Ather's most track-oriented scooter, with the brand's quickest acceleration yet.",
+    // The performance flagship of the 450 platform: 7.0 kW peak and 26 Nm shaft
+    // torque, the same measurement convention as the 450X and 450S, so all
+    // three compare against each other cleanly.
+    // Dimensions are identical to the 450X and 450S, published independently
+    // for each rather than inferred.
+    // Omitted: suspension (not published per-variant); warranty.
+    specs: {
+      dimensions: { lengthMm: 1891, widthMm: 739, heightMm: 1114, wheelbaseMm: 1296, kerbWeightKg: 111.6 },
+      motor: { peakPowerKw: 7, peakTorqueNm: 26, motorType: "PMSM" },
+      tyres: { size: "90/90-12 front, 100/80-12 rear" },
+      brakes: { front: "disc", rear: "disc" },
+    },
   },
   {
     id: "tw-bajaj-chetak-premium",
@@ -345,6 +370,30 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["155 km range", "90 km/h top speed", "Fast charging support"],
     description:
       "iQube ST sits above the base iQube with a bigger battery and quicker charging for riders who cover more ground daily.",
+    // NO peakTorqueNm, and this is a measurement-convention problem rather than
+    // a sourcing one. TVS quotes 140 Nm for the iQube family; that is HUB-MOTOR
+    // torque, measured at the wheel with no gear reduction between motor and
+    // road. Ather, Ola and the other mid-drive scooters quote SHAFT torque,
+    // which their belt drive then multiplies before it reaches the wheel. The
+    // two numbers describe different points in the driveline and are not
+    // comparable, so dropping 140 into the same Compare row as the 450X's 26
+    // would crown the iQube by a factor of five on a difference that is purely
+    // definitional. Structurally identical to the width-with-mirrors trap in
+    // CLAUDE.md #28(b).
+    // ** The already-recorded `tvs-iqube` record carries `peakTorqueNm: 140`
+    // and has this exact problem live. It is left alone here because the fix is
+    // a decision, not a lookup: either omit it too, or add a torque-convention
+    // field to VehicleMotor, or exclude torque from the two-wheeler winner
+    // metrics. Flagged in HANDOFF.md. **
+    // Also note for the staleness sweep: this record says 3.7 kWh / 155 km, but
+    // TVS now sells the ST with a 5.3 kWh pack rated 212 km IDC. Core fields
+    // left unchanged.
+    specs: {
+      dimensions: { lengthMm: 1805, widthMm: 645, heightMm: 1140, wheelbaseMm: 1301, kerbWeightKg: 132 },
+      motor: { peakPowerKw: 4.4, motorType: "Hub-mounted BLDC" },
+      suspension: { front: "Telescopic", rear: "Hydraulic twin-tube shock absorber" },
+      brakes: { front: "disc", rear: "drum" },
+    },
   },
   {
     id: "tw-tvs-x",
@@ -371,6 +420,19 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["Futuristic minimalist design", "105 km/h top speed", "Voice-assist connected app"],
     description:
       "TVS X is the brand's design-led halo scooter, aimed at riders who want a bolder, more premium electric option.",
+    // Thin on purpose. 11 kW is the peak output (7 kW nominal) and is the one
+    // figure sources agree on outright.
+    // Omitted: kerbWeightKg (quoted only as "around 120 kg" — an approximation
+    // is not a specification); torque (not published, and see the iQube ST
+    // note on why a TVS torque figure would need its convention stated);
+    // dimensions, tyres, suspension and brakes (not published).
+    // NOTE for the staleness sweep: this record says launchStatus "upcoming"
+    // with launchDate "2026-08 (Tentative)", but every source treats the TVS X
+    // as a scooter already on sale. Left unchanged — the core-field question is
+    // the owner's, and this is the fourth such record found in four sub-batches.
+    specs: {
+      motor: { peakPowerKw: 11, motorType: "PMSM" },
+    },
   },
   {
     id: "tw-vida-v2-plus",
@@ -615,6 +677,20 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["Same 90 km/h top speed as the 450X", "Two battery sizes to choose from", "Optional Pro pack unlocks DC fast charging"],
     description:
       "450S carries the core 450-series performance down to a lower price by trimming some of the 450X's extras, giving buyers a cheaper way into the Ather ecosystem.",
+    // Shares the 450 platform with the 450X and 450 Apex, which is visible in
+    // the dimensions being identical to both — a useful cross-check rather than
+    // an assumption, since all three are published separately.
+    // Power is the 5.4 kW peak; 22 Nm is shaft torque at the motor, the same
+    // convention as the 450X's 26 Nm, so the two are comparable with each other.
+    // Omitted: tyres (12-inch tubeless is published, but no size is stated for
+    // the 450S specifically — the Apex's 90/90-12 / 100/80-12 is not evidence
+    // for this variant even on a shared chassis); rear suspension type.
+    specs: {
+      dimensions: { lengthMm: 1891, widthMm: 739, heightMm: 1114, wheelbaseMm: 1296, kerbWeightKg: 108 },
+      motor: { peakPowerKw: 5.4, peakTorqueNm: 22, motorType: "PMSM" },
+      suspension: { front: "Telescopic forks" },
+      brakes: { front: "disc", rear: "disc" },
+    },
   },
   {
     id: "tw-bajaj-chetak-c2501",
@@ -715,6 +791,17 @@ export const twoWheelers: Vehicle[] = [
     highlights: ["175 km claimed IDC range", "4.4 kW hub motor", "0-40 km/h in 4.3 seconds"],
     description:
       "iQube S fills the gap between the base iQube and the range-topping ST, giving TVS buyers a bigger battery without the ST's full price premium.",
+    // NO peakTorqueNm — see the iQube ST record for the full reasoning. In
+    // short: TVS quotes hub-motor torque measured at the wheel, Ather and the
+    // other mid-drive scooters quote shaft torque that their belt drive then
+    // multiplies. Putting both in one Compare row measures two different
+    // quantities and hands the hub scooter a meaningless win.
+    // Omitted: dimensions (the 1805/645/1140/1301 figures are published for the
+    // iQube family, not attributed to this variant); tyres and suspension.
+    specs: {
+      dimensions: { kerbWeightKg: 128.8 },
+      motor: { peakPowerKw: 4.4, motorType: "Hub-mounted BLDC" },
+    },
   },
   {
     id: "tw-vida-v2-pro",
