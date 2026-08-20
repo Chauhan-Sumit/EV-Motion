@@ -17,7 +17,7 @@ Verified against the codebase and the live database, not from memory. Last check
 | --- | --- | --- |
 | Cars / two-wheelers data | ✅ **DONE** | 54 + 69 = **123 vehicles**, 46 OEMs |
 | Commercial data | ⛔ **NOT STARTED** | `commercial.ts` is `[]`. Architecture complete; category auto-gated everywhere |
-| `Vehicle.specs` coverage | 🟡 **IN PROGRESS** | **51 of 123 (41%)** — cars 31/54, two-wheelers 20/69. The rest render "Not specified" |
+| `Vehicle.specs` coverage | 🟡 **IN PROGRESS** | **56 of 123 (46%)** — cars 36/54, two-wheelers 20/69. The rest render "Not specified" |
 | Vehicle photography (real) | 🚫 **BLOCKED** | **0 of 122**. Pipeline + credentials verified working; blocked on a licensing decision, not code. `photoUrl` is deliberately still empty everywhere |
 | Vehicle-type illustrations (AI) | 🟡 **5 of 6** | NEW 2026-08-17. Generic per-**body-type** AI art replacing the SVG placeholder — *not* per-model, *not* photoreal, and not in `photoUrl`. Scooter blocked on a provider generation cap |
 | Data honesty (Batch 1) | ✅ **DONE** | No spec is derived. Guarded by tests |
@@ -26,7 +26,7 @@ Verified against the codebase and the live database, not from memory. Last check
 | Test suite (Batch 4) | ✅ **DONE** | **167 tests**, 9 files, ~8s |
 | Lead capture (Batch 5) | ✅ **DONE** | Live, verified end to end. RLS deny-all |
 | Analytics + errors (Batch 6) | ✅ **DONE** | Live, verified. Cookie-less, no PII, no IP |
-| Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 9 sub-batches done. Cars: Tata, MG, Mahindra, Hyundai, Kia, BYD. Two-wheelers: Ather, TVS, Ola, **Bajaj** (reconciled + specced). 72 vehicles left |
+| Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 10 sub-batches done. Cars: Tata, MG, Mahindra, Hyundai, Kia, BYD, **BMW**. Two-wheelers: Ather, TVS, Ola, Bajaj. 67 vehicles left |
 | Homepage hero (2.5D) | ✅ **DONE** | NEW 2026-08-18. Vehicle + generated environment at `lg`+, CSS/DOM parallax, no Three.js. Hero height unchanged. **Motion never watched in a browser** — see the section |
 | `loading.tsx` | ⛔ **BLOCKED** | Hangs at every level, dev and prod. Root cause unknown |
 | Auth / admin view for leads | ⛔ **NOT STARTED** | RLS denies all reads; only the Supabase dashboard can see leads |
@@ -953,6 +953,53 @@ This is worth generalising: CLAUDE.md #28(c) was written about aggregators disag
 ### What the Compare page gains
 
 The five Chetaks were previously indistinguishable on specs. They now differ on **boot space** (25 L on the C2501 against 35 L on the rest), **brakes** (C3501 front disc, C3001 and C3503 drums, C3502 honestly blank) and **power** (3.1 kW Series 30 against 4.0 kW Series 35) — which is close to the actual decision a buyer makes between them.
+
+### Sub-batch 10 — BMW (2026-08-20)
+
+**51 → 56 of 123** (cars 31 → 36 of 54). **BMW is complete (5/5)** — the seventh brand finished, and the first of the **premium-German cluster**, which was 13 cars (BMW 5, Mercedes 4, Audi 2, Porsche 2) with zero coverage, meaning every comparison between two of them was blank on both sides. Quality gate clean: 167 tests, `tsc`, `eslint`, `npm run build` (425 routes). Purely additive, 97 insertions.
+
+**Every single power figure was a PS number in disguise.** iX1 "204 hp" → **150 kW**; i4 "340 PS" and "335.25 bhp" → **250 kW** (the same round figure expressed twice, which is the cleanest form of the reconciliation test); i5 "601" → **442 kW**; iX "523 hp" → **385 kW**; i7 "544" → **400 kW**. Five for five. On this brand the PS-vs-bhp check is not an edge case, it is the default.
+
+### The finding: the BMW i4 has FOUR Euro NCAP stars, not five
+
+Euro NCAP tested the i4 **itself** in 2022 — both eDrive40 and M50 — and awarded **four stars**, docking it on safety-assist because it carries the sensor set of the 2019 3 Series.
+
+Every instinct says a premium German EV scores five. This one does not. And there was no ICE twin to have confused it with: the 4 Series Gran Coupé it derives from has **never been tested**. The four stars are simply what the car earned.
+
+Verified rendered — `/compare/bmw-i4-vs-bmw-i5` now shows **"4 Stars (Euro NCAP)"** against **"5 Stars (Euro NCAP)"**. Had this been assumed rather than looked up, the Compare page would have shown a tie where a real, sourced difference exists.
+
+### A new shape of the #28(a) trap — bodyshell, not badge
+
+The iX1 looked like a clean case and wasn't.
+
+Euro NCAP **did** test an iX1: the standard-wheelbase **xDrive30**, 2023, five stars. That is genuinely the EV and not the petrol X1 tested in 2022, so the usual ICE-twin check passes cleanly. The rating still cannot be used, because **the India car is the iX1 LWB** — a locally-built long-wheelbase body whose **2800mm wheelbase is 108mm longer** than the 2692mm car Euro NCAP crashed. A stretched shell is a different structure, and borrowing a crash result across it is the same error as borrowing one from a petrol twin.
+
+**So the trap is wider than "ICE vs EV". The real question is: was THIS structure tested?** That is also what separates the two decisions in this sub-batch:
+
+| | Tested | India car | Recorded? |
+| --- | --- | --- | --- |
+| **iX1** | xDrive30, 2692mm wheelbase | **LWB, 2800mm** | ❌ different shell |
+| **i5** | eDrive40 | M60 xDrive | ✅ same G60 shell, differs only in motor count |
+
+`CLAUDE.md` #28(a) has been extended with this.
+
+**The i7 gets no rating for the plainest reason available:** Euro NCAP has never tested it, and has never tested the ICE 7 Series either — so there isn't even a twin's result to be tempted by. Cars at this price and volume routinely go untested.
+
+### Other omissions
+
+- **i4 tyres** — BMW offers 18/19/20-inch fitments **and** staggered front/rear sections (245/45+255/45, 245/40+255/40, 245/35+255/35). No single size describes the car.
+- **i4 suspension** — one vague source says "front and rear multi-link", which conflicts with BMW's usual double-wishbone front. One vague source is not sourcing.
+- **iX1 ground clearance** — published as 175mm laden / ~190mm unladen. Two conventions, and this dataset does not record which it uses. Same class as the width-with-mirrors problem.
+- **i5 kerb weight** — "2.4 tonnes" is an approximation.
+- **i7 airbag count** — BMW lists the airbags descriptively (steering wheel, front side, front and rear head, driver central) and never states a number. Counting them myself would be inventing a spec.
+
+### One staleness flag
+
+The **iX** record claims 635 km while Autocar India currently lists 504 km. Those are different cycles and possibly different variants, so the core field was left alone. Seventh such flag.
+
+### Remaining: 67 vehicles
+
+**18 cars** — Mercedes-Benz 4, Volvo 3, Audi/Lotus/MINI/Porsche/VinFast 2 each, Rolls-Royce 1 — and **49 two-wheelers**. Finishing the premium-German cluster (Mercedes 4, then Audi and Porsche at 2 each) is now the highest-value car work, because BMW being populated makes each of those immediately comparable rather than one-sided. **Ampere's 4 records remain the only explicit blocker**, still waiting on the hub-vs-shaft torque decision from sub-batch 7.
 
 ## HOMEPAGE HERO — 2.5D VEHICLE + ENVIRONMENT (2026-08-18)
 
