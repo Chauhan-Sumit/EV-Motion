@@ -15,14 +15,24 @@ import type { LaunchStatus } from "@/types/vehicle";
  * **Excluded** (surfaces that present a vehicle as something to buy) —
  * `/cars`, `/two-wheelers`, `/commercial` listings, brand pages, every
  * homepage rail (popular, trending, ranked, upcoming, highlights), related/
- * similar recommendations, the pre-rendered comparison set, the compare
- * picker, and the search index.
+ * similar recommendations, the pre-rendered comparison set, and the compare
+ * picker.
  *
  * **Kept working** (surfaces where the vehicle is the thing being asked for) —
  * its detail page and that page's static params, its sitemap entry, any
  * comparison page naming it (`/compare/[slug]` renders arbitrary pairs on
  * demand), and its structured data, which reports `schema.org/Discontinued`
  * rather than pretending the offer is live.
+ *
+ * **Search sits on the "kept" side, and the distinction is the point.** A
+ * discontinued vehicle stays in `/search-index.json` and stays findable by
+ * name, because searching is asking for a specific thing rather than being
+ * recommended one — someone who owns a Chetak Premium must be able to reach
+ * its page. What search does NOT do is let it pass as current stock: the
+ * index entry carries `discontinued: true` and the dropdown renders a
+ * "Discontinued" label beside the result. Curated *popular-search* chips are
+ * a different thing again — those are recommendations and do point only at
+ * current vehicles.
  *
  * Data-free by construction (types only), so it is safe to import from a
  * `"use client"` component — CLAUDE.md #23.

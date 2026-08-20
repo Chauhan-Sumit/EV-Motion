@@ -21,10 +21,14 @@ import type { SearchScope } from "@/lib/search";
 /**
  * A term must also name something the site currently SELLS. "Chetak Premium"
  * was replaced by "Chetak C3501" on 2026-08-21 when that record became
- * `discontinued`: discontinued vehicles are out of the search index, so the
- * term would have failed the resolution test above — but the real objection is
- * that a "Popular Searches" chip is a recommendation, and recommending a
- * scooter Bajaj no longer sells is the same mistake in a smaller box.
+ * `discontinued`.
+ *
+ * Note this is a stricter rule than search itself applies, and deliberately
+ * so: a discontinued vehicle stays in the search index and stays findable by
+ * name, because typing a name is asking for a specific thing. A chip in a
+ * "Popular Searches" panel is the site *recommending* a query, and
+ * recommending a scooter Bajaj no longer sells is the same mistake as putting
+ * it back on a listing page, just in a smaller box.
  */
 export const POPULAR_SEARCHES_BY_SCOPE: Record<SearchScope, string[]> = {
   car: ["Nexon EV", "SUV", "Creta Electric", "Hatchback", "Windsor EV", "Sedan"],

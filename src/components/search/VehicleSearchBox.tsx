@@ -9,6 +9,7 @@ import { loadSearchIndex } from "@/lib/search-index-client";
 import { POPULAR_SEARCHES_BY_SCOPE } from "@/lib/popular-searches";
 import { track } from "@/lib/analytics/track";
 import { categoryConfig } from "@/lib/data/categories";
+import { LAUNCH_STATUS_LABEL } from "@/lib/vehicle-labels";
 import { loadRecentSearches, saveRecentSearch } from "@/lib/search-history";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
 import { HighlightedText } from "./HighlightedText";
@@ -398,7 +399,18 @@ export function VehicleSearchBox({
                       <span className="block truncate text-[12.5px] font-semibold text-ink">
                         <HighlightedText text={label} query={debouncedValue} />
                       </span>
-                      <span className="block text-[10.5px] text-ink-muted">{categoryConfig(entry.category).label}</span>
+                      <span className="flex items-center gap-1.5 text-[10.5px] text-ink-muted">
+                        <span className="truncate">{categoryConfig(entry.category).label}</span>
+                        {/* Discontinued vehicles stay searchable on purpose — you
+                            can still ask for one by name — so the result has to
+                            say what it is rather than look like current stock.
+                            See src/lib/vehicle-availability.ts. */}
+                        {entry.discontinued ? (
+                          <span className="shrink-0 rounded-[3px] bg-surface-secondary px-1.5 py-px text-[9px] font-bold uppercase tracking-wide text-ink-secondary">
+                            {LAUNCH_STATUS_LABEL.discontinued}
+                          </span>
+                        ) : null}
+                      </span>
                     </span>
                   </button>
                 );

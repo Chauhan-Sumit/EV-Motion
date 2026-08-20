@@ -9,6 +9,7 @@ import {
 } from "@/lib/data";
 import { isCurrentlySold, isDiscontinued, schemaAvailabilityFor } from "./vehicle-availability";
 import { buildSearchIndex } from "./search-index";
+import { searchVehicles } from "./search";
 import { popularComparisonPairs } from "./compare/popular-pairs";
 import { POPULAR_SEARCHES_BY_SCOPE } from "./popular-searches";
 import { LAUNCH_STATUS_LABEL } from "./vehicle-labels";
@@ -79,14 +80,10 @@ describe("excluded from every surface that presents a vehicle as buyable", () =>
     expect(getCurrentVehiclesByCategory("2-wheeler").map((v) => v.slug)).not.toContain("bajaj-chetak-premium");
   });
 
-  it("the search index", () => {
-    const indexed = buildSearchIndex().vehicles.map((v) => v.slug);
-    for (const slug of DISCONTINUED_SLUGS) expect(indexed, `${slug} is still searchable`).not.toContain(slug);
-  });
-
   it("every curated popular-search term", () => {
-    // A "Popular Searches" chip is a recommendation. This is also why the term
-    // list moved off "Chetak Premium" — see popular-searches.ts.
+    // A "Popular Searches" chip is a recommendation, unlike a typed search —
+    // which is why the term list points at bajaj-chetak-c3501 instead. See
+    // popular-searches.ts.
     const discontinuedNames = DISCONTINUED_SLUGS.map((slug) => getVehicleBySlug(slug)!.modelName);
     for (const terms of Object.values(POPULAR_SEARCHES_BY_SCOPE)) {
       for (const name of discontinuedNames) expect(terms).not.toContain(name);
@@ -130,6 +127,38 @@ describe("excluded from every surface that presents a vehicle as buyable", () =>
   it("the pre-rendered comparison set and therefore the sitemap", () => {
     const paired = popularComparisonPairs().flatMap((p) => [p.a.slug, p.b.slug]);
     for (const slug of DISCONTINUED_SLUGS) expect(paired, `${slug} is in the pre-rendered pairs`).not.toContain(slug);
+  });
+});
+
+describe("search keeps them, and labels them", () => {
+  it("indexes every discontinued vehicle, so it stays findable by name", () => {
+    // Deliberately the opposite of the browsing surfaces above. Searching is
+    // asking for a specific thing; someone who owns one must be able to reach
+    // its page.
+    const indexed = buildSearchIndex().vehicles.map((v) => v.slug);
+    for (const slug of DISCONTINUED_SLUGS) expect(indexed, `${slug} is not searchable`).toContain(slug);
+    expect(buildSearchIndex().vehicles).toHaveLength(getAllVehicles().length);
+  });
+
+  it("flags them so the dropdown can label them", () => {
+    // Without this the result would pass as current stock — findable and
+    // labelled is the honest pairing, findable and unmarked is not.
+    const bySlug = new Map(buildSearchIndex().vehicles.map((v) => [v.slug, v]));
+    for (const slug of DISCONTINUED_SLUGS) {
+      expect(bySlug.get(slug)?.discontinued, `${slug} is indexed but unlabelled`).toBe(true);
+    }
+  });
+
+  it("leaves the flag off everything still sold, to keep the payload small", () => {
+    const flagged = buildSearchIndex().vehicles.filter((v) => v.discontinued !== undefined);
+    expect(flagged).toHaveLength(DISCONTINUED_SLUGS.length);
+  });
+
+  it("resolves a discontinued vehicle by its own name", () => {
+    const index = buildSearchIndex();
+    const outcome = searchVehicles(index, "Chetak Premium", 5, "2-wheeler");
+    expect(outcome.vehicles[0]?.entry.slug).toBe("bajaj-chetak-premium");
+    expect(outcome.vehicles[0]?.entry.discontinued).toBe(true);
   });
 });
 

@@ -1,5 +1,6 @@
-import { getCurrentVehicles, oems } from "@/lib/data";
+import { getAllVehicles, oems } from "@/lib/data";
 import { getOemBySlug } from "@/lib/data/oems";
+import { isDiscontinued } from "@/lib/vehicle-availability";
 import type { SearchIndex } from "@/types/search-index";
 
 /**
@@ -18,13 +19,13 @@ import type { SearchIndex } from "@/types/search-index";
  */
 export function buildSearchIndex(): SearchIndex {
   return {
-    // Current vehicles only. Search is a discovery surface, so a scooter the
-    // brand has replaced should not come back as a suggestion — its detail
-    // page and comparison pages stay reachable by URL. See
-    // src/lib/vehicle-availability.ts, and note that a curated popular-search
-    // term naming a discontinued vehicle will now fail search.test.ts, which
-    // is the intended guard.
-    vehicles: getCurrentVehicles().map((vehicle) => ({
+    // The FULL catalogue, discontinued vehicles included. Search is where you
+    // ask for a specific thing by name, not a rail of recommendations: someone
+    // who owns a Chetak Premium must be able to find its page. They are
+    // flagged rather than dropped, and the dropdown labels them — see
+    // `discontinued` on VehicleIndexEntry and src/lib/vehicle-availability.ts
+    // for which surfaces do exclude them.
+    vehicles: getAllVehicles().map((vehicle) => ({
       id: vehicle.id,
       slug: vehicle.slug,
       category: vehicle.category,
@@ -34,6 +35,7 @@ export function buildSearchIndex(): SearchIndex {
       oemColor: getOemBySlug(vehicle.oem)?.color ?? "#1FA83C",
       // Only `photoUrl` is carried — `gallery` and `hero` are unused by search.
       images: vehicle.images.photoUrl ? { photoUrl: vehicle.images.photoUrl } : {},
+      ...(isDiscontinued(vehicle) ? { discontinued: true as const } : {}),
     })),
     oems: oems.map((oem) => ({ key: oem.key, slug: oem.slug, name: oem.name })),
   };

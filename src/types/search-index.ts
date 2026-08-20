@@ -27,6 +27,21 @@ export interface VehicleIndexEntry {
   oemColor: string;
   /** Nested to stay structurally assignable to `VehicleImageSubject`. */
   images: { photoUrl?: string };
+  /**
+   * Set only on vehicles the OEM no longer sells, so a result can be labelled
+   * "Discontinued" in the dropdown.
+   *
+   * Discontinued vehicles ARE indexed — someone who owns one and searches for
+   * it by name must be able to find its page. They are excluded from the
+   * browsing surfaces that present a vehicle as buyable (see
+   * `src/lib/vehicle-availability.ts`), but search is how you ask for a
+   * specific thing, not a recommendation. The honest handling is to return it
+   * and say what it is.
+   *
+   * Optional, and omitted rather than `false`, to keep `/search-index.json`
+   * small — it ships to every visitor on first search focus.
+   */
+  discontinued?: true;
 }
 
 /** Just enough of an `Oem` to offer a "View all N <brand> vehicles" link. */
