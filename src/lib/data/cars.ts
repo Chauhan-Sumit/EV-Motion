@@ -1499,6 +1499,33 @@ export const cars: Vehicle[] = [
     highlights: ["Long-wheelbase body built for India", "531 km range", "Single-variant, fully-loaded M Sport spec"],
     description:
       "iX1 LWB is BMW's most accessible EV in India, stretching the global iX1 for extra rear legroom without changing the electric platform underneath.",
+    // The India car is the iX1 LWB — a long-wheelbase body built in India, and
+    // that fact drives the most important omission here.
+    // Power reconciles: 150 kW is the quoted "204 hp", which is the PS figure
+    // (150 kW = 204.0 PS).
+    // ** NO ncapRating, and this is a NEW SHAPE of CLAUDE.md #28(a). ** Euro
+    // NCAP did test an iX1 — the standard-wheelbase xDrive30, in 2023, 5 stars
+    // — and that is genuinely the EV rather than the petrol X1 tested in 2022,
+    // so the usual ICE-twin check passes. It still cannot be used: this record
+    // is the LWB, whose 2800mm wheelbase is 108mm longer than the 2692mm car
+    // Euro NCAP crashed. A stretched bodyshell is a different structure, and
+    // borrowing a crash result across it is the same error as borrowing one
+    // from a petrol twin. The trap is not only "ICE vs EV" — it is "was THIS
+    // structure tested".
+    // Omitted: groundClearanceMm (published as 175mm laden / ~190mm unladen —
+    // two conventions, and this dataset does not record which it uses);
+    // kerbWeightKg, tyres and brakes (not published for the India car).
+    specs: {
+      dimensions: { lengthMm: 4616, widthMm: 1845, heightMm: 1627, wheelbaseMm: 2800, bootSpaceLiters: 490 },
+      safety: { airbagsCount: 8 },
+      motor: {
+        motorType: "Permanently excited synchronous motor",
+        peakPowerKw: 150,
+        peakTorqueNm: 250,
+        driveLayout: "FWD",
+      },
+      suspension: { front: "Independent, MacPherson strut", rear: "Independent, multi-link" },
+    },
   },
   {
     id: "car-bmw-i4",
@@ -1528,6 +1555,27 @@ export const cars: Vehicle[] = [
     highlights: ["590 km range on the eDrive40", "Gran coupe styling with a fastback silhouette", "5.7s 0-100 km/h"],
     description:
       "i4 brings BMW's electric powertrain to a sleek four-door coupe body, offered in two battery sizes for buyers who want range or a lower entry price.",
+    // eDrive40, the RWD variant this record's 83.9 kWh / 590 km headline
+    // describes. Power is a textbook reconciliation: 250 kW is simultaneously
+    // the quoted "340 PS" and the quoted "335.25 bhp", two different sources
+    // expressing one round OEM figure.
+    // ** ncapRating is 4, NOT 5, and this is the most counter-intuitive entry
+    // in the dataset. ** Euro NCAP tested the i4 itself in 2022 — both eDrive40
+    // and M50 — and awarded FOUR stars, docked on safety-assist because it
+    // carries the sensor set of the 2019 3 Series. Every instinct says a
+    // premium German EV scores five; this one does not, and the 4 Series Gran
+    // Coupe it is based on has never been tested, so there is no twin's rating
+    // to have confused it with either. Sourced, not assumed.
+    // Omitted: tyres (BMW offers 18/19/20-inch fitments AND staggered
+    // front/rear sections — 245/45+255/45, 245/40+255/40, 245/35+255/35 — so no
+    // single size describes the car); suspension (one vague source says
+    // "front and rear multi-link", which conflicts with BMW's usual
+    // double-wishbone front, and one vague source is not sourcing).
+    specs: {
+      dimensions: { lengthMm: 4783, widthMm: 1852, heightMm: 1448, wheelbaseMm: 2856, bootSpaceLiters: 470, kerbWeightKg: 2125 },
+      safety: { ncapRating: 4, ncapAgency: "Euro NCAP", airbagsCount: 8 },
+      motor: { peakPowerKw: 250, peakTorqueNm: 430, driveLayout: "RWD" },
+    },
   },
   {
     id: "car-bmw-i5",
@@ -1556,6 +1604,22 @@ export const cars: Vehicle[] = [
     highlights: ["230 km/h top speed", "Dual-motor M Performance AWD", "516 km range"],
     description:
       "i5 electrifies BMW's mid-size executive sedan, launched in India in the range-topping M60 xDrive performance guise.",
+    // India gets the i5 M60 xDrive only, which is what this record's 516 km and
+    // Rs 120L describe. Power is 442 kW — the widely printed "601" is PS
+    // (442 kW = 601.0 PS = 592.7 bhp).
+    // ncapRating 5 is Euro NCAP's, earned by the i5 eDrive40. Recorded anyway
+    // because eDrive40 and M60 are the same G60 bodyshell differing only in
+    // motor count — contrast the iX1 below, where the India car is a DIFFERENT
+    // shell from the one tested and the rating is therefore omitted. The line
+    // is bodyshell, not badge.
+    // Omitted: kerbWeightKg (published as "2.4 tonnes", an approximation);
+    // bootSpaceLiters and tyres (not published for the India car).
+    specs: {
+      dimensions: { lengthMm: 5060, widthMm: 1900, heightMm: 1505, wheelbaseMm: 2995 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", airbagsCount: 6 },
+      motor: { peakPowerKw: 442, peakTorqueNm: 820, driveLayout: "AWD" },
+      suspension: { front: "Independent, double wishbone", rear: "Independent, multi-link with air springs" },
+    },
   },
   {
     id: "car-bmw-ix",
@@ -1584,6 +1648,23 @@ export const cars: Vehicle[] = [
     highlights: ["635 km range", "523PS twin-motor AWD", "22kW home wallbox charging support"],
     description:
       "iX is BMW's dedicated-platform electric flagship SUV, sold in India as a fully-imported xDrive50 with a twin-battery pack.",
+    // xDrive50. Power is 385 kW: sources print "523 hp", which is the PS figure
+    // (385 kW = 523.4 PS = 516.4 bhp), so the round OEM number is recorded
+    // rather than the back-conversion — CLAUDE.md #28(c).
+    // ncapRating is safe here in a way it is NOT for the rest of this brand:
+    // the iX is born-electric on a bespoke platform with no ICE twin, so the
+    // 5-star Euro NCAP 2021 result can only be its own.
+    // NOTE for the staleness sweep: this record's headline claims 635 km while
+    // Autocar India currently lists 504 km. Those are different cycles and
+    // possibly different variants, so the core field is left alone.
+    specs: {
+      dimensions: { lengthMm: 4953, widthMm: 1967, heightMm: 1695, wheelbaseMm: 3000, bootSpaceLiters: 500, kerbWeightKg: 2440 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP", airbagsCount: 6 },
+      motor: { peakPowerKw: 385, peakTorqueNm: 765, driveLayout: "AWD" },
+      tyres: { size: "275/50 R22" },
+      suspension: { front: "Independent, double wishbone with air springs", rear: "Independent, 5-link" },
+      brakes: { front: "disc", rear: "disc" },
+    },
   },
   {
     id: "car-bmw-i7",
@@ -1613,6 +1694,22 @@ export const cars: Vehicle[] = [
     highlights: ["BMW's electric flagship limousine", "603 km range on the eDrive50", "250 km/h top speed on the M70"],
     description:
       "i7 tops BMW's electric range as a chauffeur-focused limousine, offered in a rear-drive eDrive50 and a performance M70 xDrive.",
+    // xDrive60, the variant this record's 101.7 kWh usable pack describes.
+    // Power reconciles on the round OEM number: BMW quotes 400 kW / 544 PS, and
+    // "544" is the PS figure, not bhp (400 kW = 536.4 bhp).
+    // NO ncapRating, and this is an honest absence rather than a trap: Euro
+    // NCAP has never tested the i7, and has never tested the ICE 7 Series
+    // either, so there is not even a twin's rating to be tempted by. Cars at
+    // this price and volume routinely go untested.
+    // Omitted: airbagsCount (BMW lists the airbags descriptively — steering
+    // wheel, front side, front and rear head, driver central — without ever
+    // stating a count, and counting them myself would be inventing a spec).
+    specs: {
+      dimensions: { lengthMm: 5391, widthMm: 1950, heightMm: 1544, wheelbaseMm: 3215, bootSpaceLiters: 500, kerbWeightKg: 2715 },
+      motor: { peakPowerKw: 400, peakTorqueNm: 745, driveLayout: "AWD" },
+      tyres: { size: "245/50 R19" },
+      suspension: { front: "Independent, double wishbone with air springs", rear: "Independent, multi-link with air springs" },
+    },
   },
   {
     id: "car-mercedes-benz-eqs",
