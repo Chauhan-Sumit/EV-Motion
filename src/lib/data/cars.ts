@@ -1738,6 +1738,26 @@ export const cars: Vehicle[] = [
     highlights: ["857 km ARAI range — the highest of any EV on sale in India", "Dual-motor 4MATIC AWD", "Locally assembled in Pune"],
     description:
       "EQS carries Mercedes-Benz's electric ambitions into its flagship sedan segment, sold in India as a single fully-loaded 580 4MATIC.",
+    // EQS 580 4MATIC, the variant this record's 107.8 kWh / 857 km headline
+    // describes. 857 km is Mercedes India's own ARAI claim and is genuinely the
+    // longest in this catalogue.
+    // Power took a correction: Autocar India's India-launch piece prints
+    // "385 kW / 885 Nm", and both figures are wrong. Three independent sources
+    // agree on 400 kW — expressed as 400 kW, 544 PS and 536 hp, which
+    // reconciles exactly — and on 858 Nm. The "885" looks like a transposition
+    // of 858. Recorded as 400/858. A wrong number from an otherwise reliable
+    // outlet is still a wrong number.
+    // ncapRating is safe: the EQS is born-electric on the EVA2 platform with no
+    // ICE twin, so the 5-star Euro NCAP 2021 result (96% adult occupant) can
+    // only be its own.
+    // Width 1926mm is the body figure, not the ~2125mm with-mirrors number.
+    // Omitted: bootSpaceLiters, kerbWeightKg, tyres, suspension, brakes and
+    // airbagsCount — not published for the India car.
+    specs: {
+      dimensions: { lengthMm: 5216, widthMm: 1926, heightMm: 1512, wheelbaseMm: 3210 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP" },
+      motor: { peakPowerKw: 400, peakTorqueNm: 858, driveLayout: "AWD" },
+    },
   },
   {
     id: "car-mercedes-benz-g580",
@@ -1766,6 +1786,28 @@ export const cars: Vehicle[] = [
     highlights: ["Four individually-controlled motors, one per wheel", "G-Steering tank-turn off-road mode", "587hp / 1,164Nm"],
     description:
       "G 580 with EQ Technology keeps the G-Class's boxy silhouette and off-road hardware while replacing the engine with four motors, one per wheel.",
+    // G 580 with EQ Technology. 432 kW and 1164 Nm come from four individually
+    // controlled wheel motors — the first Mercedes production car with
+    // individual-wheel drive — so the torque figure is a system total, not a
+    // single motor's.
+    // ** NO ncapRating, and this one is the INVERSE of CLAUDE.md #28(a) rather
+    // than an instance of it, which is why the reasoning is worth keeping. **
+    // Euro NCAP's own G-Class assessment page explicitly lists "Electric - G580
+    // with EQ Technology" among the variants its 2019 five-star result applies
+    // to, LHD and RHD. So this is the rare case where an ICE twin's rating
+    // legitimately covers the EV — the rating body did the extension work
+    // itself, and refusing it would be over-applying the trap.
+    // It is still omitted, for a DIFFERENT reason: that rating EXPIRED on
+    // 1 January 2026. Euro NCAP results lapse after six years, the underlying
+    // crash was a 2019 diesel G350d under 2019 protocols, and `ncapRating` has
+    // no way to say "expired". Publishing "5 stars" on a marketplace today
+    // would read as current. See HANDOFF.md — other records may carry lapsed
+    // ratings too.
+    // Omitted: all dimensions, tyres, suspension, brakes, airbags — not sourced
+    // for the India car.
+    specs: {
+      motor: { peakPowerKw: 432, peakTorqueNm: 1164, driveLayout: "AWD" },
+    },
   },
   {
     id: "car-mercedes-benz-maybach-eqs-suv",
@@ -1795,6 +1837,18 @@ export const cars: Vehicle[] = [
     highlights: ["First-ever electric Maybach", "56-inch MBUX Hyperscreen", "649hp / 950Nm"],
     description:
       "Maybach EQS SUV is Mercedes' most opulent electric offering, built on the EQS SUV platform with Maybach-specific chauffeur-focused comfort.",
+    // Maybach EQS 680 SUV. Power reconciles cleanly: 484 kW is the quoted
+    // "658 PS", and 955 Nm is stated unambiguously.
+    // NO ncapRating. Five-star Euro NCAP results circulate near this car and
+    // belong to OTHER vehicles: the EQE SUV (2023) and the EQS saloon (2021).
+    // No verified Euro NCAP result for the EQS SUV itself was found, and the
+    // Maybach is a further trim on top of that. Two shells removed from a real
+    // result is not a rating.
+    // Omitted: all dimensions (not published for the India car in any source
+    // checked); tyres, suspension, brakes, airbags.
+    specs: {
+      motor: { peakPowerKw: 484, peakTorqueNm: 955, driveLayout: "AWD" },
+    },
   },
   {
     id: "car-mercedes-benz-eqe",
@@ -1823,6 +1877,25 @@ export const cars: Vehicle[] = [
     highlights: ["Positioned below the EQS as Mercedes' mid-size electric sedan", "479 km expected range", "800V-capable DC fast charging"],
     description:
       "EQE slots beneath the EQS as Mercedes-Benz's mid-size electric executive sedan, expected to bring flagship EQ technology at a lower entry price.",
+    // EQE SALOON. Guarding against the obvious confusion first: Mercedes sells
+    // an EQE saloon AND an EQE SUV, and aggregator pages for "EQE" freely serve
+    // SUV figures. The SUV is 4863mm long on a 3030mm wheelbase with a 520L
+    // boot; the saloon below is 4964mm on 3120mm with 430L. None of the SUV's
+    // numbers are in this record.
+    // ncapRating is safe: the EQE is born-electric on the EVA2 platform with no
+    // ICE twin, and Euro NCAP tested the saloon itself in 2022.
+    // NO widthMm: the published 1961mm is a MAXIMUM width including mirrors.
+    // This dataset records body width (CLAUDE.md #28(b)) and no body figure was
+    // sourced, so it is omitted rather than mixed in — a mirror-inflated width
+    // silently crowns a false winner in Compare.
+    // NO motor: sources split irreconcilably between 300 kW (402 bhp) and
+    // 330 kW (449 PS) for the EQE 500 4MATIC, most likely because Mercedes
+    // revised the output mid-life. Both are internally consistent, which is
+    // exactly what makes picking one unsafe. CLAUDE.md #28(c).
+    specs: {
+      dimensions: { lengthMm: 4964, heightMm: 1510, wheelbaseMm: 3120, bootSpaceLiters: 430 },
+      safety: { ncapRating: 5, ncapAgency: "Euro NCAP" },
+    },
   },
   {
     id: "car-audi-q8-e-tron",
