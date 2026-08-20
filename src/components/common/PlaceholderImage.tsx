@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { Image } from "@imagekit/next";
 import { cn } from "@/lib/utils";
+import { IMAGEKIT_CONFIGURED } from "@/lib/imagekit";
 import { illustrationFor, subTypeLabelFor } from "@/lib/vehicle-illustrations";
 import { CarBodyType, CommercialType, TwoWheelerType, VehicleCategory } from "@/types/vehicle";
 
@@ -112,7 +113,15 @@ export function PlaceholderImage({
   const Icon = category === "car" ? CarIcon : category === "2-wheeler" ? ScooterIcon : CommercialIcon;
 
   const subject = { category, bodyType, twoWheelerType, commercialType };
-  const illustration = illustrationFor(subject);
+  // An illustration is only usable if ImageKit can actually serve it. With no
+  // URL endpoint configured, `<Image>` still emits a src — one with no host in
+  // front of the path — so every card would show a broken image instead of the
+  // SVG icon. That is not hypothetical: the endpoint was unset in Production
+  // until 2026-08-20 and silently broke all of them (HANDOFF.md sub-batch 4).
+  // Same principle as the registry's "never declare a `path` before the asset
+  // exists" (CLAUDE.md #26) — degrade to the placeholder, never to a broken
+  // image. The icon path below is self-contained SVG and needs no CDN.
+  const illustration = IMAGEKIT_CONFIGURED ? illustrationFor(subject) : undefined;
   const subTypeLabel = subTypeLabelFor(subject);
 
   // Says out loud that this is a generic drawing, so a screen-reader user is

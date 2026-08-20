@@ -1,5 +1,6 @@
 import { Image } from "@imagekit/next";
 import { PlaceholderImage } from "@/components/common/PlaceholderImage";
+import { IMAGEKIT_CONFIGURED } from "@/lib/imagekit";
 import { CarBodyType, CommercialType, TwoWheelerType, VehicleCategory } from "@/types/vehicle";
 
 /**
@@ -42,7 +43,10 @@ export function VehicleImage({
   priority = false,
   showLabel = false,
 }: VehicleImageProps) {
-  if (vehicle.images.photoUrl) {
+  // A real photo is an ImageKit path, so it needs a configured endpoint to
+  // resolve. Without one, fall through to the placeholder rather than render a
+  // broken <img> — see IMAGEKIT_CONFIGURED in src/lib/imagekit.ts.
+  if (vehicle.images.photoUrl && IMAGEKIT_CONFIGURED) {
     return (
       <div className={`relative ${className ?? ""}`}>
         <Image

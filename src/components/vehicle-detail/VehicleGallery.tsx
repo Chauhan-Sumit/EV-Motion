@@ -5,6 +5,7 @@ import { Image } from "@imagekit/next";
 import { ChevronLeft, ChevronRight, ImageOff, RotateCw, Car, Armchair, Palette, Video } from "lucide-react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
+import { IMAGEKIT_CONFIGURED } from "@/lib/imagekit";
 
 interface GallerySlot {
   id: string;
@@ -33,11 +34,18 @@ const QUICK_JUMPS = [
  * changes needed. Remaining slots are honest "photo coming soon" placeholders.
  */
 function buildSlots(vehicle: VehicleDetail): GallerySlot[] {
-  const realGallery: GallerySlot[] = vehicle.sourceVehicle.images.gallery.map((src, i) => ({
-    id: `gallery-${i}`,
-    label: "Gallery",
-    src,
-  }));
+  // Gallery paths are ImageKit paths. With no endpoint configured they can't
+  // resolve, so the slots are dropped and the remaining "photo coming soon"
+  // placeholders stand in — an honest empty slot beats a broken one. See
+  // IMAGEKIT_CONFIGURED in src/lib/imagekit.ts. (Slot 0 needs no guard: it
+  // renders through VehicleImage, which has the same fallback.)
+  const realGallery: GallerySlot[] = IMAGEKIT_CONFIGURED
+    ? vehicle.sourceVehicle.images.gallery.map((src, i) => ({
+        id: `gallery-${i}`,
+        label: "Gallery",
+        src,
+      }))
+    : [];
 
   return [
     { id: "ext-1", label: "Exterior", isPrimary: true },
