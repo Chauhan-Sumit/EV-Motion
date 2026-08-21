@@ -57,7 +57,7 @@ Verified against the codebase and the live database, not from memory. Last check
 
 ## BATCH 7 — STALENESS SWEEP (2026-08-21)
 
-All eight flagged records audited against current sources. **Six corrected, two left unchanged with reasons.** Scope was strictly the eight flags — no other vehicle was touched.
+**Commit `d546985`** on `data-model-decisions`. All eight flagged records audited against current sources. **Six corrected, two left unchanged with reasons.** Scope was strictly the eight flags — no other vehicle was touched.
 
 ### Results
 
@@ -104,6 +104,54 @@ TVS's current line-up is iQube (2.3/3.1/3.5 kWh), iQube S (4.7) and iQube ST (5.
 ### Staleness flags: 8 → 0 open
 
 One new item replaces them: **the gross-vs-net battery convention audit** described under #7 above.
+
+---
+
+## KNOWN DATA-QUALITY ISSUES (open, as of 2026-08-21)
+
+The eight staleness flags are closed (commit `d546985`). What follows is everything still known to be wrong, incomplete or unverified in the vehicle data, in the order I would fix it. **Nothing here is a bug in the code** — it is all sourcing.
+
+### 1. 🔴 Gross-vs-net battery convention — unaudited across the whole catalogue
+
+The highest-value item, and it came out of the sweep. `bmw-ix` records **105.2 kWh** where BMW India publishes **111.5 kWh** — those are the net-usable and gross figures for the same pack. The Ioniq 9, by contrast, records its **gross** figure (110.3, against 106.0 usable).
+
+**So at least two records use different conventions for the same field, and nobody has checked the other 121.** A net figure sitting in a gross field understates that vehicle in every Compare row, every efficiency calculation (kWh/100km) and every battery filter — the same class of defect as the hub-vs-shaft torque conventions, which needed a schema field and a comparison gate to fix properly.
+
+This is an audit, not an edit: decide the convention, verify all 123 records against it, and consider whether `VehicleSpecs` should carry both figures the way `torqueMeasuredAt` carries its qualifier.
+
+### 2. 🔴 Prices are unaudited, and one was 43% wrong
+
+The sweep only checked the eight flagged records, and one of them — `tvs-x` — carried **₹1.5 lakh against an actual ₹2.64 lakh**. That error was found by accident, because the record happened to also have a wrong launch status. **Nothing systematic has ever checked prices**, and there is no reason to think the TVS X was the only one.
+
+Prices move constantly, they drive the budget filters and the entire pricing/EMI system, and a wrong one is visible to every visitor. **A price audit is the obvious next data task** and was explicitly deferred rather than forgotten.
+
+### 3. 🟡 `Vehicle.specs` coverage: 65 of 123 (53%)
+
+Cars 45/54, two-wheelers 20/69. The rest render "Not specified" honestly, so this is incompleteness rather than inaccuracy. **9 cars remain (VinFast 2, Porsche 2, MINI 2, Lotus 2, Rolls-Royce 1)** — two sub-batches to finish the car side at 54/54, which is the natural stopping point. Ampere's 4 records are unblocked but unresearched.
+
+### 4. 🟡 Figures deliberately left unresolved, each documented in its record
+
+| Record | Field | Why it is unresolved |
+| --- | --- | --- |
+| `hyundai-ioniq-9` | `peakPowerKw` 230 | Sources split 226 vs 230 and **both reconcile internally** (226 = 307 PS = 303 bhp; 230 = 313 PS = 308 bhp) |
+| `mercedes-benz-eqe` | motor | 300 kW vs 330 kW, both internally consistent — the original case of this shape |
+| `ampere-nexus` | `torqueMeasuredAt` | No source states where its 35 Nm was measured; it displays but does not rank |
+| `bajaj-chetak-premium` | `torqueMeasuredAt` | The Series 35 shaft convention was established for the C-series, not this superseded model |
+| `tvs-x` | `peakPowerKw` 11 | Autocar now prints 11.7 kW; TVS's own page states no motor output at all |
+| `hyundai-ioniq-6` | price ₹55.7L | Not launched in India; the expected spread is ₹50-65L. Renders as "(est.)" because the record is `upcoming` |
+| `ola-s1-pro-plus` | price range | Ola publishes one figure (₹1,59,999 for the 5.2 kWh) and none for the 4 kWh |
+| Bajaj (all) | warranty | chetak.com contradicts itself on the same page — 5yr/70,000km vs 3yr/50,000km |
+
+### 5. 🟡 NCAP years missing on nine recorded ratings
+
+16 of the 25 recorded `ncapRating`s carry an `ncapYear`. The other nine (Tata ×3, Ioniq 5, Mahindra ×2, Atto 3, EV6, i5) have no year in any in-repo source, so **they cannot be checked for expiry** — they render without a year, which is honest but incomplete. Bharat NCAP results are all 2023+ by definition and cannot have lapsed; the Euro NCAP ones are the ones worth sourcing.
+
+### 6. ⚪ Structural, not urgent
+
+- **Real photography: 0 of 123.** Blocked on a licensing decision. Body-type illustrations stand in and are labelled as such.
+- **`2-wheeler:scooter` illustration** still missing — 55 scooters fall back to the SVG icon. Waiting on ImageKit's generation cap.
+- **Commercial category is empty** (`commercial.ts` is `[]`). Architecture complete, `noindex` while it has no data.
+- **`bajaj-chetak-2901` will never carry specs** — it describes no scooter Bajaj lists.
 
 ---
 
