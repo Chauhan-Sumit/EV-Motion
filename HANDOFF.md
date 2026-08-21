@@ -55,6 +55,22 @@ Verified against the codebase and the live database, not from memory. Last check
 
 **Supabase** (project `dzloqeyqpddjcyxzsvcz`): `0001_leads.sql` and `0003_analytics_events.sql` are **applied**. `0002_leads_publishable_key_policy.sql` is **deliberately not applied** — it is the alternative path for publishable-key setups, and this app runs on a secret key (verified: a publishable-key insert is rejected with 401/42501).
 
+## PRODUCTION DEPLOY — 2026-08-21
+
+`data-model-decisions` was **fast-forward merged into `main`** (no merge commit, linear history: `6993c77..7055f9e`) and is **live on https://www.evmotion.in**. The quality gate was re-run on the exact merged tree first: 224 tests, `tsc`, `eslint`, `npm run build` (419 routes).
+
+**Smoke test: 25/25 passed.** Covers core route reachability + 404 handling, sitemap/robots/search-index, and every behaviour this deploy changed — torque conventions labelled on `/compare/tvs-iqube-vs-ather-450x`, the lapsed EX40 rating marked while the current EC40 rating shows its year, the discontinued Chetak VDP still served with `schema.org/Discontinued` and absent from `/two-wheelers`, discontinued records still present and flagged in `/search-index.json`, and illustrations serving from the ImageKit CDN. `POST /api/leads` with an invalid payload correctly returns 400 with per-field errors.
+
+Browser-verified on Production: the search dropdown returns all seven Chetak records with a `DISCONTINUED` chip on exactly the two, and there are no console errors.
+
+### ⚠️ One finding, and it was the instrument rather than the site
+
+A mobile-width check reported `scrollWidth 450` against `clientWidth 375` on the compare page, plus `opacity: 0` on the `PageTransition` wrapper — which reads as an invisible, horizontally-overflowing page. **Both were artifacts of the automation pane not compositing.** A pane that is not displayed never fires `requestAnimationFrame`, so framer-motion's enter animation never runs and the wrapper stays at its initial `opacity: 0; translateY(8px)`.
+
+The tells: `/cars` showed the identical `opacity: 0` and is demonstrably fine, and the compare page could not actually pan — `window.scrollTo(9999, 0)` left `scrollX` at 0. Recorded in CLAUDE.md #12 next to the synthetic-Enter quirk, because taken at face value it costs an hour chasing a bug that is not there.
+
+---
+
 **Next up: continue Batch 7 — see [Batch 7 — Current Status](#batch-7--current-status-verified-2026-08-21) for coverage, blockers, remaining work and the sub-batch log.** 58 vehicles left, roughly 11 sub-batches; 9 of those vehicles are cars, so **two more sub-batches finish the car side at 54/54** — a defensible stopping point if full coverage isn't wanted. **The four blockers that used to head this list are resolved** (2026-08-21 — see [Data-Model Decisions](#data-model-decisions--2026-08-21)), so nothing in Batch 7 is now waiting on a decision; what is left is research. Ampere's 4 records are unblocked but still unspecced. **Real photography** remains blocked on a licensing decision only the owner can make; the one missing AI illustration (scooter) still needs a re-run once ImageKit's generation cap resets. See [Future Roadmap](#future-roadmap).
 
 ---
