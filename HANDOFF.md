@@ -151,11 +151,27 @@ So the complete, correct HTML arrived and then sat there unpainted until React h
 
 Fixing this properly is a homepage composition task: cap the trending rail, defer below-fold sections, and reduce the client-component count. **It needs its own brief.**
 
-### 🟡 Open P1: colour contrast, 130-227 elements per page
+### ✅ Colour contrast — `ink-muted` darkened to `#767676` (owner-approved)
 
-The `ink-muted` token is **`#909090`, which is 3.19:1 on white** — WCAG AA needs 4.5:1 for body text. This is the single largest remaining accessibility gap and it is one token.
+`--ink-muted` was **`#909090`, 3.19:1 on white**, against WCAG AA's 4.5:1 for body text — the single largest accessibility gap on the site. Changed to **`#767676`** (4.54:1 on white) on owner instruction, along with `--muted-foreground`, which has the same role. `--chart-4` keeps `#909090`: it tints chart geometry, not text.
 
-**Deliberately not changed.** It is a locked design-system token (CLAUDE.md's locked-decisions block says check first) and it restyles every page at once. Darkening it to roughly **`#767676`** reaches 4.54:1 while staying a muted grey — a small edit with a site-wide visual effect, so it is the owner's call, not mine.
+**Failing elements roughly halved:**
+
+| Page | Before | After |
+| --- | --- | --- |
+| Home | 227 | **100** |
+| VDP | 130 | **70** |
+| Compare | 203 | **133** |
+
+**⚠️ A dark-mode regression was caught and fixed in the same change.** The `.dark` block only ever redefined the shadcn tokens, so `--ink-muted` fell through to its `:root` value. That was harmless at `#909090` (5.94:1 on the dark background) but the darker `#767676` would have dropped it to **4.17:1 — below AA**. Darkening muted text for light mode must not darken it for dark mode, so `.dark` now sets `--ink-muted: #94a3b8`, matching the muted-foreground beside it.
+
+### What the remaining contrast failures actually are
+
+They split cleanly into two groups, and **neither is the same problem as the one just fixed**:
+
+**1. `#767676` on off-white panels — 4.23:1 to 4.42:1.** Just short of 4.5. `#767676` clears plain white but not `--surface-secondary` (`#f6f7f9`) or the card tints. Roughly 89 of the remaining elements across the three pages. **Darkening one step further to `~#717171`** (4.72:1 on white, 4.50:1 on the grey) would clear this whole group — a second small token nudge, again an owner call.
+
+**2. The brand green `#1fa83c` used as small text — 3.12:1 on white, 2.76:1 on the green tint.** ~67 elements on the homepage alone, plus white-on-green buttons at 3.12:1. **This is not a muted-grey tweak: it is the brand primary**, locked at the top of CLAUDE.md, and it fails as body-size text on every surface. Options are a darker green for small text only (`--primary-hover`'s `#157a2c` is 5.9:1 on white and already in the palette), or accepting the failure on decorative/large text and fixing only genuine body copy. **This one needs a real design decision and should not be done as a token swap.**
 
 ### Won't fix, with reasons
 
