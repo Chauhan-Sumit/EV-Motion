@@ -23,15 +23,15 @@ Verified against the codebase and the live database, not from memory. Last check
 | Data honesty (Batch 1) | ✅ **DONE** | No spec is derived. Guarded by tests |
 | Client bundle (Batch 2) | ✅ **DONE** | Catalog out of the browser; −110-130 KB/page. `/compare` is the documented exception |
 | SEO + routing (Batch 3) | ✅ **DONE** | **419 routes, 238 comparisons pre-rendered** (was 425/244 — the two discontinued scooters no longer seed comparison pairs; those pages still render on demand) |
-| Test suite (Batch 4) | ✅ **DONE** | **224 tests**, 13 files, ~12s |
+| Test suite (Batch 4) | ✅ **DONE** | **239 tests**, 15 files, ~12s |
 | Lead capture (Batch 5) | ✅ **DONE** | Live, verified end to end. RLS deny-all |
-| Analytics + errors (Batch 6) | ✅ **DONE** | Live, verified. Cookie-less, no PII, no IP |
+| Analytics + errors (Batch 6) | ✅ **DONE** | Live, verified. Cookie-less, no PII, no IP. **Server errors now captured too** (2026-08-21), and Sentry is wired but optional |
 | Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 12 sub-batches done. Cars: Tata, MG, Mahindra, Hyundai, Kia, BYD, BMW, Mercedes-Benz, **Volvo, Audi**. Two-wheelers: Ather, TVS, Ola, Bajaj. 58 left (9 cars, 49 two-wheelers); **~11 more sub-batches** |
 | Homepage hero (2.5D) | ✅ **DONE** | NEW 2026-08-18. Vehicle + generated environment at `lg`+, CSS/DOM parallax, no Three.js. Hero height unchanged. **Motion never watched in a browser** — see the section |
 | `loading.tsx` | ⛔ **BLOCKED** | Hangs at every level, dev and prod. Root cause unknown |
 | Auth / admin view for leads | ⛔ **NOT STARTED** | RLS denies all reads; only the Supabase dashboard can see leads |
 | Real backend for vehicle data | ⛔ **NOT STARTED** | Still static TypeScript |
-| Analytics dashboards / alerting | ⛔ **NOT STARTED** | Raw queryable data only |
+| Analytics dashboards / alerting | 🟡 **PARTLY** | Still no dashboards. But **Sentry** (error alerting) and **`LEAD_WEBHOOK_URL`** (lead alerting) are wired and tested — both need only an env var to go live |
 | Lighthouse / axe-core audit | ⛔ **NOT STARTED** | Never run |
 
 **Quality gate (all four clean):** `npm test` · `npx tsc --noEmit` · `npx eslint .` · `npm run build`
@@ -54,6 +54,51 @@ Verified against the codebase and the live database, not from memory. Last check
 **Deployment:** Vercel builds `main` as Production, and the `7e5a856` deployment is **live and verified on 2026-08-21** at the canonical domain **https://www.evmotion.in** (`ev-motion.vercel.app` serves the identical build; per-deployment `*.vercel.app` URLs sit behind Vercel Authentication, so probe the canonical domain). Spot-checked one record per sub-batch, all serving the new data: Ioniq 6 `168 kW`, Syros EV `126 kW`, Sealion 7 `230 kW`, Ather 450 Apex `7 kW`, Ola Roadster X `58 Nm`, Chetak C3503 `35 L`, BMW i4 `250 kW`, EQS `400 kW`, EC40 `300 kW`. Sitemap serves **418 URLs including 244 pre-rendered comparisons**; the newly-added `bajaj-chetak-c3503` is present and the re-keyed `bajaj-chetak-3501` is gone from both the sitemap and the site (it now 404s — the re-key changed a public URL and there is no redirect layer for two-wheeler slugs, only `/compare` has one). `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` are both set in the Vercel environment; the latter was **unset until 2026-08-20**, which had silently broken every AI vehicle illustration in Production (fixed 2026-08-20) — see the note in sub-batch 4's section.
 
 **Supabase** (project `dzloqeyqpddjcyxzsvcz`): `0001_leads.sql` and `0003_analytics_events.sql` are **applied**. `0002_leads_publishable_key_policy.sql` is **deliberately not applied** — it is the alternative path for publishable-key setups, and this app runs on a secret key (verified: a publishable-key insert is rejected with 401/42501).
+
+## LAUNCH PREP — ERROR MONITORING + LEAD ALERTS (2026-08-21)
+
+Step 6 of the pre-launch plan, and the answer to two questions the site could not previously answer: **“how do I know when it breaks?”** and **“how do I know a lead arrived?”**
+
+**Both are optional and both no-op cleanly when unconfigured.** Shipping without either is a supported state — the same posture Supabase and ImageKit already take.
+
+### Sentry
+
+`@sentry/nextjs@10.70.0` (supports `^16.0.0-0`; we are on Next 16.2.12) — the first new dependency since jspdf. Wired through the Next 16 file conventions: `src/instrumentation.ts` (server + edge + `onRequestError`) and `src/instrumentation-client.ts` (browser). `src/lib/monitoring/sentry-config.ts` is the one place that decides whether Sentry is on at all.
+
+**The cost when it is off is zero, and that was measured rather than assumed.** With no DSN the browser never fetches the SDK chunk and `window.__SENTRY__` is undefined: **319 KB of JS loaded**. With a DSN: **503 KB**, `__SENTRY__` present at 10.70.0. So enabling it costs ~184 KB, and not enabling it costs nothing — which matters on a site that spent a whole hardening batch removing 110-130 KB per page (CLAUDE.md #23).
+
+**Verified with a dummy DSN, not just wired.** A deliberately thrown client error was captured and posted to `/monitoring` — the same-origin tunnel, which exists because ad blockers block `sentry.io` by default and would otherwise silently swallow the reports. Paste a real DSN and it works; nothing else needs changing.
+
+**Privacy is enforced in code, because `/privacy` now makes promises about it.** `sendDefaultPii: false`, Session Replay off, and `scrubEvent` strips `request.data`, cookies and the IP-bearing headers before anything leaves — a lead POST body is a name, a phone number and an email, and the policy says plainly that we do not log those. `monitoring.test.ts` asserts no PII survives scrubbing.
+
+**A real gap closed on the way, independent of Sentry.** Client errors have been captured since the 2026-08-16 hardening pass, but **server** errors — a throwing Server Component, a failing route handler — went to the platform log and nowhere queryable. `onRequestError` now records them into `analytics_events` through `lib/monitoring/serverErrors.ts`, whether or not Sentry is configured.
+
+### Lead notifications
+
+`public.leads` is RLS deny-all with no admin UI, so a submitted enquiry sat there until somebody thought to open the Supabase dashboard. For lead-gen that is close to losing it — enquiry value decays in hours.
+
+`LEAD_WEBHOOK_URL` (`src/lib/leads/notify.ts`) posts a plain-text summary on every stored lead. **Deliberately a generic webhook rather than an email provider:** one variable works with Slack, Discord, Google Chat, Teams, Zapier, Make and n8n, with no new vendor account, no API key and no domain verification. The payload sends both `text` and `content`, so the same URL fits any of them. Email can be added behind the same seam later — this is `leadStore.ts`'s adapter pattern again.
+
+**Ordering is load-bearing: store first, notify second.** By the time the notifier runs the lead is already safe, so a dead webhook costs the alert and never the enquiry. It never throws and gives up after 2.5s. It is awaited rather than left floating because on serverless a promise still in flight when the handler returns can be killed with the instance.
+
+Verified over a real HTTP connection to a local receiver — this is what a webhook actually gets:
+
+```
+🚗 Best-price request
+Name: Asha Menon
+Mobile: 9876543210
+Vehicle: tata-nexon-ev
+City: delhi
+From: /cars/tata-nexon-ev
+```
+
+⚠️ **That includes the submitter's contact details**, which is the point — an alert you have to go and look something up from does not solve the problem. It does mean the destination must be a private channel your team controls. `/privacy` covers it as a disclosure to service providers.
+
+### To turn either on
+
+Both are documented in `.env.example`. Sentry: create a project at sentry.io (Next.js platform) and set `NEXT_PUBLIC_SENTRY_DSN` in Vercel; optionally add `SENTRY_ORG`/`SENTRY_PROJECT`/`SENTRY_AUTH_TOKEN` for readable stack traces. Notifications: create an incoming webhook in Slack/Discord/Chat and set `LEAD_WEBHOOK_URL`. **No code change either way.**
+
+---
 
 ## LAUNCH PREP — LEGAL PAGES + LEAD-FLOW VERIFICATION (2026-08-21)
 

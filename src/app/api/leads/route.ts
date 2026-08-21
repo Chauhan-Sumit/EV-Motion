@@ -1,5 +1,6 @@
 import { checkRateLimit, clientKey } from "@/lib/leads/rateLimit";
 import { isLeadStoreConfigured, storeLead } from "@/lib/leads/leadStore";
+import { notifyNewLead } from "@/lib/leads/notify";
 import { isHoneypotTripped, parseLeadSubmission } from "@/lib/leads/validation";
 import type { LeadOutcome } from "@/lib/leads/types";
 
@@ -55,6 +56,13 @@ export async function POST(request: Request): Promise<Response> {
       // the dialog can say so instead of showing a fake confirmation.
       return json({ status: "not-configured" }, 200);
     }
+
+    // Storage first, notification second, and the order is load-bearing: the
+    // lead is already safe by this point, so a failing webhook can only cost
+    // us the alert, never the enquiry. `notifyNewLead` never throws, and
+    // no-ops entirely when LEAD_WEBHOOK_URL is unset.
+    await notifyNewLead(parsed.lead);
+
     return json({ status: "stored" }, 201);
   } catch (error) {
     // Never log the lead itself — it holds the submitter's name, phone and
