@@ -89,11 +89,21 @@ export function Footer() {
 
       <div className="border-t border-border bg-surface-secondary">
         <Container className="flex flex-col items-center gap-1.5 py-2.5 text-[10px] text-ink-muted sm:flex-row sm:justify-between">
-          <span>© 2026 EV Motion India Pvt. Ltd. All rights reserved.</span>
+          {/* Was "EV Motion India Pvt. Ltd." — a legal entity name inherited from
+              the design template and never verified. Trimmed to the brand rather
+              than asserting a company form that may not exist; the real entity is
+              named on the legal pages, from src/lib/legal.ts. */}
+          <span>© 2026 EV Motion. All rights reserved.</span>
           <span className="flex items-center gap-3">
-            <span>Privacy Policy (Soon)</span>
-            <span>Terms of Use (Soon)</span>
-            <span>Cookie Settings (Soon)</span>
+            <Link href="/privacy" className="focus-ring hover:text-ink-secondary hover:underline">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="focus-ring hover:text-ink-secondary hover:underline">
+              Terms of Use
+            </Link>
+            {/* No "Cookie Settings" link: the site sets no cookies at all, so a
+                settings panel would imply a choice that does not exist. See the
+                Privacy Policy's section 3. */}
           </span>
         </Container>
       </div>

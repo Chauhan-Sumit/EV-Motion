@@ -29,6 +29,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       : []),
     { url: `${SITE_URL}/brands`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/compare`, changeFrequency: "weekly", priority: 0.6 },
+    // Low priority and rarely changing, but they must be discoverable: a
+    // privacy policy nobody can find is not a notice.
+    { url: `${SITE_URL}/privacy`, changeFrequency: "yearly", priority: 0.2 },
+    { url: `${SITE_URL}/terms`, changeFrequency: "yearly", priority: 0.2 },
   ];
 
   const brandRoutes: MetadataRoute.Sitemap = oems.map((oem) => ({

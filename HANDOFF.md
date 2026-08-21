@@ -55,6 +55,58 @@ Verified against the codebase and the live database, not from memory. Last check
 
 **Supabase** (project `dzloqeyqpddjcyxzsvcz`): `0001_leads.sql` and `0003_analytics_events.sql` are **applied**. `0002_leads_publishable_key_policy.sql` is **deliberately not applied** — it is the alternative path for publishable-key setups, and this app runs on a secret key (verified: a publishable-key insert is rejected with 401/42501).
 
+## LAUNCH PREP — LEGAL PAGES + LEAD-FLOW VERIFICATION (2026-08-21)
+
+Step 4-5 of the pre-launch plan. The site collects names, phone numbers and email addresses from the public and had **no Privacy Policy and no Terms** — the footer said “(Soon)” for both. That was the one genuinely launch-blocking gap.
+
+### New routes: `/privacy` and `/terms`
+
+**Both were drafted against what the code actually does, not from a template.** Every factual claim is checkable against a named module, and the page headers say which — `LEAD_FIELD_KEYS` for the collected fields, `analytics/validation.ts` for the event set, `CLIENT_STORAGE_KEYS` for browser storage. **If you change any of those, change the policy in the same commit.**
+
+**⚠️ Not legally reviewed.** Accurate is not the same as sufficient. Have someone qualified read both before launch.
+
+**All business-specific values live in `src/lib/legal.ts`** — entity name, address, contact email, grievance officer, jurisdiction. Seven placeholders, one file. `LEGAL_DETAILS_PENDING` derives itself from the square brackets, so both pages show a visible “This document is being finalised” notice until the last one is replaced, and the notice then disappears on its own. There is no second flag to remember, and unfinished legal text cannot silently read as final — the same honest-empty-state rule the rest of the site follows for unsourced specs.
+
+`npm test` prints the outstanding fields on every run: `[legal] 7 entity field(s) still placeholder: …`.
+
+### Two claims in the template that were not true, now removed
+
+- **“Cookie Settings (Soon)”** in the footer — the site sets **no cookies at all**, so a settings panel would imply a choice that does not exist. Removed, and `legal.test.ts` now fails if `document.cookie` ever appears in `src/`.
+- **“© 2026 EV Motion India Pvt. Ltd.”** — a legal entity name inherited from the design template and never verified. Trimmed to “© 2026 EV Motion”; the real entity is named on the legal pages once `src/lib/legal.ts` is filled in.
+
+### Consent notice on every lead form
+
+`LeadCaptureDialog` now carries a consent line directly under the submit button, above any CTA-specific note — the DPDP Act expects notice at the point of collection, not buried behind a footer link. It states what actually happens (details go to a dealer or brand so they can reply) rather than a generic privacy platitude, and links both documents.
+
+### `legal.test.ts` — a drift guard, and it earned itself immediately
+
+The risk with a privacy policy is not that it is wrong today but that someone adds a sixth `localStorage` key next month and the disclosure silently becomes incomplete. The test scans `src/` for `ev-motion:*` string literals and fails if any is undisclosed — or if the policy lists one that no longer exists. Same shape as the filter-bound guard in CLAUDE.md #5a.
+
+**It caught a real gap on its first run:** `ev-motion:compare-recent-vehicles` (the comparison picker's recent list) was missing from the disclosure. Five keys had been found by hand; there were six.
+
+### Lead flow verified end to end, against the real database
+
+Submitted through the actual UI on `/cars/tata-nexon-ev`: `POST /api/leads` → **201 `{"status":"stored"}`**, confirmation rendered, row present in Supabase. All four protections confirmed in the documented order:
+
+| Case | Result |
+| --- | --- |
+| Rate limit | 1 accepted, then **429** with `retryAfterSeconds` |
+| Honeypot filled | **202 `stored`** — deliberately indistinguishable to a bot, and it returns before `storeLead` is called, so **nothing is written** |
+| No mobile and no email | **400** with a per-field error |
+| Unknown keys (`is_admin`, `id`) | **201**, extra keys dropped by the allow-list |
+
+**The analytics privacy claim was verified rather than asserted.** The `lead_submitted` event for that submission reads `{"kind":"best-price","vehicleSlug":"tata-nexon-ev"}` on path `/cars/tata-nexon-ev` — no name, no mobile, no email. The PII exists only in `public.leads`, exactly as the policy states.
+
+### ⚠️ Test rows left in production `public.leads`
+
+The table held **3 rows and all 3 were mine** — there were no real leads before this. All are named `ZZ TEST …`. Remove them before real enquiries start arriving:
+
+```sql
+delete from public.leads where name like 'ZZ TEST%';
+```
+
+---
+
 ## PRODUCTION DEPLOY — 2026-08-21
 
 `data-model-decisions` was **fast-forward merged into `main`** (no merge commit, linear history: `6993c77..7055f9e`) and is **live on https://www.evmotion.in**. The quality gate was re-run on the exact merged tree first: 224 tests, `tsc`, `eslint`, `npm run build` (419 routes).

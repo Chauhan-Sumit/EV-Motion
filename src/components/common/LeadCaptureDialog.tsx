@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState, type FormEvent, type ReactNode } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import {
@@ -260,6 +261,25 @@ export function LeadCaptureDialog({
                 {submitting ? <Loader2 size={14} className="animate-spin" /> : null}
                 {submitting ? "Submitting…" : submitLabel}
               </button>
+
+              {/* Consent notice. Sits directly under the submit button, above any
+                  CTA-specific `note`, so it is the last thing read before the
+                  action — India's DPDP Act 2023 expects notice at the point of
+                  collection, not buried in a footer link. Deliberately states
+                  what actually happens (details go to a dealer/brand so they can
+                  reply) rather than a generic "we value your privacy". */}
+              <p className="text-center text-[10.5px] leading-relaxed text-ink-muted">
+                By submitting, you agree that we may share these details with a relevant dealer or brand so they can
+                contact you about this enquiry. See our{" "}
+                <Link href="/privacy" className="focus-ring font-semibold text-ink-secondary underline hover:text-primary">
+                  Privacy Policy
+                </Link>{" "}
+                and{" "}
+                <Link href="/terms" className="focus-ring font-semibold text-ink-secondary underline hover:text-primary">
+                  Terms of Use
+                </Link>
+                .
+              </p>
 
               {note ? <p className="text-center text-[10.5px] text-ink-muted">{note}</p> : null}
             </form>
