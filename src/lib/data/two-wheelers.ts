@@ -425,21 +425,35 @@ export const twoWheelers: Vehicle[] = [
     modelName: "iQube ST",
     tagline: "Longer range, bigger battery iQube",
     twoWheelerType: "scooter",
-    priceRangeLakh: [1.35, 1.5],
-    rangeKm: 155,
-    batteryCapacityKwh: 3.7,
+    // CORRECTED in the 2026-08-21 staleness sweep, from TVS Motor's own iQube
+    // page — the strongest source available and the one the flag asked for.
+    // TVS publishes the ST as: 5.3 kWh, 212 km IDC, 82 km/h, 0-80% in 4h 18m,
+    // ₹1,58,834 ex-showroom. Every headline field here was wrong:
+    //   battery   3.7  -> 5.3   (3.7 matched NO pack TVS has ever sold — the flag)
+    //   range     155  -> 212
+    //   topSpeed  90   -> 82    (82 km/h is shared across the 3.1/3.5/S/ST models)
+    //   price     1.35-1.5 -> 1.588
+    // ** The ST+ variant was removed, not re-priced. ** TVS's current line-up is
+    // iQube (2.3/3.1/3.5 kWh), iQube S (4.7) and iQube ST (5.3) — there is no
+    // ST+. The two variants here were identical on every spec and differed only
+    // in price, which is what an invented trim looks like.
+    // chargingTimeFastMin/chargingTimeSlowHr are left alone deliberately: TVS
+    // quotes 4h 18m to 0-80%, which is neither a DC fast-charge time nor a
+    // full-charge time, so neither field can take it honestly.
+    priceRangeLakh: [1.588, 1.588],
+    rangeKm: 212,
+    batteryCapacityKwh: 5.3,
     chargingTimeFastMin: 45,
     chargingTimeSlowHr: 5.5,
-    topSpeedKmph: 90,
+    topSpeedKmph: 82,
     launchStatus: "available",
     launchDate: "2023-09",
     colors: ["Titanium Grey", "Starlight Blue"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "st", name: "ST", priceLakh: 1.35, rangeKm: 155, batteryKwh: 3.7, topSpeedKmph: 90, fastChargeTimeMin: 45 },
-      { id: "st-plus", name: "ST+", priceLakh: 1.5, rangeKm: 155, batteryKwh: 3.7, topSpeedKmph: 90, fastChargeTimeMin: 45 },
+      { id: "st", name: "ST", priceLakh: 1.588, rangeKm: 212, batteryKwh: 5.3, topSpeedKmph: 82, fastChargeTimeMin: 45 },
     ],
-    highlights: ["155 km range", "90 km/h top speed", "Fast charging support"],
+    highlights: ["212 km IDC range", "5.3 kWh battery pack", "Connected TFT touchscreen"],
     description:
       "iQube ST sits above the base iQube with a bigger battery and quicker charging for riders who cover more ground daily.",
     // NO peakTorqueNm, and this is a measurement-convention problem rather than
@@ -461,9 +475,8 @@ export const twoWheelers: Vehicle[] = [
     // iQube *family*, and a family figure is not this variant's — the same
     // reason its dimensions were omitted. The convention problem is fixed; the
     // sourcing problem was always separate.
-    // Also note for the staleness sweep: this record says 3.7 kWh / 155 km, but
-    // TVS now sells the ST with a 5.3 kWh pack rated 212 km IDC. Core fields
-    // left unchanged.
+    // The 3.7 kWh / 155 km staleness noted here was FIXED on 2026-08-21 — see
+    // the correction block above the headline fields.
     specs: {
       dimensions: { lengthMm: 1805, widthMm: 645, heightMm: 1140, wheelbaseMm: 1301, kerbWeightKg: 132 },
       motor: { peakPowerKw: 4.4, motorType: "Hub-mounted BLDC" },
@@ -480,20 +493,34 @@ export const twoWheelers: Vehicle[] = [
     modelName: "X",
     tagline: "TVS's premium performance scooter",
     twoWheelerType: "scooter",
-    priceRangeLakh: [1.5, 1.5],
-    rangeKm: 140,
-    batteryCapacityKwh: 4.4,
+    // CORRECTED in the 2026-08-21 staleness sweep. TVS Motor's own TVS X page
+    // takes bookings and states deliveries have begun, so `upcoming` was simply
+    // wrong — and it was hiding a much worse error underneath it:
+    //   launchStatus  upcoming -> available
+    //   launchDate    "2026-08 (Tentative)" -> "2023-08" (TVS launched it in 2023)
+    //   price         1.5 -> 2.64   ** the record understated it by ~43% **
+    //   range         140 -> 159    (IDC, per Autocar India and BikeDekho)
+    //   battery       4.4 -> 4.44
+    // ** topSpeedKmph stays 105, against sources that say 110. ** TVS's own page
+    // says 105; Autocar says 110. OEM-primary wins (CLAUDE.md #28(c)).
+    // Price note: TVS's site shows ₹2,66,141 but says that figure includes the
+    // charger, GST and an introductory discount, so it is not a clean
+    // ex-showroom number. Autocar's ₹2.64 lakh is explicitly ex-showroom, which
+    // is the convention this field uses, so 2.64 is what is recorded.
+    priceRangeLakh: [2.64, 2.64],
+    rangeKm: 159,
+    batteryCapacityKwh: 4.44,
     chargingTimeFastMin: 50,
     chargingTimeSlowHr: 6,
     topSpeedKmph: 105,
-    launchStatus: "upcoming",
-    launchDate: "2026-08 (Tentative)",
+    launchStatus: "available",
+    launchDate: "2023-08",
     colors: ["Lucid Yellow", "Amber Glow"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "x", name: "X", priceLakh: 1.5, rangeKm: 140, batteryKwh: 4.4, topSpeedKmph: 105, fastChargeTimeMin: 50 },
+      { id: "x", name: "X", priceLakh: 2.64, rangeKm: 159, batteryKwh: 4.44, topSpeedKmph: 105, fastChargeTimeMin: 50 },
     ],
-    highlights: ["Futuristic minimalist design", "105 km/h top speed", "Voice-assist connected app"],
+    highlights: ["159 km IDC range", "105 km/h top speed", "10.2-inch tiltable TFT display"],
     description:
       "TVS X is the brand's design-led halo scooter, aimed at riders who want a bolder, more premium electric option.",
     // Thin on purpose. 11 kW is the peak output (7 kW nominal) and is the one
@@ -502,10 +529,11 @@ export const twoWheelers: Vehicle[] = [
     // is not a specification); torque (not published, and see the iQube ST
     // note on why a TVS torque figure would need its convention stated);
     // dimensions, tyres, suspension and brakes (not published).
-    // NOTE for the staleness sweep: this record says launchStatus "upcoming"
-    // with launchDate "2026-08 (Tentative)", but every source treats the TVS X
-    // as a scooter already on sale. Left unchanged — the core-field question is
-    // the owner's, and this is the fourth such record found in four sub-batches.
+    // The "upcoming" staleness noted here was FIXED on 2026-08-21 — see the
+    // correction block above the headline fields.
+    // peakPowerKw 11 is left as recorded: Autocar India now prints 11.7 kW and
+    // TVS's own page does not state a motor output at all, so the two cannot be
+    // reconciled from an OEM source and the existing figure stands.
     specs: {
       motor: { peakPowerKw: 11, motorType: "PMSM" },
     },
@@ -714,18 +742,30 @@ export const twoWheelers: Vehicle[] = [
     modelName: "S1 Pro+",
     tagline: "Ola's longest-range S1 Pro yet",
     twoWheelerType: "scooter",
+    // CORRECTED in the 2026-08-21 staleness sweep, from Ola Electric's own site,
+    // which lists the S1 Pro+ as 5.2 kWh / 320 km IDC / 130 km/h. The flag was
+    // right: battery 5.3 -> 5.2 and topSpeed 141 -> 130. Range 320 km is
+    // confirmed and unchanged, as is the 5.5 kW nominal / 13 kW peak motor.
+    // Worth recording WHY this needed an OEM source: BikeDekho's S1 Pro+ page
+    // contradicts itself on one screen — its pricing table says 5.2 kWh and
+    // 130 km/h while its expert review on the same page says 5.3 kWh and
+    // 141 km/h. An aggregator disagreeing with itself is not a tiebreaker,
+    // which is exactly the situation CLAUDE.md #28(c) describes.
+    // Price is left as recorded: Ola publishes "starting at ₹1,59,999" for the
+    // 5.2 kWh but no separate figure for the 4 kWh, so the existing 1.52-1.70
+    // span cannot be replaced from one number without inventing the other.
     priceRangeLakh: [1.52, 1.7],
     rangeKm: 320,
-    batteryCapacityKwh: 5.3,
+    batteryCapacityKwh: 5.2,
     chargingTimeSlowHr: 7.5,
-    topSpeedKmph: 141,
+    topSpeedKmph: 130,
     launchStatus: "available",
     launchDate: "2026-04",
     colors: ["Porcelain White", "Jet Black", "Neo Mint"],
     images: { hero: "hero", gallery },
     variants: [
       { id: "4kwh", name: "4 kWh", priceLakh: 1.52, rangeKm: 242, batteryKwh: 4, topSpeedKmph: 128 },
-      { id: "5-3kwh", name: "5.3 kWh", priceLakh: 1.7, rangeKm: 320, batteryKwh: 5.3, topSpeedKmph: 141 },
+      { id: "5-2kwh", name: "5.2 kWh", priceLakh: 1.7, rangeKm: 320, batteryKwh: 5.2, topSpeedKmph: 130 },
     ],
     highlights: ["4680-format Bharat Cell battery", "320 km claimed range on the top pack", "13 kW peak motor output"],
     description:
@@ -736,12 +776,10 @@ export const twoWheelers: Vehicle[] = [
     // Torque is not published for this variant. The S1 Pro's 58 Nm is NOT
     // carried over: same brand and same drive layout is not the same motor.
     // Omitted: kerbWeightKg (published as a 116-118 kg range across trims).
-    // NOTE for the staleness sweep: this record's headline says 5.3 kWh and
-    // 141 km/h, while current sources list the top variant as 5.2 kWh and
-    // 130 km/h. Ola has re-specced the S1 line across generations more than
-    // once and aggregators mix them freely, so the core fields are left alone
-    // rather than swapped on a source that may itself be describing a
-    // different generation.
+    // The 5.3 kWh / 141 km/h staleness noted here was FIXED on 2026-08-21
+    // against Ola's own site — see the correction block above the headline
+    // fields. The caution was well-founded: the aggregators really do mix
+    // generations, and one of them mixes them within a single page.
     specs: {
       dimensions: { lengthMm: 1899, widthMm: 850, heightMm: 1297, wheelbaseMm: 1359, groundClearanceMm: 160 },
       motor: { peakPowerKw: 13, motorType: "Mid-Drive IPM Motor" },

@@ -675,8 +675,18 @@ export const cars: Vehicle[] = [
     // Long Range RWD, which Hyundai quotes at 7.4s 0-100 km/h.
     accelerationSec0To100: 7.4,
     seatingCapacity: 5,
-    launchStatus: "available",
-    launchDate: "2026-03",
+    // CORRECTED in the 2026-08-21 staleness sweep: was `available` with a
+    // launchDate of "2026-03". The Ioniq 6 has NOT launched in India — every
+    // source checked (Autocar, CarWale, CarDekho, ZigWheels, Team-BHP) lists it
+    // as upcoming with an EXPECTED price, and they split between October and
+    // November 2026, so the month is deliberately not asserted.
+    // This also fixes the price silently: an `upcoming` record renders its
+    // price through `toUpcomingItem` as "(est.)", which is what a figure for an
+    // unlaunched car actually is. The 55.7 figure is left as-is because the
+    // expected range quoted across sources is a wide ₹50-65 lakh and picking a
+    // new point inside it would be inventing precision (CLAUDE.md #28(c)).
+    launchStatus: "upcoming",
+    launchDate: "2026 (Tentative)",
     colors: ["Atlas White", "Abyss Black", "Gravity Gold Matte"],
     images: { hero: "hero", gallery },
     variants: [
@@ -725,33 +735,45 @@ export const cars: Vehicle[] = [
     tagline: "Full-size three-row electric flagship",
     bodyType: "suv",
     priceRangeLakh: [120.0, 130.0],
-    rangeKm: 620,
+    // CORRECTED in the 2026-08-21 staleness sweep. The headline used to
+    // straddle three variants: 620 km is the Long Range RWD's figure (a variant
+    // this record does not list) and 5.2s is the 320 kW Performance AWD's. Both
+    // now describe the FIRST listed variant, Long Range AWD, which is what the
+    // rest of the record and its `specs` block describe.
+    // 606 km WLTP and 6.7s are agreed by EV Database, ArenaEV and EVKX.
+    // Battery and top speed were already the Long Range AWD's and are unchanged.
+    rangeKm: 606,
     batteryCapacityKwh: 110.3,
     chargingTimeFastMin: 24,
     chargingTimeSlowHr: 13,
     topSpeedKmph: 200,
-    accelerationSec0To100: 5.2,
+    accelerationSec0To100: 6.7,
     seatingCapacity: 7,
     launchStatus: "upcoming",
     launchDate: "2026-08 (Tentative)",
     colors: ["Atlas White", "Abyss Black", "Vapor Blue", "Gravity Gold Matte"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "long-range-awd", name: "Long Range AWD", priceLakh: 120.0, rangeKm: 620, batteryKwh: 110.3, topSpeedKmph: 200, fastChargeTimeMin: 24 },
+      { id: "long-range-awd", name: "Long Range AWD", priceLakh: 120.0, rangeKm: 606, batteryKwh: 110.3, topSpeedKmph: 200, fastChargeTimeMin: 24 },
       { id: "performance-awd", name: "Performance AWD", priceLakh: 130.0, rangeKm: 590, batteryKwh: 110.3, topSpeedKmph: 200, fastChargeTimeMin: 24 },
     ],
-    highlights: ["Three-row flagship with 6/7-seat layouts", "620 km range", "Level 2 ADAS suite"],
+    highlights: ["Three-row flagship with 6/7-seat layouts", "606 km WLTP range", "Level 2 ADAS suite"],
     description:
       "Ioniq 9 tops Hyundai's electric range as a full-size three-row SUV, bringing E-GMP's 800V architecture to a flagship family package.",
     // Global/Korean-market specification: the Ioniq 9 has not launched in India,
     // so no India-spec sheet exists. The figures below are what Hyundai
     // publishes for the markets it does sell in (Korea, US, Australia, EU).
     // Power is the Long Range AWD figure — 230 kW / 605 Nm — matching this
-    // record's first variant. Note the record's own headline numbers straddle
-    // three different variants: its 5.2s 0-100 is the 320 kW / 700 Nm
-    // Performance AWD, and its 620 km WLTP range is the Long Range *RWD*
-    // (160 kW), which this record doesn't list. Flagged in HANDOFF.md rather
-    // than rewritten here, since changing a core field moves listing filters.
+    // record's first variant. The headline straddle this comment used to
+    // describe was FIXED in the 2026-08-21 staleness sweep; see the note above.
+    // ** peakPowerKw 230 is deliberately NOT changed, and the reason is
+    // CLAUDE.md #28(c). ** Sources split irreconcilably: EV Database and Green
+    // Cars Compare say 226 kW, Wikipedia says 230 kW, and BOTH reconcile
+    // internally (226 kW = 307 PS = 303 bhp; 230 kW = 313 PS = 308 bhp), which
+    // is exactly what makes choosing between them unsafe — the same situation
+    // as the Mercedes EQE's 300-vs-330 kW. ArenaEV prints "230 kW (303 hp)",
+    // which reconciles to neither and is evidence the figure is muddled at
+    // source rather than merely disputed. Torque (605 Nm) is agreed by all.
     // ncapRating is safe: the Ioniq 9 is born-electric with no ICE twin, so the
     // 5-star Euro NCAP 2025 result can only be this vehicle's own.
     // Omitted: bootSpaceLiters (828 / 620 / 1323 L are all quoted without
@@ -1125,7 +1147,10 @@ export const cars: Vehicle[] = [
     topSpeedKmph: 130,
     accelerationSec0To100: 12.8,
     seatingCapacity: 5,
-    launchStatus: "available",
+    // CORRECTED in the 2026-08-21 staleness sweep — see the note below the
+    // description. `launchDate` stays as the India launch date; it records when
+    // this car went on sale, not that it still is.
+    launchStatus: "discontinued",
     launchDate: "2022-11",
     colors: ["Pearl White"],
     images: {
@@ -1144,11 +1169,16 @@ export const cars: Vehicle[] = [
     // No ncapRating: the e6 has no Euro NCAP, Bharat NCAP or ASEAN NCAP result.
     // Omitted: airbagsCount, tyres, suspension and brakes (not published);
     // warranty (see the Sealion 7 note).
-    // NOTE for a future pass: at least one aggregator lists this car as
-    // "BYD E6 Electric 2021-2024 — Discontinued". This record still says
-    // launchStatus "available". Not changed here because the sourcing is one
-    // aggregator's label rather than a BYD India statement, but it belongs in
-    // the "upcoming/available records go stale" sweep flagged in sub-batch 5.
+    // ** RESOLVED in the 2026-08-21 staleness sweep: marked `discontinued`. **
+    // The single-aggregator label this note used to hedge against is now
+    // corroborated. CarWale states it outright — "BYD e6 has been discontinued
+    // and the car is out of production", with the FAQ adding "BYD has stopped
+    // the production of BYD e6" — and other sources date it to October 2024 and
+    // give a last price of ₹29.15 lakh (this record carries ₹29.6L, left alone:
+    // a discontinued car's last price is not a live price either way).
+    // The record is kept, not deleted, and its pages keep working — see
+    // src/lib/vehicle-availability.ts. BYD's own eMax 7, already in this
+    // dataset, is the effective replacement in the same segment.
     specs: {
       dimensions: { lengthMm: 4695, widthMm: 1810, heightMm: 1670, wheelbaseMm: 2800, groundClearanceMm: 170, bootSpaceLiters: 580, kerbWeightKg: 1930 },
       motor: {
@@ -1667,6 +1697,21 @@ export const cars: Vehicle[] = [
     // xDrive50. Power is 385 kW: sources print "523 hp", which is the PS figure
     // (385 kW = 523.4 PS = 516.4 bhp), so the round OEM number is recorded
     // rather than the back-conversion — CLAUDE.md #28(c).
+    // ** The "635 km looks stale" flag was checked on 2026-08-21 and is a FALSE
+    // FLAG. ** BMW India's own press release for the iX xDrive50 states "up to
+    // 635 kilometres in the WLTP test cycle", along with 523 hp, 765 Nm, 4.6s
+    // 0-100, 10-80% in 35 min on a 195 kW DC charger and 100% in about 5.5 hrs
+    // on 22 kW AC — every one of which this record already matches. 635 stays.
+    // ** Separate finding, deliberately NOT acted on: the battery. ** BMW India
+    // publishes "111.5 kWh", and this record carries 105.2, because 111.5 is the
+    // GROSS pack and 105.2 the NET usable (multiple sources confirm the pairing;
+    // the buffer is ~5.2%). That is a units convention, not staleness — but it
+    // may be the WRONG convention here, since records like the Ioniq 9 (110.3
+    // gross / 106.0 usable) carry the gross figure. If so the iX is understated
+    // against every car it is compared with, which is the same shape of problem
+    // as the hub-vs-shaft torque conventions. Resolving it means auditing the
+    // convention across the whole catalogue, not editing one record, so it is
+    // recorded here and in HANDOFF.md rather than changed in a staleness sweep.
     // ncapRating is safe here in a way it is NOT for the rest of this brand:
     // the iX is born-electric on a bespoke platform with no ICE twin, so the
     // 5-star Euro NCAP 2021 result can only be its own.
@@ -1985,7 +2030,19 @@ export const cars: Vehicle[] = [
     topSpeedKmph: 250,
     accelerationSec0To100: 2.8,
     seatingCapacity: 5,
-    launchStatus: "available",
+    // CORRECTED in the 2026-08-21 staleness sweep: was `available`.
+    // ZigWheels carries an explicit "Discontinued Model since 3 May 2026"
+    // banner with a last price of ₹195.29 lakh, and CarDekho independently
+    // marks it discontinued in May 2026. Autocar India corroborates from the
+    // other direction: the e-tron GT facelift (S / RS / RS Performance,
+    // 680-925 hp) is listed as an UPCOMING India launch, so the car this record
+    // describes is the outgoing one.
+    // ⚠️ CarWale dissents and still shows it as on sale — but lists the
+    // facelift's variant names (S, RS) against this car's old ₹1.72-1.95 Cr
+    // prices, which reads as a page mid-update rather than a contradiction.
+    // Three sources to one, and the dissenter is internally inconsistent.
+    // `launchDate` stays: it records when this car went on sale.
+    launchStatus: "discontinued",
     launchDate: "2021-12",
     colors: ["Mythos Black Metallic", "Tactics Green Metallic", "Floret Silver Metallic", "Kemora Gray Metallic", "Tango Red Metallic", "Ascari Blue Metallic", "Daytona Grey Pearl Effect", "Suzuka Grey Metallic", "Ibis White Solid"],
     images: { hero: "hero", gallery },

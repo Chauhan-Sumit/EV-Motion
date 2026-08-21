@@ -22,8 +22,8 @@ Verified against the codebase and the live database, not from memory. Last check
 | Vehicle-type illustrations (AI) | 🟡 **5 of 6** | NEW 2026-08-17. Generic per-**body-type** AI art replacing the SVG placeholder — *not* per-model, *not* photoreal, and not in `photoUrl`. Scooter blocked on a provider generation cap. **Hardened 2026-08-21**: a missing ImageKit endpoint now falls back to the SVG icon instead of rendering broken images |
 | Data honesty (Batch 1) | ✅ **DONE** | No spec is derived. Guarded by tests |
 | Client bundle (Batch 2) | ✅ **DONE** | Catalog out of the browser; −110-130 KB/page. `/compare` is the documented exception |
-| SEO + routing (Batch 3) | ✅ **DONE** | **419 routes, 238 comparisons pre-rendered** (was 425/244 — the two discontinued scooters no longer seed comparison pairs; those pages still render on demand) |
-| Test suite (Batch 4) | ✅ **DONE** | **239 tests**, 15 files, ~12s |
+| SEO + routing (Batch 3) | ✅ **DONE** | **416 routes, 233 comparisons pre-rendered, 409 sitemap URLs.** Four discontinued vehicles no longer seed comparison pairs; every one of their pages still builds and stays in the sitemap |
+| Test suite (Batch 4) | ✅ **DONE** | **240 tests**, 15 files, ~12s |
 | Lead capture (Batch 5) | ✅ **DONE** | Live, verified end to end. RLS deny-all |
 | Analytics + errors (Batch 6) | ✅ **DONE** | Live, verified. Cookie-less, no PII, no IP. **Server errors now captured too** (2026-08-21), and Sentry is wired but optional |
 | Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 12 sub-batches done. Cars: Tata, MG, Mahindra, Hyundai, Kia, BYD, BMW, Mercedes-Benz, **Volvo, Audi**. Two-wheelers: Ather, TVS, Ola, Bajaj. 58 left (9 cars, 49 two-wheelers); **~11 more sub-batches** |
@@ -54,6 +54,58 @@ Verified against the codebase and the live database, not from memory. Last check
 **Deployment:** Vercel builds `main` as Production, and the `7e5a856` deployment is **live and verified on 2026-08-21** at the canonical domain **https://www.evmotion.in** (`ev-motion.vercel.app` serves the identical build; per-deployment `*.vercel.app` URLs sit behind Vercel Authentication, so probe the canonical domain). Spot-checked one record per sub-batch, all serving the new data: Ioniq 6 `168 kW`, Syros EV `126 kW`, Sealion 7 `230 kW`, Ather 450 Apex `7 kW`, Ola Roadster X `58 Nm`, Chetak C3503 `35 L`, BMW i4 `250 kW`, EQS `400 kW`, EC40 `300 kW`. Sitemap serves **418 URLs including 244 pre-rendered comparisons**; the newly-added `bajaj-chetak-c3503` is present and the re-keyed `bajaj-chetak-3501` is gone from both the sitemap and the site (it now 404s — the re-key changed a public URL and there is no redirect layer for two-wheeler slugs, only `/compare` has one). `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` are both set in the Vercel environment; the latter was **unset until 2026-08-20**, which had silently broken every AI vehicle illustration in Production (fixed 2026-08-20) — see the note in sub-batch 4's section.
 
 **Supabase** (project `dzloqeyqpddjcyxzsvcz`): `0001_leads.sql` and `0003_analytics_events.sql` are **applied**. `0002_leads_publishable_key_policy.sql` is **deliberately not applied** — it is the alternative path for publishable-key setups, and this app runs on a secret key (verified: a publishable-key insert is rejected with 401/42501).
+
+## BATCH 7 — STALENESS SWEEP (2026-08-21)
+
+All eight flagged records audited against current sources. **Six corrected, two left unchanged with reasons.** Scope was strictly the eight flags — no other vehicle was touched.
+
+### Results
+
+| # | Record | Before | After |
+| --- | --- | --- | --- |
+| 1 | `hyundai-ioniq-6` | `available`, launch 2026-03 | **`upcoming`**, "2026 (Tentative)" |
+| 2 | `hyundai-ioniq-9` | 620 km, 5.2s | **606 km, 6.7s** (both now the Long Range AWD's) |
+| 3 | `byd-e6` | `available` | **`discontinued`** |
+| 4 | `tvs-x` | `upcoming`, ₹1.5L, 140 km, 4.4 kWh | **`available`, ₹2.64L, 159 km, 4.44 kWh**, launched 2023-08 |
+| 5 | `tvs-iqube-st` | 3.7 kWh, 155 km, 90 km/h, ₹1.35-1.5L, 2 variants | **5.3 kWh, 212 km, 82 km/h, ₹1.588L, 1 variant** |
+| 6 | `ola-s1-pro-plus` | 5.3 kWh, 141 km/h | **5.2 kWh, 130 km/h** |
+| 7 | `bmw-ix` | 635 km | **unchanged — false flag** |
+| 8 | `audi-e-tron-gt` | `available` | **`discontinued`** |
+
+### The two that are worth reading in full
+
+**#7 BMW iX was a FALSE FLAG, and acting on it would have introduced an error.** The flag read "635 km vs current 504 km". BMW India's own press release for the iX xDrive50 states **"up to 635 kilometres in the WLTP test cycle"** — along with 523 hp, 765 Nm, 4.6s, 10-80% in 35 min at 195 kW and 100% in ~5.5 hrs at 22 kW, every one of which this record already matched. The record was right and the flag was wrong.
+
+That check did surface something else, **deliberately not acted on**: BMW publishes **111.5 kWh** where the record carries **105.2**. Those are the gross and net-usable figures for the same pack (~5.2% buffer, confirmed by several sources) — so this is a units convention, not staleness. But it may be the **wrong** convention: the Ioniq 9 (110.3 gross / 106.0 usable) carries the gross figure. If the catalogue is gross elsewhere, the iX is understated against every car it is compared with — structurally the same problem as the hub-vs-shaft torque conventions. **Resolving it means auditing the convention across all 123 records, not editing one**, so it is recorded and left. **This is the highest-value follow-up this sweep produced.**
+
+**#4 TVS X hid a much worse error under the flagged one.** The flag was only about `launchStatus`. TVS Motor's own page takes bookings and says deliveries have begun — but the record also carried **₹1.5 lakh against an actual ₹2.64 lakh, understating the price by ~43%** on a scooter the site was presenting as real. A wrong status was showing a wrong price to anyone filtering by budget.
+
+### Where sources conflicted, and how it was called
+
+- **TVS X top speed** — TVS's own page says **105 km/h**, Autocar India says 110. OEM-primary wins (CLAUDE.md #28(c)); the record's existing 105 stands, unchanged.
+- **Ola S1 Pro+** — BikeDekho's page **contradicts itself on one screen**: its pricing table says 5.2 kWh / 130 km/h while its expert review says 5.3 / 141. An aggregator disagreeing with itself is not a tiebreaker. **Ola Electric's own site settled it at 5.2 kWh / 130 km/h / 320 km IDC**, which is what was recorded.
+- **Audi e-tron GT** — ZigWheels carries an explicit "Discontinued Model since 3 May 2026" banner and CarDekho independently says May 2026; Autocar corroborates from the other side, listing the facelift (S/RS/RS Performance) as an *upcoming* India launch. **CarWale dissents** and still shows it on sale — but with the facelift's variant names against this car's old prices, which reads as a page mid-update. Three to one, and the dissenter is internally inconsistent.
+- **Ioniq 9 power** — left at 230 kW. EV Database and Green Cars Compare say 226 kW, Wikipedia says 230, and **both reconcile internally** (226 = 307 PS = 303 bhp; 230 = 313 PS = 308 bhp) — the Mercedes EQE situation exactly. ArenaEV prints "230 kW (303 hp)", which reconciles to neither, i.e. the figure is muddled at source. Not a staleness flag, and not resolvable, so unchanged.
+- **Ioniq 6 price** — left at ₹55.7L. Sources quote an *expected* ₹50-65 lakh spread and none is official. Flipping to `upcoming` fixes the honesty problem by itself: an upcoming record renders its price through `toUpcomingItem` as **"(est.)"**, which is what the figure actually is.
+- **TVS iQube ST charging** — `chargingTimeFastMin`/`chargingTimeSlowHr` untouched. TVS quotes 4h 18m to **0-80%**, which is neither a DC fast-charge time nor a full charge, so neither field can take it honestly.
+
+### The ST+ variant was removed, not re-priced
+
+TVS's current line-up is iQube (2.3/3.1/3.5 kWh), iQube S (4.7) and iQube ST (5.3) — **there is no ST+**. The record's two variants were identical on every specification and differed only in price, which is what an invented trim looks like. Collapsed to the single ST that TVS actually sells.
+
+### Side effects, all verified
+
+- Routes **421 → 416**, pre-rendered comparisons **238 → 233**, sitemap **414 → 409**. Entirely from the two newly-discontinued cars no longer seeding comparison pairs.
+- **No vehicle page was lost.** `byd-e6`, `audi-e-tron-gt`, `hyundai-ioniq-6` and `tvs-x` all still build, all still appear in the sitemap, and `/cars/byd-e6` now serves `schema.org/Discontinued`. Detail-page routes are unchanged at 54 + 69.
+- Listings: **cars 54 → 52, two-wheelers 67**. Search index still carries all **123** vehicles, now with **4** flagged discontinued.
+- Filter bounds re-checked before changing any core field (CLAUDE.md #5a): every new value sits inside the existing price/range/battery bounds, and `vehicle-filter-options.test.ts` passes.
+- `vehicle-availability.test.ts` **caught the change** — it hardcoded two discontinued slugs and there are now four. It now **derives** the set from the catalogue, with an explicit `KNOWN_DISCONTINUED` guard so flipping one back to `available` still fails loudly.
+
+### Staleness flags: 8 → 0 open
+
+One new item replaces them: **the gross-vs-net battery convention audit** described under #7 above.
+
+---
 
 ## LAUNCH PREP — ERROR MONITORING + LEAD ALERTS (2026-08-21)
 
@@ -212,15 +264,17 @@ All four were owner decisions rather than research, and all four were taken on 2
 | **No "discontinued" launch status** | Added `"discontinued"` to `LaunchStatus`; kept both records | Gone from listings/search/rails, still served on their own pages. `cmp-bike-2` and the popular-search chip were **re-pointed** at `bajaj-chetak-c3501`, not dropped |
 | **Kia commit `3174b15`** | **Kept**, per owner instruction | EV9/Syros price + launch-status corrections stand. No longer held as separately revertable |
 
-### Staleness — eight open flags
+### Staleness — ✅ all eight resolved 2026-08-21
 
-Records whose headline data no longer matches reality, all **deliberately unchanged** because core fields move listing filters and sort order:
+See [Batch 7 — Staleness Sweep](#batch-7--staleness-sweep-2026-08-21). Six corrected against current sources, two left unchanged with reasons (BMW iX was a false flag; the Ioniq 9's power figure is irreconcilable). **One new follow-up came out of it: the gross-vs-net battery convention audit.**
+
+The original list, for reference — all now closed:
 
 `hyundai-ioniq-6` (marked available, not launched in India) · `hyundai-ioniq-9` (headline straddles three variants) · `byd-e6` (listed discontinued) · `tvs-x` (marked upcoming, on sale) · `tvs-iqube-st` (3.7 kWh matches no TVS pack) · `ola-s1-pro-plus` (5.3 kWh/141 km/h vs 5.2/130) · `bmw-ix` (635 km vs 504 km) · `audi-e-tron-gt` (discontinued May 2026).
 
 **Every sub-batch since #4 has surfaced at least one.** Bajaj was an entire brand of them and needed a dedicated reconciliation pass (sub-batch 9) before its specs could be researched at all. **A standalone staleness sweep is the highest-value non-research work left.**
 
-**Still eight, and still all open after 2026-08-21.** Two of them — `byd-e6` and `audi-e-tron-gt` — describe vehicles reported as discontinued, and `LaunchStatus` can now express that. **Neither record was changed:** the new field makes the fix expressible, not sourced, and both need a source check that this pass did no research to support. They are the obvious first two items for the sweep now that marking them costs nothing.
+**All eight are now closed** (2026-08-21). `byd-e6` and `audi-e-tron-gt` were the two the `discontinued` status was waiting for, and both are now marked — sourced, not assumed.
 
 ### Remaining: 58 vehicles, ~11 sub-batches
 

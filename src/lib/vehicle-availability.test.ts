@@ -27,7 +27,22 @@ import { bikeComparisons, carComparisons, getPopularByCategory, getRankedByCateg
  * what was asked for.
  */
 
-const DISCONTINUED_SLUGS = ["bajaj-chetak-2901", "bajaj-chetak-premium"];
+/**
+ * DERIVED, not hardcoded: the invariants below must hold for every
+ * discontinued vehicle, not just the two the field was introduced for. The
+ * 2026-08-21 staleness sweep added byd-e6 and audi-e-tron-gt, and a test that
+ * needs editing every time a vehicle is discontinued is a test that will be
+ * edited carelessly.
+ */
+const DISCONTINUED_SLUGS = getAllVehicles().filter(isDiscontinued).map((v) => v.slug);
+
+/**
+ * Explicit regression guard, the other way round: these four are discontinued
+ * for sourced reasons recorded in their record comments, so silently flipping
+ * one back to available should fail loudly rather than just shrink the derived
+ * list above and keep passing.
+ */
+const KNOWN_DISCONTINUED = ["bajaj-chetak-2901", "bajaj-chetak-premium", "byd-e6", "audi-e-tron-gt"];
 
 describe("the predicate", () => {
   it("reads launchStatus and nothing else", () => {
@@ -39,6 +54,14 @@ describe("the predicate", () => {
 
   it("has a human label, for the surfaces that still show one", () => {
     expect(LAUNCH_STATUS_LABEL.discontinued).toBe("Discontinued");
+  });
+});
+
+describe("the known-discontinued set", () => {
+  it("still contains every vehicle sourced as discontinued", () => {
+    for (const slug of KNOWN_DISCONTINUED) {
+      expect(DISCONTINUED_SLUGS, `${slug} is no longer marked discontinued`).toContain(slug);
+    }
   });
 });
 
