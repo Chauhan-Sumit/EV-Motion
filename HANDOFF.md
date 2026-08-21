@@ -193,6 +193,8 @@ The highest-value item, and it came out of the sweep. `bmw-ix` records **105.2 k
 
 This is an audit, not an edit: decide the convention, verify all 123 records against it, and consider whether `VehicleSpecs` should carry both figures the way `torqueMeasuredAt` carries its qualifier.
 
+**🟡 SURVEYED 2026-08-21 — see [`BATTERY_CONVENTION_SURVEY.md`](BATTERY_CONVENTION_SURVEY.md).** The diagnostic pass is done (branch `battery-convention-audit`, no records edited). Headline: cars split **42 gross / 7 net / 5 unresolved**, and *a single-convention rewrite is not reachable in either direction* — Mercedes publishes usable only and never a gross figure, while Tata/MG/Mahindra/VinFast and all 69 two-wheelers publish one nominal figure and never a usable one. So the decision is not "gross or net" but **how to record which one each figure is** — the `torqueMeasuredAt` shape. **BMW and BYD are each internally split**; `byd-seal` (82.5) and `byd-sealion-7` (82.56) round the same pack differently; and `mercedes-benz-maybach-eqs-suv` (122) matches neither the current usable (118) nor the current gross (125) and may simply be stale. Ather's scooter buffer is **12.4%**, far larger than any car's — so two-wheelers are where the convention matters most and where the data to resolve it does not exist.
+
 ### 2. 🔴 Prices are unaudited, and one was 43% wrong
 
 The sweep only checked the eight flagged records, and one of them — `tvs-x` — carried **₹1.5 lakh against an actual ₹2.64 lakh**. That error was found by accident, because the record happened to also have a wrong launch status. **Nothing systematic has ever checked prices**, and there is no reason to think the TVS X was the only one.
