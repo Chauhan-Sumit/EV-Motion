@@ -37,19 +37,27 @@ export function QuickSpecsBar({ vehicle }: { vehicle: VehicleDetail }) {
   return (
     <div className="border-y border-border bg-surface-secondary">
       <Container className="py-3.5">
-        <dl className="grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-3 lg:grid-cols-6">
+        {/* The grid is a plain div and each stat carries its own <dl>. It was
+            previously ONE <dl> wrapping everything, which left <dt>/<dd> two
+            levels deep — invalid markup, because a <dl>'s children must be
+            <dt>/<dd> or a <div> directly holding them. The consequence was
+            that the description-list semantics were dropped altogether rather
+            than merely being untidy (axe definition-list + dlitem, found in
+            the 2026-08-21 audit). Tailwind's preflight zeroes <dl> margins, so
+            this renders identically — only the element names changed. */}
+        <div className="grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-3 lg:grid-cols-6">
           {stats.map(({ icon: Icon, label, value }) => (
             <div key={label} className="flex items-center gap-2">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-tint text-primary">
                 <Icon size={15} />
               </span>
-              <div className="min-w-0">
+              <dl className="min-w-0">
                 <dt className="text-[9px] text-ink-muted">{label}</dt>
                 <dd className="truncate text-[12px] font-bold text-ink">{value}</dd>
-              </div>
+              </dl>
             </div>
           ))}
-        </dl>
+        </div>
       </Container>
     </div>
   );

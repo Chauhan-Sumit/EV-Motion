@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { CITIES } from "@/lib/data/cities";
 import { subsidyMessageForState } from "@/lib/data/state-charges";
 import { useLocation } from "@/context/LocationContext";
@@ -17,6 +17,11 @@ const VEHICLE_TYPE_TO_CATEGORY: Record<(typeof VEHICLE_TYPES)[number], VehicleCa
 };
 
 export function SubsidyCalculatorCard() {
+  // `useId` rather than hardcoded ids — this card renders in the homepage
+  // sidebar, and a duplicate id would silently break the association it exists
+  // to create.
+  const stateId = useId();
+  const vehicleTypeId = useId();
   const { city } = useLocation();
   const [state, setState] = useState<string>(city.state);
   const [vehicleType, setVehicleType] = useState<(typeof VEHICLE_TYPES)[number]>(VEHICLE_TYPES[0]);
@@ -43,10 +48,14 @@ export function SubsidyCalculatorCard() {
       <div className="p-3.5">
         <p className="mb-2.5 text-[11px] text-ink-secondary">Check FAME-II &amp; state subsidy eligibility</p>
 
-        <label className="mb-1 block text-[9px] font-semibold uppercase tracking-[0.5px] text-ink-muted">
+        {/* htmlFor/id pairing, not just visual proximity: without it a screen
+            reader announces these as an unlabelled combo box. Found by the
+            2026-08-21 audit (Lighthouse `select-name`). */}
+        <label htmlFor={stateId} className="mb-1 block text-[9px] font-semibold uppercase tracking-[0.5px] text-ink-muted">
           State
         </label>
         <select
+          id={stateId}
           value={state}
           onChange={(e) => {
             stateTouched.current = true;
@@ -60,10 +69,11 @@ export function SubsidyCalculatorCard() {
           ))}
         </select>
 
-        <label className="mb-1 block text-[9px] font-semibold uppercase tracking-[0.5px] text-ink-muted">
+        <label htmlFor={vehicleTypeId} className="mb-1 block text-[9px] font-semibold uppercase tracking-[0.5px] text-ink-muted">
           Vehicle Type
         </label>
         <select
+          id={vehicleTypeId}
           value={vehicleType}
           onChange={(e) => {
             setVehicleType(e.target.value as (typeof VEHICLE_TYPES)[number]);

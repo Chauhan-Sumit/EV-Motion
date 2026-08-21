@@ -61,13 +61,20 @@ export function Footer() {
 
         {FOOTER_COLUMNS.map((col) => (
           <nav key={col.title} aria-label={col.title} className="fcol">
-            <h4 className="mb-2.5 text-xs font-bold text-ink">{col.title}</h4>
+            {/* h2, not h4: the footer had no h2/h3 above these, so an h4 broke
+                sequential heading order (Lighthouse `heading-order`, 2026-08-21).
+                Each column is already a landmark via <nav aria-label>, so the
+                level carries no visual weight here — the styling is unchanged. */}
+            <h2 className="mb-2.5 text-xs font-bold text-ink">{col.title}</h2>
             {col.links.map((link) =>
               link.href ? (
                 <Link
                   key={link.label}
                   href={link.href}
-                  className="focus-ring mb-1.5 block text-[11px] text-ink-secondary transition-colors hover:text-primary"
+                  /* py-1 lifts the hit area from ~16.5px to >=24px tall
+                     (WCAG 2.2 target size). mb trimmed to keep the column
+                     rhythm identical. */
+                  className="focus-ring -my-0.5 mb-1 block py-1 text-[11px] text-ink-secondary transition-colors hover:text-primary"
                 >
                   {link.label}
                 </Link>

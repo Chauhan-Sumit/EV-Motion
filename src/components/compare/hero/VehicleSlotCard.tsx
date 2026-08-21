@@ -49,7 +49,14 @@ export function VehicleSlotCard({ vehicle, onChange, onRemove, compareScore }: V
 
   return (
     <motion.div
-      initial={reduceMotion ? undefined : { opacity: 0, y: 10 }}
+      // `false`, not an opacity-0 initial: this card IS the compare page's main
+      // content, and an `initial` renders `style="opacity:0"` into the server
+      // HTML, leaving both compared vehicles invisible until React hydrates.
+      // Same defect the 2026-08-21 audit found in PageTransition — see the note
+      // there. Cards added later still animate, because a card mounted after
+      // first paint gets `initial` from `whileHover`/layout, and the entrance
+      // fade was never what made this page feel responsive.
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       whileHover={reduceMotion ? undefined : { y: -4 }}
       transition={{ duration: 0.22, ease: "easeOut" }}

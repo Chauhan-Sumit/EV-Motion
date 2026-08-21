@@ -107,6 +107,64 @@ One new item replaces them: **the gross-vs-net battery convention audit** descri
 
 ---
 
+## LIGHTHOUSE + ACCESSIBILITY AUDIT (2026-08-21)
+
+First Lighthouse and axe run this project has ever had. Run against a production build with real Lighthouse (mobile preset: 4x CPU throttle, slow 4G) on three page shapes.
+
+### Scores after fixes
+
+| Page | Perf | A11y | Best Pract. | LCP | CLS | TBT |
+| --- | --- | --- | --- | --- | --- | --- |
+| Home | 67 | **96** (was 87) | 96 | 6.5 s | **0** | 170 ms |
+| VDP | 85 | **97** (was 90) | — | 4.2 s | **0** | 30 ms |
+| Compare | 67 | **97** | — | 6.5 s | **0** | 280 ms |
+
+Clean on every objective check: **189 internal links crawled, 0 broken** · **0 failed requests** · **0 images failed to load** · **0 images missing `alt`** · **0 console errors** · **CLS 0 everywhere** · no page-level horizontal overflow at 375 px.
+
+### ⚠️ The finding that mattered most: every page shipped invisible
+
+`PageTransition` passed `initial={{ opacity: 0, y: 8 }}` unconditionally, so framer-motion rendered **`<div style="opacity:0;transform:translateY(8px)">` into the server HTML of every route**. `VehicleSlotCard` did the same to the two vehicle cards that ARE the compare page.
+
+So the complete, correct HTML arrived and then sat there unpainted until React hydrated. **With JavaScript blocked, broken, or simply slow, the entire site rendered blank.** Fixed by skipping the enter animation on the one render that has nothing to transition from; navigations still animate, and the locked design direction is unchanged. **0 of 416 built pages now ship hidden content** (was: all of them).
+
+**Honest correction:** I expected this to be the cause of the 6.5 s mobile LCP. It was not — LCP barely moved. The value is that the site is no longer JS-gated, not that it got faster.
+
+### Fixed
+
+| Issue | Where | What |
+| --- | --- | --- |
+| SSR-hidden content | `PageTransition`, `VehicleSlotCard` | Above |
+| `select-name` | `SubsidyCalculatorCard` | Two `<select>`s had visible labels with no `htmlFor`/`id` pairing — a screen reader announced an unlabelled combo box |
+| `definition-list` / `dlitem` | `QuickSpecsBar` | One `<dl>` wrapped everything, leaving `<dt>`/`<dd>` two levels deep. Invalid, and the description-list semantics were dropped entirely. Each stat now carries its own `<dl>`; renders identically |
+| `heading-order` | `Footer` | `h4` with no `h2`/`h3` above it → `h2`. Styling unchanged |
+| `target-size` | `Footer` | Links were 16.5 px tall; padded to ≥24 px (WCAG 2.2) with the column rhythm preserved |
+
+### 🔴 Open P1: mobile LCP is 6.5 s, and it is main-thread work
+
+**Not fixed, because fixing it properly means changing what the homepage renders — which the audit brief excluded.** The diagnosis is solid:
+
+- Every network request completes by **133 ms**; TTFB is 456 ms. Nothing is waiting on the network.
+- **93% of LCP is "render delay"**, and the main-thread breakdown is Style & Layout ~1000 ms, Rendering ~700 ms, Other ~1000 ms under 4x throttle.
+- The homepage builds **3,130 DOM nodes and 104 images**, and **one horizontal rail holds 1,153 of those nodes — 37% of the page.** That is "Trending Now", which renders the *entire* catalogue (all 119 current vehicles), not a trending subset.
+
+**Measured, not assumed:** limiting that rail to 12 per category was tried and reverted. DOM dropped 3,090 → 2,175 and LCP 6.5 s → 5.8 s — real, but ~11% for a 30% DOM cut, with the Performance score unchanged at 69. So the rail is *a* contributor, not *the* cause, and it was not worth a locked-design change on its own.
+
+Fixing this properly is a homepage composition task: cap the trending rail, defer below-fold sections, and reduce the client-component count. **It needs its own brief.**
+
+### 🟡 Open P1: colour contrast, 130-227 elements per page
+
+The `ink-muted` token is **`#909090`, which is 3.19:1 on white** — WCAG AA needs 4.5:1 for body text. This is the single largest remaining accessibility gap and it is one token.
+
+**Deliberately not changed.** It is a locked design-system token (CLAUDE.md's locked-decisions block says check first) and it restyles every page at once. Darkening it to roughly **`#767676`** reaches 4.54:1 while staying a muted grey — a small edit with a site-wide visual effect, so it is the owner's call, not mine.
+
+### Won't fix, with reasons
+
+- **`image-redundant-alt` (11)** — the placeholder's accessible name is *"… — generic SUV illustration, not a photograph of this vehicle"*. Lighthouse sees it as duplicating the card title; it is the honesty disclosure required by CLAUDE.md #26. Removing it to satisfy a heuristic would remove a truth claim.
+- **`label-content-name-mismatch` (5)** — e.g. visible "Ola ElectricS1 ProVSAther Energy450X" vs accessible "Compare Ola Electric S1 Pro and Ather Energy 450X". The accessible name is *better* than the visually-concatenated text; matching them would make it worse.
+- **`is-crawlable` (SEO 69)** — a **localhost artifact**, not a defect. `robots.ts` deliberately serves `Disallow: /` when `NEXT_PUBLIC_SITE_URL` is unset. Production serves `Allow: /` with the sitemap — verified against the live site.
+
+---
+
 ## KNOWN DATA-QUALITY ISSUES (open, as of 2026-08-21)
 
 The eight staleness flags are closed (commit `d546985`). What follows is everything still known to be wrong, incomplete or unverified in the vehicle data, in the order I would fix it. **Nothing here is a bug in the code** — it is all sourcing.
