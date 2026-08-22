@@ -128,6 +128,24 @@ describe("the corrections this audit made", () => {
     expect(bySlug("mg-m9").priceRangeLakh).toEqual([79.95, 84.94]);
   });
 
+  it("carries BYD's July 2026 revision, closing the Seal price question", () => {
+    // The BYD battery sub-batch flagged 41.0-vs-41.5 and 53.0-vs-53.65 as
+    // unresolved and deferred them to this audit. BYD India's 1 July 2026
+    // revision settles both.
+    expect(bySlug("byd-seal").priceRangeLakh).toEqual([41.5, 53.65]);
+    expect(bySlug("byd-emax-7").priceRangeLakh).toEqual([27.9, 29.9]);
+    expect(bySlug("byd-sealion-7").priceRangeLakh).toEqual([49.4, 54.9]);
+  });
+
+  it("no longer lists the BE 6 as upcoming while its twin is on sale", () => {
+    // The BE 6 and XEV 9e launched together, so one being `upcoming` and the
+    // other `available` was internally inconsistent — a stale status the price
+    // audit surfaced. Both are on sale.
+    expect(bySlug("mahindra-be-6").launchStatus).toBe("available");
+    expect(bySlug("mahindra-xev-9e").launchStatus).toBe("available");
+    expect(bySlug("mahindra-be-6").priceRangeLakh).toEqual([19.45, 26.95]);
+  });
+
   it("stops claiming 145 km from the OoWah's small battery", () => {
     // The record paired the EX's 2.3 kWh pack with the MAX Plus's 145 km. Each
     // trim now carries its own pack and its own range.

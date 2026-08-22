@@ -1008,7 +1008,17 @@ export const cars: Vehicle[] = [
     modelName: "BE 6",
     tagline: "Born-electric coupe SUV on the INGLO platform",
     bodyType: "suv",
-    priceRangeLakh: [18.9, 26.9],
+    // PRICE + AVAILABILITY CORRECTED 2026-08-22. Two problems.
+    // (1) This record was still `upcoming` while its platform twin xev-9e was
+    // `available` — the two launched together, so the status was internally
+    // inconsistent with the catalogue and plainly stale. The BE 6 has been on
+    // sale since early 2025 and the 2026 SPORTEQ line-up launched 15 Aug 2026.
+    // `launchDate` is deliberately left absent rather than inferred.
+    // (2) Prices were 18.9-26.9 against the current 19.45-26.95.
+    // NOTE ON BaaS: Mahindra also sells the BE 6 on Battery-as-a-Service at
+    // 11.45 lakh + 3.75/km. As everywhere else in this catalogue, the
+    // battery-included ex-showroom price is what is recorded.
+    priceRangeLakh: [19.45, 26.95],
     rangeKm: 682,
     batteryCapacityKwh: 79,
     // inferred basis: this OEM publishes one nominal pack figure and no usable
@@ -1020,7 +1030,7 @@ export const cars: Vehicle[] = [
     topSpeedKmph: 200,
     accelerationSec0To100: 6.7,
     seatingCapacity: 5,
-    launchStatus: "upcoming",
+    launchStatus: "available",
     launchDate: "2026-09 (Tentative)",
     colors: ["Everest White", "Tarini Blue", "Deep Forest"],
     images: {
@@ -1028,8 +1038,10 @@ export const cars: Vehicle[] = [
       gallery,
     },
     variants: [
-      { id: "pack-3", name: "Pack Three", priceLakh: 18.9, rangeKm: 556, batteryKwh: 59, topSpeedKmph: 190 },
-      { id: "pack-4", name: "Pack Four", priceLakh: 26.9, rangeKm: 682, batteryKwh: 79, topSpeedKmph: 200, fastChargeTimeMin: 20 },
+      // Repriced with the range above: the 2026 SPORTEQ line-up runs
+      // 19.45-26.95, so the old 18.9 floor sat below the cheapest BE 6 on sale.
+      { id: "pack-3", name: "Pack Three", priceLakh: 19.45, rangeKm: 556, batteryKwh: 59, topSpeedKmph: 190 },
+      { id: "pack-4", name: "Pack Four", priceLakh: 26.95, rangeKm: 682, batteryKwh: 79, topSpeedKmph: 200, fastChargeTimeMin: 20 },
     ],
     highlights: ["Dedicated INGLO skateboard platform", "682 km range flagship pack", "800V architecture"],
     description:
@@ -1056,7 +1068,11 @@ export const cars: Vehicle[] = [
     modelName: "XEV 9e",
     tagline: "Born-electric coupe SUV, production sibling to the BE 6",
     bodyType: "suv",
-    priceRangeLakh: [21.9, 30.5],
+    // PRICE CORRECTED 2026-08-22. Ceiling was 30.5 against a current 31.25.
+    // Floor 21.9 confirmed. Mahindra sells 17 variants across Pack One/Two/
+    // Three/Three Select; only three are modelled, so the range legitimately
+    // runs past the last modelled variant.
+    priceRangeLakh: [21.9, 31.25],
     rangeKm: 656,
     batteryCapacityKwh: 79,
     // inferred basis: this OEM publishes one nominal pack figure and no usable
@@ -1165,7 +1181,9 @@ export const cars: Vehicle[] = [
     modelName: "XUV 3XO EV",
     tagline: "Mahindra's most affordable electric SUV",
     bodyType: "suv",
-    priceRangeLakh: [13.89, 14.96],
+    // PRICE CORRECTED 2026-08-22. Ceiling was 14.96 against 15.46. Floor
+    // 13.89 confirmed exactly.
+    priceRangeLakh: [13.89, 15.46],
     rangeKm: 351,
     batteryCapacityKwh: 39.4,
     // inferred basis: this OEM publishes one nominal pack figure and no usable
@@ -1258,7 +1276,12 @@ export const cars: Vehicle[] = [
     modelName: "Seal",
     tagline: "Performance electric sedan",
     bodyType: "sedan",
-    priceRangeLakh: [41.0, 53.0],
+    // PRICE CORRECTED 2026-08-22 (price audit, phase 2 — all-brands sweep).
+    // BYD India's 1 July 2026 revision put the Seal at 41.50-53.65. This also
+    // closes the price question the BYD battery sub-batch left open: it flagged
+    // 41.0-vs-41.5 and 53.0-vs-53.65 as unresolved and deferred them here.
+    // Premium stays 46.2, which every source still agrees on.
+    priceRangeLakh: [41.5, 53.65],
     rangeKm: 650,
     // 82.56 is BYD's own published figure (Seal spec sheet, byd.com) and is
     // what byd-sealion-7 already carried for the same Blade pack. This record
@@ -1305,9 +1328,9 @@ export const cars: Vehicle[] = [
     // `fastChargeTimeMin` stays on Performance alone: it is the 150 kW car,
     // and the Premium's 80 kW DC time is not reliably sourced for India.
     variants: [
-      { id: "dynamic-rwd", name: "Dynamic RWD", priceLakh: 41.0, rangeKm: 510, batteryKwh: 61.44, topSpeedKmph: 180 },
+      { id: "dynamic-rwd", name: "Dynamic RWD", priceLakh: 41.5, rangeKm: 510, batteryKwh: 61.44, topSpeedKmph: 180 },
       { id: "premium-rwd", name: "Premium RWD", priceLakh: 46.2, rangeKm: 650, batteryKwh: 82.56, topSpeedKmph: 180 },
-      { id: "performance-awd", name: "Performance AWD", priceLakh: 53.0, rangeKm: 580, batteryKwh: 82.56, topSpeedKmph: 180, fastChargeTimeMin: 26 },
+      { id: "performance-awd", name: "Performance AWD", priceLakh: 53.65, rangeKm: 580, batteryKwh: 82.56, topSpeedKmph: 180, fastChargeTimeMin: 26 },
     ],
     highlights: ["3.8s 0-100 km/h on AWD", "CTB battery-as-structure design", "650 km range on RWD"],
     description:
@@ -1411,7 +1434,9 @@ export const cars: Vehicle[] = [
     modelName: "eMAX 7",
     tagline: "Three-row family MPV with a choice of two battery packs",
     bodyType: "muv",
-    priceRangeLakh: [26.9, 29.9],
+    // PRICE CORRECTED 2026-08-22. Floor was 26.9 against 27.90 after the
+    // 1 July 2026 revision. Ceiling 29.9 unchanged and still correct.
+    priceRangeLakh: [27.9, 29.9],
     rangeKm: 530,
     batteryCapacityKwh: 71.8,
     // Usable — see `byd-seal` for the brand-level reasoning. The 55.4/71.8
@@ -1428,7 +1453,7 @@ export const cars: Vehicle[] = [
     colors: ["Quartz Blue", "Harbour Grey", "Crystal White", "Cosmos Black"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "premium-6-str", name: "Premium 6 STR", priceLakh: 26.9, rangeKm: 420, batteryKwh: 55.4, topSpeedKmph: 180 },
+      { id: "premium-6-str", name: "Premium 6 STR", priceLakh: 27.9, rangeKm: 420, batteryKwh: 55.4, topSpeedKmph: 180 },
       { id: "superior-7-str", name: "Superior 7 STR", priceLakh: 29.9, rangeKm: 530, batteryKwh: 71.8, topSpeedKmph: 180, fastChargeTimeMin: 37 },
     ],
     highlights: ["Choice of 6- or 7-seat layouts", "530 km range on the larger pack", "580-litre boot space"],
@@ -1464,7 +1489,9 @@ export const cars: Vehicle[] = [
     modelName: "Sealion 7",
     tagline: "Performance-oriented electric SUV",
     bodyType: "suv",
-    priceRangeLakh: [49.4, 55.9],
+    // PRICE CORRECTED 2026-08-22. Ceiling was 55.9 against 54.90. Floor 49.4
+    // unchanged and confirmed.
+    priceRangeLakh: [49.4, 54.9],
     rangeKm: 567,
     batteryCapacityKwh: 82.56,
     // Usable — BYD publishes no gross figure for any Blade pack. Full
@@ -1483,7 +1510,7 @@ export const cars: Vehicle[] = [
     images: { hero: "hero", gallery },
     variants: [
       { id: "premium", name: "Premium", priceLakh: 49.4, rangeKm: 567, batteryKwh: 82.56, topSpeedKmph: 210 },
-      { id: "performance", name: "Performance", priceLakh: 55.9, rangeKm: 562, batteryKwh: 82.56, topSpeedKmph: 215, fastChargeTimeMin: 32 },
+      { id: "performance", name: "Performance", priceLakh: 54.9, rangeKm: 562, batteryKwh: 82.56, topSpeedKmph: 215, fastChargeTimeMin: 32 },
     ],
     highlights: ["Dual-motor AWD Performance variant", "4.5s 0-100 km/h", "567 km range on the RWD Premium"],
     description:
@@ -1522,7 +1549,9 @@ export const cars: Vehicle[] = [
     modelName: "EV6",
     tagline: "Design-led electric crossover GT",
     bodyType: "suv",
-    priceRangeLakh: [65.9, 65.9],
+    // PRICE CORRECTED 2026-08-22. Kia India lists 65,97,937; the record's 65.9
+    // rounded that down. Small, but the audit records what the OEM publishes.
+    priceRangeLakh: [65.98, 65.98],
     rangeKm: 663,
     batteryCapacityKwh: 77.4,
     // 77.4 total (E-GMP).
@@ -1540,7 +1569,7 @@ export const cars: Vehicle[] = [
       gallery,
     },
     variants: [
-      { id: "gt-line", name: "GT Line AWD", priceLakh: 65.9, rangeKm: 663, batteryKwh: 77.4, topSpeedKmph: 192, fastChargeTimeMin: 18 },
+      { id: "gt-line", name: "GT Line AWD", priceLakh: 65.98, rangeKm: 663, batteryKwh: 77.4, topSpeedKmph: 192, fastChargeTimeMin: 18 },
     ],
     highlights: ["663 km range", "800V ultra-fast charging", "5.2s 0-100 km/h"],
     description:
@@ -1756,7 +1785,8 @@ export const cars: Vehicle[] = [
     modelName: "iX1 LWB",
     tagline: "BMW's entry-point electric SUV, stretched for India",
     bodyType: "suv",
-    priceRangeLakh: [51.4, 51.4],
+    // PRICE CORRECTED 2026-08-22. Was 51.4 against a current 52.40.
+    priceRangeLakh: [52.4, 52.4],
     rangeKm: 531,
     batteryCapacityKwh: 66.4,
     // 66.5 gross / 64.8 usable
@@ -1771,7 +1801,7 @@ export const cars: Vehicle[] = [
     colors: ["Mineral White Metallic", "Sparkling Copper Grey Metallic", "Skyscraper Grey Metallic", "Carbon Black Metallic", "Portimao Blue Metallic"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "edrive20l-m-sport", name: "eDrive 20L M Sport", priceLakh: 51.4, rangeKm: 531, batteryKwh: 66.4, topSpeedKmph: 175, fastChargeTimeMin: 32 },
+      { id: "edrive20l-m-sport", name: "eDrive 20L M Sport", priceLakh: 52.4, rangeKm: 531, batteryKwh: 66.4, topSpeedKmph: 175, fastChargeTimeMin: 32 },
     ],
     highlights: ["Long-wheelbase body built for India", "531 km range", "Single-variant, fully-loaded M Sport spec"],
     description:
@@ -1977,7 +2007,9 @@ export const cars: Vehicle[] = [
     modelName: "i7",
     tagline: "All-electric 7 Series limousine",
     bodyType: "sedan",
-    priceRangeLakh: [205.0, 258.0],
+    // PRICE CORRECTED 2026-08-22. Ceiling was 258 against a current 250.
+    // Floor 205 confirmed.
+    priceRangeLakh: [205, 250],
     rangeKm: 603,
     batteryCapacityKwh: 101.7,
     // 105.7 gross / 101.7 usable
@@ -1993,7 +2025,7 @@ export const cars: Vehicle[] = [
     images: { hero: "hero", gallery },
     variants: [
       { id: "edrive50-m-sport", name: "eDrive50 M Sport", priceLakh: 205.0, rangeKm: 603, batteryKwh: 101.7, topSpeedKmph: 240 },
-      { id: "m70-xdrive", name: "M70 xDrive", priceLakh: 258.0, rangeKm: 560, batteryKwh: 101.7, topSpeedKmph: 250, fastChargeTimeMin: 34 },
+      { id: "m70-xdrive", name: "M70 xDrive", priceLakh: 250, rangeKm: 560, batteryKwh: 101.7, topSpeedKmph: 250, fastChargeTimeMin: 34 },
     ],
     highlights: ["BMW's electric flagship limousine", "603 km range on the eDrive50", "250 km/h top speed on the M70"],
     description:
