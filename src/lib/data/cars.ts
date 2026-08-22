@@ -360,7 +360,18 @@ export const cars: Vehicle[] = [
     modelName: "ZS EV",
     tagline: "The SUV that started MG's EV journey in India",
     bodyType: "suv",
-    priceRangeLakh: [18.98, 24.98],
+    // PRICE CORRECTED 2026-08-22 (price audit, phase 2 — MG). The worst MG
+    // error: the 24.98 ceiling was 4.23 LAKH above anything MG sells. Current
+    // mgmotor.co.in prices run 17,99,000 (Executive) to 20,74,600 (Essence),
+    // so the floor was also 99k high. Model confirmed still on sale.
+    // NOTE ON BaaS: MG sells this car on Battery-as-a-Service too (a lower
+    // sticker plus a per-km battery rental). This catalogue records the
+    // BATTERY-INCLUDED ex-showroom price throughout, because that is what the
+    // pricing system turns into an on-road figure and what every other record
+    // carries. BaaS is a financing choice, not a trim, and the schema has no
+    // concept for it — the same open question Vida and Royal Enfield are
+    // parked on (PRICE_AUDIT.md).
+    priceRangeLakh: [17.99, 20.746],
     rangeKm: 461,
     batteryCapacityKwh: 50.3,
     // inferred basis: this OEM publishes one nominal pack figure and no usable
@@ -380,8 +391,13 @@ export const cars: Vehicle[] = [
       gallery,
     },
     variants: [
-      { id: "excite", name: "Excite", priceLakh: 18.98, rangeKm: 461, batteryKwh: 50.3, topSpeedKmph: 175 },
-      { id: "exclusive", name: "Exclusive", priceLakh: 24.98, rangeKm: 461, batteryKwh: 50.3, topSpeedKmph: 175, fastChargeTimeMin: 60 },
+      // MG's four distinct price points. Essence and Exclusive Plus are each
+      // listed twice on MG's site for two colourways at an identical price, so
+      // they are modelled once — a colour is not a trim.
+      { id: "executive", name: "Executive", priceLakh: 17.99, rangeKm: 461, batteryKwh: 50.3, topSpeedKmph: 175, fastChargeTimeMin: 60 },
+      { id: "excite-pro", name: "Excite Pro", priceLakh: 18.746, rangeKm: 461, batteryKwh: 50.3, topSpeedKmph: 175, fastChargeTimeMin: 60 },
+      { id: "exclusive-plus", name: "Exclusive Plus", priceLakh: 19.996, rangeKm: 461, batteryKwh: 50.3, topSpeedKmph: 175, fastChargeTimeMin: 60 },
+      { id: "essence", name: "Essence", priceLakh: 20.746, rangeKm: 461, batteryKwh: 50.3, topSpeedKmph: 175, fastChargeTimeMin: 60 },
     ],
     highlights: ["461 km range", "Panoramic sunroof", "360-degree camera"],
     description:
@@ -412,7 +428,18 @@ export const cars: Vehicle[] = [
     modelName: "Comet EV",
     tagline: "Compact city runabout for two",
     bodyType: "hatchback",
-    priceRangeLakh: [6.99, 9.98],
+    // PRICE CORRECTED 2026-08-22 (price audit, phase 2 — MG). Was [6.99, 9.98]
+    // against mgmotor.co.in's 7,79,800 (Executive) to 10,06,800 (Exclusive FC).
+    // "Pace" and "Play" are RETIRED Comet trim names; MG now sells Executive /
+    // Excite / Excite FC / Exclusive / Exclusive FC.
+    // NOTE ON BaaS: MG sells this car on Battery-as-a-Service too (a lower
+    // sticker plus a per-km battery rental). This catalogue records the
+    // BATTERY-INCLUDED ex-showroom price throughout, because that is what the
+    // pricing system turns into an on-road figure and what every other record
+    // carries. BaaS is a financing choice, not a trim, and the schema has no
+    // concept for it — the same open question Vida and Royal Enfield are
+    // parked on (PRICE_AUDIT.md).
+    priceRangeLakh: [7.798, 10.068],
     rangeKm: 230,
     batteryCapacityKwh: 17.3,
     // inferred basis: this OEM publishes one nominal pack figure and no usable
@@ -429,8 +456,13 @@ export const cars: Vehicle[] = [
     colors: ["Candy White", "Starry Black", "Aurora Silver"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "pace", name: "Pace", priceLakh: 6.99, rangeKm: 230, batteryKwh: 17.3, topSpeedKmph: 100 },
-      { id: "play", name: "Play", priceLakh: 9.98, rangeKm: 230, batteryKwh: 17.3, topSpeedKmph: 100 },
+      // All five Comet trims share one 17.3 kWh pack and its 230 km range, so
+      // only price separates them. "FC" denotes the fast-charging option.
+      { id: "executive", name: "Executive", priceLakh: 7.798, rangeKm: 230, batteryKwh: 17.3, topSpeedKmph: 100 },
+      { id: "excite", name: "Excite", priceLakh: 8.898, rangeKm: 230, batteryKwh: 17.3, topSpeedKmph: 100 },
+      { id: "excite-fc", name: "Excite FC", priceLakh: 9.168, rangeKm: 230, batteryKwh: 17.3, topSpeedKmph: 100 },
+      { id: "exclusive", name: "Exclusive", priceLakh: 9.798, rangeKm: 230, batteryKwh: 17.3, topSpeedKmph: 100 },
+      { id: "exclusive-fc", name: "Exclusive FC", priceLakh: 10.068, rangeKm: 230, batteryKwh: 17.3, topSpeedKmph: 100 },
     ],
     highlights: ["Tiny turning radius", "Twin 10.25-inch screens", "Dual-tone interior themes"],
     description:
@@ -458,7 +490,19 @@ export const cars: Vehicle[] = [
     modelName: "Windsor EV",
     tagline: "Crossover comfort with battery-as-a-service option",
     bodyType: "suv",
-    priceRangeLakh: [13.49, 17.89],
+    // PRICE CORRECTED 2026-08-22 (price audit, phase 2 — MG). Both ends were
+    // wrong against mgmotor.co.in. The 13.49 floor matched NO current MG
+    // price — battery-included starts at 14,69,800 (Excite) — and the 17.89
+    // ceiling was the Exclusive Pro, not the top trim: Essence Pro is
+    // 18,99,800. "Exclusive AC" was not an MG variant name at all.
+    // NOTE ON BaaS: MG sells this car on Battery-as-a-Service too (a lower
+    // sticker plus a per-km battery rental). This catalogue records the
+    // BATTERY-INCLUDED ex-showroom price throughout, because that is what the
+    // pricing system turns into an on-road figure and what every other record
+    // carries. BaaS is a financing choice, not a trim, and the schema has no
+    // concept for it — the same open question Vida and Royal Enfield are
+    // parked on (PRICE_AUDIT.md).
+    priceRangeLakh: [14.698, 18.998],
     rangeKm: 449,
     batteryCapacityKwh: 52.9,
     // inferred basis: this OEM publishes one nominal pack figure and no usable
@@ -475,9 +519,14 @@ export const cars: Vehicle[] = [
     colors: ["Glaze Red", "Starry Black", "Aurora Silver"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "essence", name: "Essence", priceLakh: 13.49, rangeKm: 332, batteryKwh: 38, topSpeedKmph: 130 },
-      { id: "exclusive-ac", name: "Exclusive AC", priceLakh: 15.99, rangeKm: 332, batteryKwh: 38, topSpeedKmph: 130, fastChargeTimeMin: 50 },
-      { id: "exclusive-pro", name: "Exclusive Pro", priceLakh: 17.89, rangeKm: 449, batteryKwh: 52.9, topSpeedKmph: 130, fastChargeTimeMin: 50 },
+      // MG's current five trims, prices straight from mgmotor.co.in. The
+      // 38 kWh / 52.9 kWh split (and its 332 / 449 km MIDC ranges) was already
+      // correct in this record and maps onto standard vs Pro exactly.
+      { id: "excite", name: "Excite", priceLakh: 14.698, rangeKm: 332, batteryKwh: 38, topSpeedKmph: 130, fastChargeTimeMin: 50 },
+      { id: "exclusive", name: "Exclusive", priceLakh: 15.998, rangeKm: 332, batteryKwh: 38, topSpeedKmph: 130, fastChargeTimeMin: 50 },
+      { id: "essence", name: "Essence", priceLakh: 16.998, rangeKm: 332, batteryKwh: 38, topSpeedKmph: 130, fastChargeTimeMin: 50 },
+      { id: "exclusive-pro", name: "Exclusive Pro", priceLakh: 17.898, rangeKm: 449, batteryKwh: 52.9, topSpeedKmph: 130, fastChargeTimeMin: 50 },
+      { id: "essence-pro", name: "Essence Pro", priceLakh: 18.998, rangeKm: 449, batteryKwh: 52.9, topSpeedKmph: 130, fastChargeTimeMin: 50 },
     ],
     highlights: ["Lounge-style reclining rear seats", "Battery subscription option", "449 km range on the Pro's 52.9kWh pack"],
     description:
@@ -502,7 +551,16 @@ export const cars: Vehicle[] = [
     modelName: "Cyberster",
     tagline: "MG's halo electric roadster",
     bodyType: "sedan",
-    priceRangeLakh: [82.5, 82.5],
+    // PRICE CORRECTED 2026-08-22 (price audit, phase 2 — MG). Flat [82.5, 82.5]
+    // excluded the Couture Edition at 87.49 — the same shape as the Porsche
+    // Macan defect phase 1 fixed. The 82.5 floor was already right, which is
+    // what corroborates the ceiling.
+    // SECONDARY-SOURCED: Cyberster sells through MG Select, not the main
+    // mgmotor.co.in vehicle pages, so this comes from Autocar/ZigWheels/CarWale
+    // agreeing on 82.50-87.49. Lower confidence than the three records above.
+    // The 72.49 / 74.99 figures in circulation are July-2025 INTRODUCTORY
+    // prices and are deliberately not used.
+    priceRangeLakh: [82.5, 87.49],
     rangeKm: 580,
     batteryCapacityKwh: 77,
     // inferred basis: this OEM publishes one nominal pack figure and no usable
@@ -519,7 +577,10 @@ export const cars: Vehicle[] = [
     colors: ["Flare Red", "Andes Grey", "Modern Beige", "Nuclear Yellow", "Irises Cyan"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "standard", name: "Standard", priceLakh: 82.5, rangeKm: 580, batteryKwh: 77, topSpeedKmph: 200, fastChargeTimeMin: 40 },
+      // One 77 kWh powertrain across both; Couture is an appearance edition, so
+      // range, battery and top speed are shared and only price differs.
+      { id: "gt", name: "GT", priceLakh: 82.5, rangeKm: 580, batteryKwh: 77, topSpeedKmph: 200, fastChargeTimeMin: 40 },
+      { id: "couture", name: "Couture Edition", priceLakh: 87.49, rangeKm: 580, batteryKwh: 77, topSpeedKmph: 200, fastChargeTimeMin: 40 },
     ],
     highlights: ["510hp dual-motor AWD", "3.2s 0-100 km/h", "Sold exclusively via MG Select showrooms"],
     description:
@@ -545,7 +606,11 @@ export const cars: Vehicle[] = [
     modelName: "M9",
     tagline: "Chauffeur-focused electric luxury MPV",
     bodyType: "muv",
-    priceRangeLakh: [79.95, 79.95],
+    // PRICE CORRECTED 2026-08-22 (price audit, phase 2 — MG). Flat [79.95,
+    // 79.95] excluded the Couture Edition at 84.94. Floor already correct.
+    // SECONDARY-SOURCED, same as the Cyberster: M9 is an MG Select car. The
+    // 69.90 figure in circulation is the July-2025 launch price, not current.
+    priceRangeLakh: [79.95, 84.94],
     rangeKm: 548,
     batteryCapacityKwh: 90,
     // inferred basis: this OEM publishes one nominal pack figure and no usable
@@ -562,7 +627,10 @@ export const cars: Vehicle[] = [
     colors: ["Pearl Lustre White", "Metal Black", "Concrete Grey"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "standard", name: "Standard", priceLakh: 79.95, rangeKm: 548, batteryKwh: 90, topSpeedKmph: 180, fastChargeTimeMin: 90 },
+      // Shared 90 kWh powertrain; Couture is an appearance edition above the
+      // Presidential Limo, so only price differs.
+      { id: "presidential-limo", name: "Presidential Limo", priceLakh: 79.95, rangeKm: 548, batteryKwh: 90, topSpeedKmph: 180, fastChargeTimeMin: 90 },
+      { id: "couture", name: "Couture Edition", priceLakh: 84.94, rangeKm: 548, batteryKwh: 90, topSpeedKmph: 180, fastChargeTimeMin: 90 },
     ],
     highlights: ["India's first all-electric luxury MPV from MG", "16-way power captain chairs with massage function", "548 km claimed range"],
     description:

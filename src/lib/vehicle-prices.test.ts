@@ -103,6 +103,31 @@ describe("the corrections this audit made", () => {
     expect(punch.variants.map((v) => v.priceLakh)).toEqual([9.69, 12.59]);
   });
 
+  it("prices the MG range off MG's own current table", () => {
+    // Phase 2, MG cluster. Every one of the five was wrong. The worst was the
+    // ZS EV, whose ceiling sat 4.23 lakh above anything MG sells.
+    const zs = bySlug("mg-zs-ev");
+    expect(zs.priceRangeLakh).toEqual([17.99, 20.746]);
+    expect(bySlug("mg-comet-ev").priceRangeLakh).toEqual([7.798, 10.068]);
+    expect(bySlug("mg-windsor-ev").priceRangeLakh).toEqual([14.698, 18.998]);
+
+    // Retired trim names. "Pace"/"Play" on the Comet and "Exclusive AC" on the
+    // Windsor are not MG variants any more; their return means a revert.
+    const retired = ["Pace", "Play", "Exclusive AC"];
+    for (const slug of ["mg-comet-ev", "mg-windsor-ev"]) {
+      const names = bySlug(slug).variants.map((v) => v.name);
+      expect(names.filter((n) => retired.includes(n)), slug).toEqual([]);
+    }
+  });
+
+  it("gives the two MG Select cars a ceiling that reaches their top edition", () => {
+    // Both were flat ranges hiding a dearer trim — the Porsche shape again.
+    // Secondary-sourced (MG Select cars are not on mgmotor.co.in's vehicle
+    // pages), which is why the floors matching MG's launch prices matters.
+    expect(bySlug("mg-cyberster").priceRangeLakh).toEqual([82.5, 87.49]);
+    expect(bySlug("mg-m9").priceRangeLakh).toEqual([79.95, 84.94]);
+  });
+
   it("stops claiming 145 km from the OoWah's small battery", () => {
     // The record paired the EX's 2.3 kWh pack with the MAX Plus's 145 km. Each
     // trim now carries its own pack and its own range.
