@@ -302,7 +302,15 @@ export const twoWheelers: Vehicle[] = [
     modelName: "Chetak C3501",
     tagline: "Long-range Chetak for bigger commutes",
     twoWheelerType: "scooter",
-    priceRangeLakh: [1.52, 1.52],
+    // PRICE CORRECTED 2026-08-22 (price audit, phase 1). The whole Chetak
+    // C-series was recorded high, by 10-18k a trim, against the current
+    // ex-showroom Delhi list (C2501 96,400 / 3001 1,12,000 / 3503 1,14,000 /
+    // 3502 1,27,000 / 3501 1,34,500). Two of these were caught by an internal
+    // check because the range and the record's own variant disagreed; the other
+    // two were internally CONSISTENT and still wrong, which is exactly why a
+    // price audit cannot stop at self-consistency.
+    // Each Chetak record models one trim, so its range equals that trim.
+    priceRangeLakh: [1.345, 1.345],
     rangeKm: 153,
     batteryCapacityKwh: 3.5,
     chargingTimeSlowHr: 5.5,
@@ -312,7 +320,7 @@ export const twoWheelers: Vehicle[] = [
     colors: ["Brooklyn Black", "Indigo Ink"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "c3501", name: "C3501", priceLakh: 1.35, rangeKm: 153, batteryKwh: 3.5, topSpeedKmph: 73 },
+      { id: "c3501", name: "C3501", priceLakh: 1.345, rangeKm: 153, batteryKwh: 3.5, topSpeedKmph: 73 },
     ],
     highlights: ["153 km claimed range", "Reverse assist mode", "Metal body durability"],
     description:
@@ -639,7 +647,12 @@ export const twoWheelers: Vehicle[] = [
     colors: ["Cosmic Black", "Pearl White", "Ocean Blue"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "nexus", name: "Nexus", priceLakh: 1.1, rangeKm: 121, batteryKwh: 3.0, topSpeedKmph: 70 },
+      // Variant list completed 2026-08-22 (price audit, phase 1). The [1.1,
+      // 1.2] range was correct; Ampere sells two Nexus trims that differ only
+      // in instrumentation (6.2-inch LCD vs TFT), so battery, range and top
+      // speed are genuinely identical and only the price differs.
+      { id: "nexus-lcd", name: "Nexus (LCD)", priceLakh: 1.1, rangeKm: 121, batteryKwh: 3.0, topSpeedKmph: 70 },
+      { id: "nexus-tft", name: "Nexus (TFT)", priceLakh: 1.2, rangeKm: 121, batteryKwh: 3.0, topSpeedKmph: 70 },
     ],
     highlights: ["121 km range", "7-inch TFT display", "Reverse mode"],
     description:
@@ -923,7 +936,15 @@ export const twoWheelers: Vehicle[] = [
     modelName: "Chetak C3001",
     tagline: "Mid-tier Chetak with a bump in range",
     twoWheelerType: "scooter",
-    priceRangeLakh: [1.14, 1.14],
+    // PRICE CORRECTED 2026-08-22 (price audit, phase 1). The whole Chetak
+    // C-series was recorded high, by 10-18k a trim, against the current
+    // ex-showroom Delhi list (C2501 96,400 / 3001 1,12,000 / 3503 1,14,000 /
+    // 3502 1,27,000 / 3501 1,34,500). Two of these were caught by an internal
+    // check because the range and the record's own variant disagreed; the other
+    // two were internally CONSISTENT and still wrong, which is exactly why a
+    // price audit cannot stop at self-consistency.
+    // Each Chetak record models one trim, so its range equals that trim.
+    priceRangeLakh: [1.12, 1.12],
     rangeKm: 127,
     batteryCapacityKwh: 3.0,
     chargingTimeSlowHr: 3.7,
@@ -933,7 +954,7 @@ export const twoWheelers: Vehicle[] = [
     colors: ["Racing Red", "Brooklyn Black", "Azure Blue"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "c3001", name: "C3001", priceLakh: 0.98, rangeKm: 127, batteryKwh: 3.0, topSpeedKmph: 63 },
+      { id: "c3001", name: "C3001", priceLakh: 1.12, rangeKm: 127, batteryKwh: 3.0, topSpeedKmph: 63 },
     ],
     highlights: ["Replaces the older Chetak 2903 in Bajaj's lineup", "127 km claimed range", "Entry point into the C35-derived platform"],
     description:
@@ -970,7 +991,15 @@ export const twoWheelers: Vehicle[] = [
     // a buyer actually gets, the same way quoting a variant's figure as the
     // model's does. Flagged because it makes the C3502 read slower than the
     // cheaper C3503 (70 km/h), which is genuinely how Bajaj specs them.
-    priceRangeLakh: [1.37, 1.37],
+    // PRICE CORRECTED 2026-08-22 (price audit, phase 1). The whole Chetak
+    // C-series was recorded high, by 10-18k a trim, against the current
+    // ex-showroom Delhi list (C2501 96,400 / 3001 1,12,000 / 3503 1,14,000 /
+    // 3502 1,27,000 / 3501 1,34,500). Two of these were caught by an internal
+    // check because the range and the record's own variant disagreed; the other
+    // two were internally CONSISTENT and still wrong, which is exactly why a
+    // price audit cannot stop at self-consistency.
+    // Each Chetak record models one trim, so its range equals that trim.
+    priceRangeLakh: [1.27, 1.27],
     rangeKm: 153,
     batteryCapacityKwh: 3.5,
     chargingTimeSlowHr: 5.0,
@@ -980,7 +1009,7 @@ export const twoWheelers: Vehicle[] = [
     colors: ["Brooklyn Black", "Indigo Ink", "Ivory Ash"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "c3502", name: "C3502", priceLakh: 1.37, rangeKm: 153, batteryKwh: 3.5, topSpeedKmph: 63 },
+      { id: "c3502", name: "C3502", priceLakh: 1.27, rangeKm: 153, batteryKwh: 3.5, topSpeedKmph: 63 },
     ],
     highlights: ["153 km claimed range", "IP67-rated, all-metal body", "App connectivity with live tracking and accident detection"],
     description:
@@ -1018,7 +1047,15 @@ export const twoWheelers: Vehicle[] = [
     modelName: "Chetak C3503",
     tagline: "The most affordable Series 35 Chetak",
     twoWheelerType: "scooter",
-    priceRangeLakh: [1.24, 1.24],
+    // PRICE CORRECTED 2026-08-22 (price audit, phase 1). The whole Chetak
+    // C-series was recorded high, by 10-18k a trim, against the current
+    // ex-showroom Delhi list (C2501 96,400 / 3001 1,12,000 / 3503 1,14,000 /
+    // 3502 1,27,000 / 3501 1,34,500). Two of these were caught by an internal
+    // check because the range and the record's own variant disagreed; the other
+    // two were internally CONSISTENT and still wrong, which is exactly why a
+    // price audit cannot stop at self-consistency.
+    // Each Chetak record models one trim, so its range equals that trim.
+    priceRangeLakh: [1.14, 1.14],
     rangeKm: 151,
     batteryCapacityKwh: 3.5,
     chargingTimeSlowHr: 5.0,
@@ -1028,7 +1065,7 @@ export const twoWheelers: Vehicle[] = [
     colors: ["Brooklyn Black", "Cyber White", "Indigo Blue", "Matt Grey"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "c3503", name: "C3503", priceLakh: 1.24, rangeKm: 151, batteryKwh: 3.5, topSpeedKmph: 70 },
+      { id: "c3503", name: "C3503", priceLakh: 1.14, rangeKm: 151, batteryKwh: 3.5, topSpeedKmph: 70 },
     ],
     highlights: ["151 km claimed range", "35 L boot space", "All-metal body"],
     description:
@@ -1344,9 +1381,17 @@ export const twoWheelers: Vehicle[] = [
     modelName: "Oowah",
     tagline: "BGauss's entry-level electric scooter",
     twoWheelerType: "scooter",
+    // CORRECTED 2026-08-22 (price audit, phase 1). The price range was already
+    // right — BGauss's own site lists OoWah EX at 94,990 and OoWah MAX Plus at
+    // 1,22,990 — and it was the VARIANT LIST that was incomplete, which is the
+    // shape `priceRangeLakh` means "every trim" predicts.
+    // The audit also caught a spec conflation underneath it: this record paired
+    // the EX's 2.3 kWh pack with the MAX Plus's 145 km, claiming 145 km from a
+    // battery that does 105. Top-level figures now describe the top trim
+    // (3.0 kWh / 145 km) and each variant carries its own.
     priceRangeLakh: [0.95, 1.23],
     rangeKm: 145,
-    batteryCapacityKwh: 2.3,
+    batteryCapacityKwh: 3.0,
     chargingTimeSlowHr: 5.2,
     topSpeedKmph: 60,
     launchStatus: "available",
@@ -1354,7 +1399,11 @@ export const twoWheelers: Vehicle[] = [
     colors: ["Black", "White", "Grey"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "oowah", name: "Oowah", priceLakh: 0.95, rangeKm: 145, batteryKwh: 2.3, topSpeedKmph: 60 },
+      // Battery and range per trim are BGauss's own; top speed is the
+      // model-level 60 km/h BGauss publishes once for the OoWah, applied to
+      // both trims rather than invented per trim.
+      { id: "oowah-ex", name: "OoWah EX", priceLakh: 0.95, rangeKm: 105, batteryKwh: 2.3, topSpeedKmph: 60 },
+      { id: "oowah-max-plus", name: "OoWah MAX Plus", priceLakh: 1.23, rangeKm: 145, batteryKwh: 3.0, topSpeedKmph: 60 },
     ],
     highlights: ["Most affordable model in the BGauss range", "PMSM hub motor", "145 km ARAI-claimed range"],
     description:
@@ -1379,7 +1428,13 @@ export const twoWheelers: Vehicle[] = [
     colors: ["Black", "White", "Grey"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "c12i-max", name: "C12i Max", priceLakh: 1.08, rangeKm: 123, batteryKwh: 2.7, topSpeedKmph: 60 },
+      // Variant list completed 2026-08-22 (price audit, phase 1). The [1.08,
+      // 1.33] range was already correct and modelled by one trim; BGauss sells
+      // three. Prices, batteries and ranges are from bgauss.com; top speed is
+      // the model-level 60 km/h applied across, not invented per trim.
+      { id: "c12i-ex", name: "C12i EX", priceLakh: 1.08, rangeKm: 85, batteryKwh: 2.0, topSpeedKmph: 60 },
+      { id: "c12i-max-2", name: "MAX C12i 2.0", priceLakh: 1.27, rangeKm: 123, batteryKwh: 2.7, topSpeedKmph: 60 },
+      { id: "c12-max-3", name: "MAX C12 3.0", priceLakh: 1.33, rangeKm: 123, batteryKwh: 2.7, topSpeedKmph: 60 },
     ],
     highlights: ["123 km claimed range", "2.5 kW motor with 105 Nm torque", "CAN-enabled battery management"],
     description:
@@ -1885,7 +1940,16 @@ export const twoWheelers: Vehicle[] = [
     modelName: "Tesseract",
     tagline: "Ultraviolette's move into performance scooters",
     twoWheelerType: "scooter",
-    priceRangeLakh: [1.2, 1.45],
+    // CORRECTED 2026-08-22 (price audit, phase 1). Two errors. The 1.2 floor
+    // was an EXPIRED INTRODUCTORY price (first 10,000 buyers; the standing
+    // entry price is 1.45), and the single variant recorded the 6 kWh pack at
+    // 1.45 — which is the 3.5 kWh trim's price. Ultraviolette lists 3.5 kWh
+    // at 1.45, 5 kWh at 1.70 and 6 kWh at 2.00, so the 6 kWh this record
+    // describes is 2.00 and the range spans 1.45-2.00.
+    // The 5 kWh and 3.5 kWh trims are NOT added as variants: their per-trim
+    // range and top speed are not published anywhere checked, and a variant
+    // row cannot be half-sourced.
+    priceRangeLakh: [1.45, 2],
     rangeKm: 261,
     batteryCapacityKwh: 6.0,
     chargingTimeSlowHr: 5.5,
@@ -1895,7 +1959,7 @@ export const twoWheelers: Vehicle[] = [
     colors: ["Black", "White", "Grey"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "tesseract", name: "Tesseract", priceLakh: 1.45, rangeKm: 261, batteryKwh: 6.0, topSpeedKmph: 100 },
+      { id: "tesseract", name: "Tesseract", priceLakh: 2, rangeKm: 261, batteryKwh: 6.0, topSpeedKmph: 100 },
     ],
     highlights: ["Ultraviolette's first electric scooter", "Introductory pricing for early customers", "Larger battery than most rival scooters"],
     description:
@@ -1961,7 +2025,12 @@ export const twoWheelers: Vehicle[] = [
     modelName: "Rorr Evo",
     tagline: "SmartIQ-equipped performance commuter motorcycle",
     twoWheelerType: "motorcycle",
-    priceRangeLakh: [1.0, 1.25],
+    // CORRECTED 2026-08-22 (price audit, phase 1). The 1.0 floor was an
+    // EXPIRED INTRODUCTORY price — Oben launched the Rorr EVO at 99,999 for
+    // the first 10,000 buyers and the standing price is 1.25 lakh. A launch
+    // offer is not a trim, so the range is now the single price actually on
+    // sale. Same shape as ultraviolette-tesseract below.
+    priceRangeLakh: [1.25, 1.25],
     rangeKm: 180,
     batteryCapacityKwh: 3.4,
     chargingTimeSlowHr: 4.5,

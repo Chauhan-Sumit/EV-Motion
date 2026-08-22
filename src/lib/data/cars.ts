@@ -2491,7 +2491,12 @@ export const cars: Vehicle[] = [
     modelName: "Macan Electric",
     tagline: "Porsche's compact electric SUV, up to Turbo spec",
     bodyType: "suv",
-    priceRangeLakh: [121.0, 121.0],
+    // CORRECTED 2026-08-22 (price audit, phase 1). This was [121.0, 121.0] —
+    // a FLAT range on a car whose own variant table listed a ₹1.70 Cr Turbo,
+    // so the page headlined "₹1.21 Cr" directly above a ₹49 lakh dearer trim,
+    // and the budget filter capped the car at ₹1.21 Cr. Porsche India's
+    // published span is ₹1,21,62,000 to ₹1,68,62,000.
+    priceRangeLakh: [121.62, 168.62],
     rangeKm: 641,
     batteryCapacityKwh: 100,
     // 100 gross / 95 usable
@@ -2506,9 +2511,14 @@ export const cars: Vehicle[] = [
     colors: ["Slate Grey Neo", "Crayon", "Jet Black Metallic", "Carmine Red"],
     images: { hero: "hero", gallery },
     variants: [
-      { id: "macan", name: "Macan", priceLakh: 121.0, rangeKm: 641, batteryKwh: 100, topSpeedKmph: 220 },
-      { id: "macan-4s", name: "Macan 4S", priceLakh: 145.0, rangeKm: 606, batteryKwh: 100, topSpeedKmph: 240, fastChargeTimeMin: 21 },
-      { id: "macan-turbo", name: "Macan Turbo", priceLakh: 170.0, rangeKm: 591, batteryKwh: 100, topSpeedKmph: 260, fastChargeTimeMin: 21 },
+      // Prices corrected against Porsche India's launch pricing: the 4S was
+      // 7 lakh over (145 vs 138) and the Turbo slightly over (170 vs 168.62).
+      // The base and Turbo carry the two precise bookends of the published
+      // span; the 4S figure is quoted as "₹1.38 crore" at that precision and
+      // is deliberately not padded to a false ₹1,38,xx,xxx.
+      { id: "macan", name: "Macan", priceLakh: 121.62, rangeKm: 641, batteryKwh: 100, topSpeedKmph: 220 },
+      { id: "macan-4s", name: "Macan 4S", priceLakh: 138.0, rangeKm: 606, batteryKwh: 100, topSpeedKmph: 240, fastChargeTimeMin: 21 },
+      { id: "macan-turbo", name: "Macan Turbo", priceLakh: 168.62, rangeKm: 591, batteryKwh: 100, topSpeedKmph: 260, fastChargeTimeMin: 21 },
     ],
     highlights: ["641 km range on the base RWD", "270kW DC fast charging, 10-80% in 21 min", "Up to 639PS on the Turbo"],
     description:
