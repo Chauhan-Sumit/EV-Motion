@@ -1,12 +1,12 @@
 # Battery Capacity Convention — Survey (2026-08-21)
 
-**Status: survey only. No vehicle record was edited.** This is the diagnostic pass for the open
-🔴 item "Gross-vs-net battery convention — unaudited across the whole catalogue" in
+**Status: complete. The survey is closed — every car states a basis.** Started as a diagnostic pass for the open 🔴 item "Gross-vs-net battery convention — unaudited across the whole catalogue" in
 [`HANDOFF.md`](HANDOFF.md)'s data-quality register. It answers *what convention each record
 actually follows* so the convention decision can be made on real numbers rather than on the two
 records (`bmw-ix`, `hyundai-ioniq-9`) that happened to surface during the Batch 7 staleness sweep.
 
-Branch: `battery-convention-audit`, off `data-model-decisions` at `4df4a1a`.
+Branches: `battery-convention-audit` (survey + schema + gate), then `byd-battery-sourcing` (the
+last four records), both off `data-model-decisions` at `4df4a1a`.
 
 ---
 
@@ -17,8 +17,8 @@ Branch: `battery-convention-audit`, off `data-model-decisions` at `4df4a1a`.
 | | Cars (54) |
 | --- | --- |
 | Records carrying a **gross / nominal** figure | **43** (22 confirmed against a published pair, 21 inferred from single-figure publication) |
-| Records carrying a **net / usable** figure | **7** (all confirmed) |
-| **Unresolved** — sources conflict or the figure matches neither side | **4** (all BYD) |
+| Records carrying a **net / usable** figure | **11** (all confirmed) |
+| **Unresolved** | **0** — the last four (all BYD) were resolved 2026-08-22, see the BYD section below |
 
 Two-wheelers (69) are a separate problem and are covered in their own section below: the question is
 mostly **not answerable from published sources**, because Indian two-wheeler OEMs publish a single
@@ -83,10 +83,10 @@ value is nominal by construction. `unresolved` = sources conflict, or the figure
 | `mahindra-xev-9s` | Mahindra | XEV 9S | 79 | **GROSS** | inferred | OEM publishes a single nominal pack figure; no usable figure disclosed |
 | `mahindra-xuv-3xo-ev` | Mahindra | XUV 3XO EV | 39.4 | **GROSS** | inferred | OEM publishes a single nominal pack figure; no usable figure disclosed |
 | `byd-atto-3` | BYD | Atto 3 | 60.5 | **NET** | confirmed | 64.8 total / 60.48 usable — record rounds the usable figure |
-| `byd-seal` | BYD | Seal | 82.5 | **AMBIGUOUS** | unresolved | 82.5 vs 82.56 — same pack as Sealion 7 but rounded differently in this catalogue |
-| `byd-e6` | BYD | e6 | 71.7 | **AMBIGUOUS** | unresolved | 71.7; gross/usable pair not established (discontinued) |
-| `byd-emax-7` | BYD | eMAX 7 | 71.8 | **AMBIGUOUS** | unresolved | 71.8; gross/usable pair not established |
-| `byd-sealion-7` | BYD | Sealion 7 | 82.56 | **AMBIGUOUS** | unresolved | 82.56; some sources label 82.5 as useable |
+| `byd-seal` | BYD | Seal | 82.56 | **NET** | confirmed | Corrected from 82.5 to BYD's published 82.56. Resolved 2026-08-22 |
+| `byd-e6` | BYD | e6 | 71.7 | **NET** | confirmed | Brand convention; BYD India pairs this pack with the 415 km WLTP figure the record carries |
+| `byd-emax-7` | BYD | eMAX 7 | 71.8 | **NET** | confirmed | Brand convention; 55.4/71.8 split matches BYD India's Premium/Superior line-up |
+| `byd-sealion-7` | BYD | Sealion 7 | 82.56 | **NET** | confirmed | EV Database labels this figure "useable" and only estimates the total at 84 |
 | `kia-ev6` | Kia | EV6 | 77.4 | **GROSS** | confirmed | 77.4 total |
 | `kia-ev9` | Kia | EV9 | 99.8 | **GROSS** | confirmed | 99.8 total |
 | `kia-carens-clavis-ev` | Kia | Carens Clavis EV | 51.4 | **GROSS** | confirmed | 51.4 total |
@@ -115,20 +115,52 @@ value is nominal by construction. `unresolved` = sources conflict, or the figure
 | `vinfast-vf6` | VinFast | VF6 | 59.6 | **GROSS** | inferred | OEM publishes a single nominal pack figure; no usable figure disclosed |
 | `vinfast-vf7` | VinFast | VF7 | 70.8 | **GROSS** | inferred | OEM publishes a single nominal pack figure; no usable figure disclosed |
 
-### The four unresolved car records — all BYD
+### BYD — resolved 2026-08-22
 
-| Record | Stored | Why it is unresolved |
-| --- | --- | --- |
-| `byd-seal` | 82.5 | Same Blade pack as `byd-sealion-7`, stored as 82.5 there and 82.56 here. One of the two is wrong on rounding alone. |
-| `byd-sealion-7` | 82.56 | Some sources label 82.5 explicitly as *useable*; BYD's own material is not explicit. |
-| `byd-emax-7` | 71.8 | No gross/usable pair established. |
-| `byd-e6` | 71.7 | No gross/usable pair established. Discontinued, so low visitor impact, but it still seeds Compare data. |
+**All five BYD records now carry `usable`, and the last four unresolved records in the catalogue
+are closed.** The reason they were hard is worth recording: **BYD's own spec sheet does not say.**
+The official Seal technical-data PDF on `byd.com` labels the row exactly **"Battery capacity
+(kWh)"**, with "Blade Battery" as the type and no gross/usable qualifier anywhere. OEM-primary,
+the repo's normal tiebreaker, is silent here.
 
-**BYD as a group needs one decision, not four.** All four unresolved records are Blade packs, and
-Blade's cell-to-pack design has an unusually small buffer, which is why sources disagree about
-whether the headline number is the total or the usable figure. Resolving `byd-atto-3` (confirmed
-usable) against the other four is a single research question.
+Three independent lines settle it:
 
+1. **Where a pair exists, BYD quotes the usable side.** The Atto 3 is 60.48 usable of a 64.8 kWh
+   total, and 60.48 is BYD's published figure.
+2. **No official gross figure exists to cite.** EV Database labels the Seal/Sealion 7 82.5 as
+   *useable* and only **estimates** the total at 84 kWh. That estimate is the tell — structurally
+   the same situation as Mercedes-Benz.
+3. **The Seal spec sheet reconciles.** Capacity ÷ (WLTP range × published consumption):
+
+| Variant | WLTP km | kWh/100km | Wall energy | Capacity | Ratio |
+| --- | --- | --- | --- | --- | --- |
+| Dynamic | 460 | 15.4 | 70.84 | 61.44 | 0.867 |
+| Premium | 570 | 16.6 | 94.62 | 82.56 | 0.873 |
+| Performance | 520 | 18.2 | 94.64 | 82.56 | 0.872 |
+
+A consistent ~87% across three variants is a usable figure plus ~13% charging loss. A gross figure
+with a normal buffer would imply ~19% charging losses, which is not credible. Premium and
+Performance also cross-check against each other: same pack, wall energy 94.62 vs 94.64.
+
+#### The rounding mismatch, and a worse problem underneath it
+
+`byd-seal` carried **82.5** where `byd-sealion-7` carried **82.56** for the same Blade pack. BYD
+publishes **82.56**, so the Seal was the imprecise one and is now corrected.
+
+**Checking that turned up something bigger.** `byd-seal`'s variant table was materially wrong:
+all three variants carried 82.5 kWh, and the Dynamic also carried the Premium's 650 km. BYD
+India actually sells Dynamic (**61.44 kWh / 510 km**, RWD), Premium (82.56 / 650, **RWD**) and
+Performance (82.56 / 580, AWD) — so the **entry car at the bottom of the price range was
+overstated by 21 kWh and 140 km**, which is the figure a budget filter surfaces first. "Premium
+AWD" was also a mislabel, and the Premium carried a duplicate of the Performance's ₹53.0L price.
+
+All corrected. **Prices were deliberately not resolved here** — sources split at the decimal
+(Dynamic 41.0 vs 41.5, Performance 53.0 vs 53.65) and they belong to the standing price audit
+(HANDOFF.md data-quality item 2). The duplicated ₹53.0L is gone, since ₹46.2L is what every
+source agrees on for the Premium.
+
+The other four BYD records were checked for the same shape of error and are clean: `emax-7`
+(55.4/420 + 71.8/530), `e6` (71.7 / 415 WLTP), `sealion-7` and `atto-3` all match their sources.
 ---
 
 ## Two-wheelers — the question is mostly unanswerable (69 records)
@@ -161,7 +193,7 @@ The survey did **not** produce a "change these N records" list, because that was
 It produced a shape:
 
 1. **A single-convention rewrite is off the table** — proven above, in both directions.
-2. **The 43 gross / 7 net split is a real comparability defect today.** `bmw-ix` at 105.2 net is
+2. **The 43 gross / 11 net split is a real comparability defect today.** `bmw-ix` at 105.2 net is
    compared directly against `bmw-i4` at 83.9 gross, `audi-q8-e-tron` at 114 gross and
    `lotus-eletre` at 112 gross. The iX loses ground it should not lose, in the Compare winner
    engine, in kWh/100km efficiency, and in the battery filter bounds.
@@ -173,11 +205,16 @@ It produced a shape:
 4. **`mercedes-benz-maybach-eqs-suv` was checked on its own merits and cleared** — see the
    correction below. It is a gross figure and it is current.
 
-**Implemented 2026-08-21**, on this branch: `BatteryMeasurementBasis`, an optional top-level
+**Implemented 2026-08-21**: `BatteryMeasurementBasis`, an optional top-level
 `Vehicle.batteryMeasuredAt`, a `src/lib/vehicle-battery.ts` gate, and the Compare/VDP call sites.
-50 of 54 cars carry a basis (43 gross, 7 usable); the four BYD records and all 69 two-wheelers stay
-deliberately unstamped. **No battery figure was changed**, including the `byd-seal` 82.5 /
-`byd-sealion-7` 82.56 rounding mismatch, which remains open.
+50 of 54 cars carried a basis at that point (43 gross, 7 usable), with four BYD records and all 69
+two-wheelers unstamped and no battery figure changed.
+
+**Completed 2026-08-22** (`byd-battery-sourcing`): the four BYD records resolved to `usable`, so
+**all 54 cars now state a basis — 43 gross, 11 usable, 0 unresolved.** All 69 two-wheelers remain
+deliberately unstamped and that has not changed. Two battery figures did move, both on `byd-seal`
+and both corrections rather than restatements: the pack from 82.5 to BYD's published 82.56, and the
+Dynamic variant from 82.5 kWh / 650 km to its actual 61.44 kWh / 510 km. See the BYD section.
 
 ---
 

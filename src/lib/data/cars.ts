@@ -1125,9 +1125,11 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [24.9, 27.6],
     rangeKm: 521,
     batteryCapacityKwh: 60.5,
-    // 64.8 total / 60.48 usable — this record rounds the USABLE figure. The
-    // other four BYD records are deliberately unstamped: sources disagree on
-    // whether their headline Blade figure is total or usable.
+    // 64.8 total / 60.48 usable — this record rounds the USABLE figure, and
+    // it is the documented pair that settled the convention for the whole
+    // brand on 2026-08-22: where a gross/usable pair exists for a BYD, the
+    // number BYD publishes is the usable one. All five BYD records now carry
+    // `usable`; see `byd-seal` for the full argument.
     batteryMeasuredAt: "usable",
     chargingTimeFastMin: 50,
     chargingTimeSlowHr: 9,
@@ -1167,7 +1169,23 @@ export const cars: Vehicle[] = [
     bodyType: "sedan",
     priceRangeLakh: [41.0, 53.0],
     rangeKm: 650,
-    batteryCapacityKwh: 82.5,
+    // 82.56 is BYD's own published figure (Seal spec sheet, byd.com) and is
+    // what byd-sealion-7 already carried for the same Blade pack. This record
+    // had it rounded to 82.5 — the same pack written two ways in one
+    // catalogue. Corrected 2026-08-22.
+    batteryCapacityKwh: 82.56,
+    // BYD publishes USABLE capacity and never a gross figure: its own spec
+    // sheet labels the row only "Battery capacity (kWh)", which is why this
+    // record sat unresolved. Three things settle it. (1) The Atto 3's
+    // documented 60.48-usable-of-64.8-total pair — 60.48 is the figure BYD
+    // quotes. (2) EV Database labels this 82.5 "useable" and only ESTIMATES
+    // the total at 84, i.e. no official gross exists to cite. (3) The Seal
+    // sheet reconciles: capacity divided by (WLTP range x published
+    // consumption) is ~87% across all three variants (61.44/70.84,
+    // 82.56/94.62, 82.56/94.64), which is a usable figure plus charging loss;
+    // a gross figure would imply ~19% charging losses. See
+    // BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "usable",
     chargingTimeFastMin: 26,
     chargingTimeSlowHr: 11,
     topSpeedKmph: 180,
@@ -1180,10 +1198,25 @@ export const cars: Vehicle[] = [
       hero: "hero",
       gallery,
     },
+    // CORRECTED 2026-08-22, and this was the worse half of the problem. All
+    // three variants previously carried 82.5 kWh, and the Dynamic also carried
+    // the Premium's 650 km — overstating the ENTRY car by 21 kWh and 140 km at
+    // the cheapest price in the range, which is exactly the figure a budget
+    // filter surfaces first. "Premium AWD" was a mislabel too: the Premium is
+    // rear-wheel drive and the Performance is the AWD car.
+    // BYD India's actual line-up: Dynamic (61.44 kWh / 510 km, RWD), Premium
+    // (82.56 / 650, RWD), Performance (82.56 / 580, AWD).
+    // Prices are the known-weak part and are NOT resolved here — sources split
+    // at the decimal (Dynamic 41.0 vs 41.5, Performance 53.0 vs 53.65). The
+    // duplicated 53.0 the Premium carried is gone, since 46.2 is what every
+    // source agrees on for it, but all three belong to the standing price
+    // audit (HANDOFF.md data-quality item 2), not to this pass.
+    // `fastChargeTimeMin` stays on Performance alone: it is the 150 kW car,
+    // and the Premium's 80 kW DC time is not reliably sourced for India.
     variants: [
-      { id: "dynamic-rwd", name: "Dynamic RWD", priceLakh: 41.0, rangeKm: 650, batteryKwh: 82.5, topSpeedKmph: 180 },
-      { id: "performance-awd", name: "Performance AWD", priceLakh: 53.0, rangeKm: 580, batteryKwh: 82.5, topSpeedKmph: 180, fastChargeTimeMin: 26 },
-      { id: "premium-awd", name: "Premium AWD", priceLakh: 53.0, rangeKm: 580, batteryKwh: 82.5, topSpeedKmph: 180, fastChargeTimeMin: 26 },
+      { id: "dynamic-rwd", name: "Dynamic RWD", priceLakh: 41.0, rangeKm: 510, batteryKwh: 61.44, topSpeedKmph: 180 },
+      { id: "premium-rwd", name: "Premium RWD", priceLakh: 46.2, rangeKm: 650, batteryKwh: 82.56, topSpeedKmph: 180 },
+      { id: "performance-awd", name: "Performance AWD", priceLakh: 53.0, rangeKm: 580, batteryKwh: 82.56, topSpeedKmph: 180, fastChargeTimeMin: 26 },
     ],
     highlights: ["3.8s 0-100 km/h on AWD", "CTB battery-as-structure design", "650 km range on RWD"],
     description:
@@ -1224,6 +1257,12 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [29.6, 29.6],
     rangeKm: 415,
     batteryCapacityKwh: 71.7,
+    // Usable — see `byd-seal`. BYD India's own launch material pairs this
+    // 71.7 kWh Blade pack with the 415 km WLTP figure this record already
+    // carries, so both sides of the record agree with the source.
+    // Discontinued, but still served on its own page and in comparisons
+    // naming it, so the basis matters here too.
+    batteryMeasuredAt: "usable",
     chargingTimeFastMin: 90,
     chargingTimeSlowHr: 11,
     topSpeedKmph: 130,
@@ -1284,6 +1323,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [26.9, 29.9],
     rangeKm: 530,
     batteryCapacityKwh: 71.8,
+    // Usable — see `byd-seal` for the brand-level reasoning. The 55.4/71.8
+    // variant split and its 420/530 km NEDC ranges match BYD India's own
+    // Premium/Superior line-up, so no figure needed correcting here.
+    batteryMeasuredAt: "usable",
     chargingTimeFastMin: 37,
     chargingTimeSlowHr: 9,
     topSpeedKmph: 180,
@@ -1333,6 +1376,11 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [49.4, 55.9],
     rangeKm: 567,
     batteryCapacityKwh: 82.56,
+    // Usable — BYD publishes no gross figure for any Blade pack. Full
+    // reasoning on `byd-seal`, which carries the same pack; EV Database
+    // labels this exact 82.5/82.56 figure "useable" and only estimates the
+    // total at 84.
+    batteryMeasuredAt: "usable",
     chargingTimeFastMin: 32,
     chargingTimeSlowHr: 9,
     topSpeedKmph: 215,

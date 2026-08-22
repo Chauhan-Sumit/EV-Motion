@@ -116,14 +116,17 @@ describe("the real catalogue", () => {
     }
   });
 
-  it("keeps the four unresolved BYD records unstamped", () => {
-    // Sources disagree on whether BYD's headline Blade figure is total or
-    // usable. `byd-atto-3` is the one that IS resolved (usable), and it must
-    // not drag the others along with it.
-    for (const slug of ["byd-seal", "byd-sealion-7", "byd-emax-7", "byd-e6"]) {
-      expect(bySlug(slug).batteryMeasuredAt, `${slug} should still be unresolved`).toBeUndefined();
+  it("records every BYD as usable — the brand publishes no gross figure", () => {
+    // Resolved 2026-08-22. BYD's own spec sheet labels the row only "Battery
+    // capacity (kWh)", so the pair had to come from elsewhere: the Atto 3's
+    // documented 60.48-usable-of-64.8-total, EV Database labelling the Seal's
+    // 82.5 "useable" while only ESTIMATING the total at 84, and the Seal sheet
+    // reconciling at ~87% of (WLTP range x published consumption) across all
+    // three variants. One BYD flipping to "gross" would silently reopen the
+    // cross-convention comparison this field exists to refuse.
+    for (const slug of ["byd-atto-3", "byd-seal", "byd-sealion-7", "byd-emax-7", "byd-e6"]) {
+      expect(bySlug(slug).batteryMeasuredAt, slug).toBe("usable");
     }
-    expect(bySlug("byd-atto-3").batteryMeasuredAt).toBe("usable");
   });
 
   it("records the BMW split that this field exists to express", () => {
@@ -146,22 +149,42 @@ describe("the real catalogue", () => {
     expect(bySlug("mercedes-benz-maybach-eqs-suv").batteryCapacityKwh).toBe(122);
   });
 
-  it("stamps 50 of the 54 cars — 43 gross, 7 usable", () => {
-    // A drift guard, not a target. If a future sub-batch resolves a BYD record
-    // this fails loudly and should be updated deliberately, the way
-    // vehicle-availability.test.ts handles the discontinued set.
+  it("stamps every car — 43 gross, 11 usable, none unresolved", () => {
+    // A drift guard, not a target. Every car now states a basis; if a new car
+    // arrives without one this fails loudly, which is the point.
     const cars = getAllVehicles().filter((v) => v.category === "car");
     expect(cars.filter((v) => v.batteryMeasuredAt === "gross")).toHaveLength(43);
-    expect(cars.filter((v) => v.batteryMeasuredAt === "usable")).toHaveLength(7);
-    expect(cars.filter((v) => v.batteryMeasuredAt === undefined)).toHaveLength(4);
+    expect(cars.filter((v) => v.batteryMeasuredAt === "usable")).toHaveLength(11);
+    expect(cars.filter((v) => v.batteryMeasuredAt === undefined)).toHaveLength(0);
   });
 
-  it("does not change any battery figure", () => {
-    // The survey's standing rule: this field records what a number IS, never
-    // replaces the number. These are the figures as they stood before it.
-    expect(bySlug("bmw-ix").batteryCapacityKwh).toBe(105.2);
-    expect(bySlug("byd-seal").batteryCapacityKwh).toBe(82.5);
+  it("writes the same Blade pack the same way on the Seal and the Sealion 7", () => {
+    // These were 82.5 and 82.56 — one pack, two roundings, in one catalogue.
+    // 82.56 is BYD's own published figure.
+    expect(bySlug("byd-seal").batteryCapacityKwh).toBe(82.56);
     expect(bySlug("byd-sealion-7").batteryCapacityKwh).toBe(82.56);
+  });
+
+  it("gives the Seal's entry variant its own, smaller pack", () => {
+    // All three variants used to carry 82.5 kWh, and the Dynamic also carried
+    // the Premium's 650 km — a 21 kWh and 140 km overstatement on the cheapest
+    // variant, which is the one a budget filter surfaces first.
+    const seal = bySlug("byd-seal");
+    const dynamic = seal.variants.find((v) => v.id === "dynamic-rwd");
+    expect(dynamic?.batteryKwh).toBe(61.44);
+    expect(dynamic?.rangeKm).toBe(510);
+    // And the Premium is the RWD long-range car, not a second AWD sitting at
+    // the Performance's price.
+    const premium = seal.variants.find((v) => v.id === "premium-rwd");
+    expect(premium?.batteryKwh).toBe(82.56);
+    expect(premium?.rangeKm).toBe(650);
+  });
+
+  it("leaves every other battery figure alone", () => {
+    // The standing rule: this field records what a number IS. The Seal above
+    // is the one deliberate exception, and it is a correction, not a restatement.
+    expect(bySlug("bmw-ix").batteryCapacityKwh).toBe(105.2);
+    expect(bySlug("byd-atto-3").batteryCapacityKwh).toBe(60.5);
     expect(bySlug("ather-450x").batteryCapacityKwh).toBe(3.7);
   });
 });
