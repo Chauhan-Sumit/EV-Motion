@@ -15,7 +15,14 @@ export const cars: Vehicle[] = [
     modelName: "Nexon EV",
     tagline: "India's best-selling electric SUV",
     bodyType: "suv",
-    priceRangeLakh: [12.49, 17.19],
+    // PRICE CORRECTED 2026-08-22 (price audit, phase 2 — Tata). Top was 17.19,
+    // which excluded the #DARK trims Tata actually sells. ev.tatamotors.com
+    // lists Empowered+ A 45 Red #DARK / #DARK above the standard line-up, and
+    // Tata's own EV homepage carries "Nexon.ev #DARK" at 17.69.
+    // The 17.49 that Tata's price-page FAQ quotes is NOT a contradiction — it
+    // is the top STANDARD trim (Empowered Plus LR); 17.69 is the #DARK. Since
+    // `priceRangeLakh` spans every trim on sale, 17.69 is the correct ceiling.
+    priceRangeLakh: [12.49, 17.69],
     rangeKm: 465,
     batteryCapacityKwh: 45,
     // inferred basis: this OEM publishes one nominal pack figure and no usable
@@ -35,9 +42,20 @@ export const cars: Vehicle[] = [
       gallery,
     },
     variants: [
-      { id: "creative-mr", name: "Creative MR", priceLakh: 12.49, rangeKm: 325, batteryKwh: 30, topSpeedKmph: 140, fastChargeTimeMin: 45 },
-      { id: "fearless-lr", name: "Fearless LR", priceLakh: 15.49, rangeKm: 465, batteryKwh: 45, topSpeedKmph: 150, fastChargeTimeMin: 56 },
-      { id: "empowered-lr", name: "Empowered+ LR", priceLakh: 17.19, rangeKm: 465, batteryKwh: 45, topSpeedKmph: 150, fastChargeTimeMin: 56 },
+      // Renamed and repriced 2026-08-22 against ev.tatamotors.com's variant
+      // table. Two things had drifted. The prices: Fearless was 15.49 against
+      // a published 14.99, and Empowered+ was 17.19 against 16.99.
+      // And the NAMES: Tata retired the "LR" suffix for the battery size, so
+      // "Fearless LR" / "Empowered+ LR" are discontinued variant names. The
+      // "MR" (30 kWh) / "45" (45 kWh) split below is Tata's current one, and
+      // the per-variant battery and range figures already matched it.
+      // The two #DARK trims that set the 17.69 ceiling are NOT modelled here —
+      // their range and charging figures are not published separately, and a
+      // variant row cannot be half-sourced. The range spanning past the last
+      // modelled variant is the documented meaning of `priceRangeLakh`.
+      { id: "creative-plus-mr", name: "Creative Plus MR", priceLakh: 12.49, rangeKm: 325, batteryKwh: 30, topSpeedKmph: 140, fastChargeTimeMin: 45 },
+      { id: "fearless-45", name: "Fearless 45", priceLakh: 14.99, rangeKm: 465, batteryKwh: 45, topSpeedKmph: 150, fastChargeTimeMin: 56 },
+      { id: "empowered-plus-a-45", name: "Empowered+ A 45", priceLakh: 16.99, rangeKm: 465, batteryKwh: 45, topSpeedKmph: 150, fastChargeTimeMin: 56 },
     ],
     highlights: ["465 km ARAI range", "Ventilated front seats", "Segment-first sunroof", "15kW DC fast charging"],
     description:
@@ -143,7 +161,12 @@ export const cars: Vehicle[] = [
     modelName: "Punch EV",
     tagline: "Tata's tallboy micro-SUV, reborn as a dedicated EV",
     bodyType: "suv",
-    priceRangeLakh: [9.69, 12.79],
+    // PRICE CORRECTED 2026-08-22 (price audit, phase 2 — Tata). Top was 12.79
+    // against ev.tatamotors.com's published 12.59 for the Empowered+ S 40.
+    // The floor (9.69, Smart 30) and both variant NAMES already matched Tata's
+    // current table exactly, so this was a 20k drift on one figure and nothing
+    // else — the cleanest record in the Tata cluster.
+    priceRangeLakh: [9.69, 12.59],
     rangeKm: 468,
     batteryCapacityKwh: 40,
     // inferred basis: this OEM publishes one nominal pack figure and no usable
@@ -161,7 +184,7 @@ export const cars: Vehicle[] = [
     images: { hero: "hero", gallery },
     variants: [
       { id: "smart-30", name: "Smart 30", priceLakh: 9.69, rangeKm: 365, batteryKwh: 30, topSpeedKmph: 140 },
-      { id: "empowered-plus-s-40", name: "Empowered+ S 40", priceLakh: 12.79, rangeKm: 468, batteryKwh: 40, topSpeedKmph: 150, fastChargeTimeMin: 26 },
+      { id: "empowered-plus-s-40", name: "Empowered+ S 40", priceLakh: 12.59, rangeKm: 468, batteryKwh: 40, topSpeedKmph: 150, fastChargeTimeMin: 26 },
     ],
     highlights: ["468 km ARAI range on the 40kWh pack", "Battery-as-a-Service purchase option", "Lifetime battery warranty on the 40kWh pack"],
     description:

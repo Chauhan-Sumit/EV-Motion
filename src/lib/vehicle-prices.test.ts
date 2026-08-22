@@ -87,6 +87,22 @@ describe("the corrections this audit made", () => {
     expect(bySlug("ultraviolette-tesseract").variants[0].priceLakh).toBe(2.0);
   });
 
+  it("prices the Nexon and Punch off Tata's own current table", () => {
+    // Phase 2, Tata cluster. Nexon's ceiling excluded the #DARK trims Tata
+    // sells (17.19 vs 17.69) and two variants were 20-50k over; Punch's
+    // top variant was 20k over. Both from ev.tatamotors.com.
+    const nexon = bySlug("tata-nexon-ev");
+    expect(nexon.priceRangeLakh).toEqual([12.49, 17.69]);
+    expect(nexon.variants.map((v) => v.priceLakh)).toEqual([12.49, 14.99, 16.99]);
+    // The "LR" suffix is a retired Tata variant name — if it comes back, the
+    // record has been reverted to a discontinued line-up.
+    expect(nexon.variants.some((v) => v.name.includes("LR"))).toBe(false);
+
+    const punch = bySlug("tata-punch-ev");
+    expect(punch.priceRangeLakh).toEqual([9.69, 12.59]);
+    expect(punch.variants.map((v) => v.priceLakh)).toEqual([9.69, 12.59]);
+  });
+
   it("stops claiming 145 km from the OoWah's small battery", () => {
     // The record paired the EX's 2.3 kWh pack with the MAX Plus's 145 km. Each
     // trim now carries its own pack and its own range.
