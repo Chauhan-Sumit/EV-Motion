@@ -138,6 +138,13 @@ export interface VehicleChargingExtra {
  */
 export type TorqueMeasurementPoint = "shaft" | "wheel";
 
+/**
+ * Which quantity a published battery figure is: the total/installed/nominal
+ * pack (`"gross"`), or what remains after the manufacturer's protective
+ * buffer (`"usable"`). See `Vehicle.batteryMeasuredAt`.
+ */
+export type BatteryMeasurementBasis = "gross" | "usable";
+
 export interface VehicleMotor {
   motorType?: string;
   driveLayout?: "FWD" | "RWD" | "AWD";
@@ -212,6 +219,22 @@ export interface Vehicle {
   priceRangeLakh: [number, number];
   rangeKm: number;
   batteryCapacityKwh: number;
+  /**
+   * Which quantity `batteryCapacityKwh` — and every variant's `batteryKwh` —
+   * actually is. One qualifier covers the variants too: variants of one model
+   * share a pack convention.
+   *
+   * Absent means no source established it, and absent **never** resolves to a
+   * default. That is the deliberate difference from `torqueMeasuredAt`, which
+   * a car may leave blank because no hub-motor car exists: here there is no
+   * category whose convention is unambiguous. BMW and BYD each use both
+   * conventions *within their own line-ups* — `bmw-ix` records the usable
+   * figure while `bmw-i4` beside it records the gross one.
+   *
+   * See `BATTERY_CONVENTION_SURVEY.md` for the per-record classification and
+   * `src/lib/vehicle-battery.ts` for the comparison rule.
+   */
+  batteryMeasuredAt?: BatteryMeasurementBasis;
   chargingTimeFastMin?: number;
   chargingTimeSlowHr: number;
   topSpeedKmph: number;

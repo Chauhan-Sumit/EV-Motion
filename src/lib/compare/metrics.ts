@@ -3,6 +3,7 @@ import type { WinnerMetric } from "./winnerEngine";
 import { boolToMetricValue } from "./winnerEngine";
 import { formatPriceLakh } from "@/lib/utils";
 import { isTorqueComparable, torqueMeasurementPointFor, TORQUE_POINT_LABEL } from "@/lib/vehicle-torque";
+import { batteryBasisFor, isBatteryComparable, BATTERY_BASIS_LABEL } from "@/lib/vehicle-battery";
 import { currentNcapRating, formatNcapResult, ncapResultFor } from "@/lib/vehicle-safety";
 
 export interface SpecRow {
@@ -80,13 +81,32 @@ function torqueLabel(v: VehicleDetail): string {
 /** Shared by the Overview and Performance torque rows — both render the same figure, so both must gate on the same rule. */
 const torqueComparable = (vehicles: VehicleDetail[]) => isTorqueComparable(vehicles.map((v) => v.sourceVehicle));
 
+/**
+ * Battery prints its basis whenever one is known — "105.2 kWh (usable)",
+ * "83.9 kWh (gross)". Those are not the same quantity, and the suffix is the
+ * visible half of the rule `batteryComparable` enforces invisibly. See
+ * `src/lib/vehicle-battery.ts` and BATTERY_CONVENTION_SURVEY.md.
+ *
+ * A vehicle whose basis was never established prints the bare figure — no
+ * suffix is honest about not knowing, and its value is excluded from the
+ * ranking anyway. That is currently every two-wheeler.
+ */
+function batteryLabel(v: VehicleDetail): string {
+  const kwh = v.quickSpecs.batteryKwh;
+  const basis = batteryBasisFor(v.sourceVehicle);
+  return basis ? `${kwh} kWh (${BATTERY_BASIS_LABEL[basis]})` : `${kwh} kWh`;
+}
+
+/** Shared by the Overview battery row, the Battery-section row and the Efficiency row — all three are the same figure, so all three gate on the same rule. */
+const batteryComparable = (vehicles: VehicleDetail[]) => isBatteryComparable(vehicles.map((v) => v.sourceVehicle));
+
 function fastChargeLabel(v: VehicleDetail, suffix = ""): string {
   const real = v.quickSpecs.fastChargeMinutes;
   return real ? `${real} min${suffix}` : NOT_SPECIFIED;
 }
 
 export const OVERVIEW_SPEC_ROWS: SpecRow[] = [
-  { key: "battery", label: "Battery", section: "overview", render: (v) => `${v.quickSpecs.batteryKwh} kWh`, barValue: (v) => v.quickSpecs.batteryKwh },
+  { key: "battery", label: "Battery", section: "overview", render: batteryLabel, barValue: (v) => v.quickSpecs.batteryKwh, comparable: batteryComparable },
   { key: "range", label: "Range", section: "overview", render: (v) => fmtKm(v.quickSpecs.rangeKm), barValue: (v) => v.quickSpecs.rangeKm },
   { key: "power", label: "Power", section: "overview", render: powerLabel, barValue: (v) => v.quickSpecs.powerKw ?? null },
   { key: "torque", label: "Torque", section: "overview", render: torqueLabel, barValue: (v) => v.quickSpecs.torqueNm ?? null, comparable: torqueComparable },
@@ -109,6 +129,11 @@ export const OVERVIEW_SPEC_ROWS: SpecRow[] = [
     label: "Efficiency",
     section: "overview",
     render: (v) => `${(v.quickSpecs.batteryKwh / (v.quickSpecs.rangeKm / 100)).toFixed(1)} kWh/100km`,
+    // Battery-derived, so it inherits the battery basis: a usable-figure car
+    // shows a lower kWh/100km than an identical gross-figure one purely by
+    // convention. No `barValue` today, but the gate travels with the row so a
+    // future bar cannot reintroduce the distortion.
+    comparable: batteryComparable,
   },
 ];
 
@@ -117,7 +142,7 @@ export const PRICE_SPEC_ROWS: SpecRow[] = [
 ];
 
 export const BATTERY_SPEC_ROWS: SpecRow[] = [
-  { key: "battery", label: "Battery Capacity", section: "battery", render: (v) => `${v.quickSpecs.batteryKwh} kWh`, barValue: (v) => v.quickSpecs.batteryKwh },
+  { key: "battery", label: "Battery Capacity", section: "battery", render: batteryLabel, barValue: (v) => v.quickSpecs.batteryKwh, comparable: batteryComparable },
   {
     key: "batteryChemistry",
     label: "Battery Chemistry",
@@ -328,7 +353,18 @@ export const WARRANTY_SPEC_ROWS: SpecRow[] = [
 export const WINNER_METRICS: WinnerMetric<VehicleDetail>[] = [
   { key: "price", label: "Lower Price", section: "price", direction: "lower-better", value: (v) => v.startingPrice },
   { key: "range", label: "Higher Range", section: "overview", direction: "higher-better", value: (v) => v.quickSpecs.rangeKm },
-  { key: "battery", label: "Larger Battery", section: "overview", direction: "higher-better", value: (v) => v.quickSpecs.batteryKwh },
+  {
+    key: "battery",
+    label: "Larger Battery",
+    section: "overview",
+    direction: "higher-better",
+    value: (v) => v.quickSpecs.batteryKwh,
+    // A gross figure and a usable figure are not the same quantity, so
+    // crowning the larger one is meaningless unless both were stated the same
+    // way. `bmw-ix` (105.2 usable) against `bmw-i4` (83.9 gross) is the case
+    // that proves it — same brand, opposite conventions.
+    comparable: batteryComparable,
+  },
   {
     key: "power",
     label: "Higher Power",

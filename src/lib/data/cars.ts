@@ -18,6 +18,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [12.49, 17.19],
     rangeKm: 465,
     batteryCapacityKwh: 45,
+    // inferred basis: this OEM publishes one nominal pack figure and no usable
+    // figure, so the stored value is nominal by construction. Weaker evidence
+    // than a confirmed gross/usable pair — see BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 56,
     chargingTimeSlowHr: 8.5,
     topSpeedKmph: 150,
@@ -58,6 +62,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [7.99, 11.29],
     rangeKm: 315,
     batteryCapacityKwh: 24,
+    // inferred basis: this OEM publishes one nominal pack figure and no usable
+    // figure, so the stored value is nominal by construction. Weaker evidence
+    // than a confirmed gross/usable pair — see BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 58,
     chargingTimeSlowHr: 6.9,
     topSpeedKmph: 120,
@@ -95,6 +103,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [14.99, 19.99],
     rangeKm: 502,
     batteryCapacityKwh: 45,
+    // inferred basis: this OEM publishes one nominal pack figure and no usable
+    // figure, so the stored value is nominal by construction. Weaker evidence
+    // than a confirmed gross/usable pair — see BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 55,
     chargingTimeSlowHr: 8.4,
     topSpeedKmph: 165,
@@ -134,6 +146,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [9.69, 12.79],
     rangeKm: 468,
     batteryCapacityKwh: 40,
+    // inferred basis: this OEM publishes one nominal pack figure and no usable
+    // figure, so the stored value is nominal by construction. Weaker evidence
+    // than a confirmed gross/usable pair — see BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 26,
     chargingTimeSlowHr: 5.3,
     topSpeedKmph: 150,
@@ -168,6 +184,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [12.49, 13.75],
     rangeKm: 315,
     batteryCapacityKwh: 26,
+    // inferred basis: this OEM publishes one nominal pack figure and no usable
+    // figure, so the stored value is nominal by construction. Weaker evidence
+    // than a confirmed gross/usable pair — see BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 59,
     chargingTimeSlowHr: 9.4,
     topSpeedKmph: 120,
@@ -203,6 +223,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [21.69, 29.19],
     rangeKm: 627,
     batteryCapacityKwh: 75,
+    // inferred basis: this OEM publishes one nominal pack figure and no usable
+    // figure, so the stored value is nominal by construction. Weaker evidence
+    // than a confirmed gross/usable pair — see BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 25,
     chargingTimeSlowHr: 11,
     topSpeedKmph: 180,
@@ -263,6 +287,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [18.79, 25.99],
     rangeKm: 665,
     batteryCapacityKwh: 75,
+    // inferred basis: this OEM publishes one nominal pack figure and no usable
+    // figure, so the stored value is nominal by construction. Weaker evidence
+    // than a confirmed gross/usable pair — see BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 25,
     chargingTimeSlowHr: 10.5,
     topSpeedKmph: 170,
@@ -312,6 +340,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [18.98, 24.98],
     rangeKm: 461,
     batteryCapacityKwh: 50.3,
+    // inferred basis: this OEM publishes one nominal pack figure and no usable
+    // figure, so the stored value is nominal by construction. Weaker evidence
+    // than a confirmed gross/usable pair — see BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 60,
     chargingTimeSlowHr: 9,
     topSpeedKmph: 175,
@@ -360,6 +392,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [6.99, 9.98],
     rangeKm: 230,
     batteryCapacityKwh: 17.3,
+    // inferred basis: this OEM publishes one nominal pack figure and no usable
+    // figure, so the stored value is nominal by construction. Weaker evidence
+    // than a confirmed gross/usable pair — see BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 55,
     chargingTimeSlowHr: 7,
     topSpeedKmph: 100,
@@ -402,6 +438,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [13.49, 17.89],
     rangeKm: 449,
     batteryCapacityKwh: 52.9,
+    // inferred basis: this OEM publishes one nominal pack figure and no usable
+    // figure, so the stored value is nominal by construction. Weaker evidence
+    // than a confirmed gross/usable pair — see BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 50,
     chargingTimeSlowHr: 9.5,
     topSpeedKmph: 130,
@@ -442,6 +482,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [82.5, 82.5],
     rangeKm: 580,
     batteryCapacityKwh: 77,
+    // inferred basis: this OEM publishes one nominal pack figure and no usable
+    // figure, so the stored value is nominal by construction. Weaker evidence
+    // than a confirmed gross/usable pair — see BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 40,
     chargingTimeSlowHr: 11,
     topSpeedKmph: 200,
@@ -481,6 +525,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [79.95, 79.95],
     rangeKm: 548,
     batteryCapacityKwh: 90,
+    // inferred basis: this OEM publishes one nominal pack figure and no usable
+    // figure, so the stored value is nominal by construction. Weaker evidence
+    // than a confirmed gross/usable pair — see BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 90,
     chargingTimeSlowHr: 10,
     topSpeedKmph: 180,
@@ -519,6 +567,8 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [23.84, 24.03],
     rangeKm: 452,
     batteryCapacityKwh: 39.2,
+    // Hyundai/E-GMP published capacities are totals, a few % above usable.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 57,
     chargingTimeSlowHr: 6.1,
     topSpeedKmph: 167,
@@ -572,6 +622,8 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [17.99, 21.99],
     rangeKm: 473,
     batteryCapacityKwh: 51.4,
+    // Hyundai/E-GMP published capacities are totals.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 58,
     chargingTimeSlowHr: 8,
     topSpeedKmph: 170,
@@ -629,6 +681,8 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [46.05, 46.05],
     rangeKm: 631,
     batteryCapacityKwh: 72.6,
+    // 72.6 stated as the total; usable is a few % lower.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 18,
     chargingTimeSlowHr: 10,
     topSpeedKmph: 185,
@@ -667,6 +721,8 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [55.7, 55.7],
     rangeKm: 614,
     batteryCapacityKwh: 77.4,
+    // 77.4 total (E-GMP).
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 18,
     chargingTimeSlowHr: 10.5,
     topSpeedKmph: 185,
@@ -744,6 +800,8 @@ export const cars: Vehicle[] = [
     // Battery and top speed were already the Long Range AWD's and are unchanged.
     rangeKm: 606,
     batteryCapacityKwh: 110.3,
+    // 110.3 gross / 106.0 usable — the pairing that opened this whole audit.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 24,
     chargingTimeSlowHr: 13,
     topSpeedKmph: 200,
@@ -809,6 +867,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [15.99, 19.49],
     rangeKm: 456,
     batteryCapacityKwh: 39.4,
+    // inferred basis: this OEM publishes one nominal pack figure and no usable
+    // figure, so the stored value is nominal by construction. Weaker evidence
+    // than a confirmed gross/usable pair — see BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 50,
     chargingTimeSlowHr: 6.5,
     topSpeedKmph: 150,
@@ -858,6 +920,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [18.9, 26.9],
     rangeKm: 682,
     batteryCapacityKwh: 79,
+    // inferred basis: this OEM publishes one nominal pack figure and no usable
+    // figure, so the stored value is nominal by construction. Weaker evidence
+    // than a confirmed gross/usable pair — see BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 20,
     chargingTimeSlowHr: 9,
     topSpeedKmph: 200,
@@ -902,6 +968,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [21.9, 30.5],
     rangeKm: 656,
     batteryCapacityKwh: 79,
+    // inferred basis: this OEM publishes one nominal pack figure and no usable
+    // figure, so the stored value is nominal by construction. Weaker evidence
+    // than a confirmed gross/usable pair — see BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 20,
     chargingTimeSlowHr: 11.7,
     topSpeedKmph: 202,
@@ -960,6 +1030,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [19.95, 29.45],
     rangeKm: 679,
     batteryCapacityKwh: 79,
+    // inferred basis: this OEM publishes one nominal pack figure and no usable
+    // figure, so the stored value is nominal by construction. Weaker evidence
+    // than a confirmed gross/usable pair — see BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 20,
     chargingTimeSlowHr: 11.7,
     topSpeedKmph: 202,
@@ -1003,6 +1077,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [13.89, 14.96],
     rangeKm: 351,
     batteryCapacityKwh: 39.4,
+    // inferred basis: this OEM publishes one nominal pack figure and no usable
+    // figure, so the stored value is nominal by construction. Weaker evidence
+    // than a confirmed gross/usable pair — see BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 50,
     chargingTimeSlowHr: 6.5,
     topSpeedKmph: 150,
@@ -1047,6 +1125,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [24.9, 27.6],
     rangeKm: 521,
     batteryCapacityKwh: 60.5,
+    // 64.8 total / 60.48 usable — this record rounds the USABLE figure. The
+    // other four BYD records are deliberately unstamped: sources disagree on
+    // whether their headline Blade figure is total or usable.
+    batteryMeasuredAt: "usable",
     chargingTimeFastMin: 50,
     chargingTimeSlowHr: 9,
     topSpeedKmph: 160,
@@ -1304,6 +1386,8 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [65.9, 65.9],
     rangeKm: 663,
     batteryCapacityKwh: 77.4,
+    // 77.4 total (E-GMP).
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 18,
     chargingTimeSlowHr: 10,
     topSpeedKmph: 192,
@@ -1346,6 +1430,8 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [129.9, 129.9],
     rangeKm: 561,
     batteryCapacityKwh: 99.8,
+    // 99.8 total (E-GMP).
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 24,
     chargingTimeSlowHr: 12,
     topSpeedKmph: 200,
@@ -1400,6 +1486,8 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [18.0, 25.0],
     rangeKm: 490,
     batteryCapacityKwh: 51.4,
+    // 51.4 total (E-GMP).
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 39,
     chargingTimeSlowHr: 4.75,
     topSpeedKmph: 160,
@@ -1465,6 +1553,8 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [13.49, 20.0],
     rangeKm: 526,
     batteryCapacityKwh: 51.4,
+    // 51.4 total (E-GMP).
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 39,
     chargingTimeSlowHr: 4.83,
     topSpeedKmph: 155,
@@ -1530,6 +1620,8 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [51.4, 51.4],
     rangeKm: 531,
     batteryCapacityKwh: 66.4,
+    // 66.5 gross / 64.8 usable
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 32,
     chargingTimeSlowHr: 6.5,
     topSpeedKmph: 175,
@@ -1585,6 +1677,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [72.5, 77.5],
     rangeKm: 590,
     batteryCapacityKwh: 83.9,
+    // 83.9 nominal / 81.3 usable. Note bmw-ix and bmw-i7 below record the
+    // USABLE figure instead — BMW is split inside its own line-up, which is
+    // why this field exists.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 30,
     chargingTimeSlowHr: 8.5,
     topSpeedKmph: 190,
@@ -1635,6 +1731,9 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [120.0, 120.0],
     rangeKm: 516,
     batteryCapacityKwh: 83.9,
+    // 83.9 as published by BMW India; usable 81.2. Some European sources
+    // give the gross as 84.4 — a source discrepancy, not a convention one.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 30,
     chargingTimeSlowHr: 8.5,
     topSpeedKmph: 230,
@@ -1679,6 +1778,9 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [140.0, 140.0],
     rangeKm: 635,
     batteryCapacityKwh: 105.2,
+    // 111.5 gross / 105.2 usable — BMW India states both. This is the USABLE
+    // figure, unlike bmw-i4/bmw-i5/bmw-ix1-lwb above.
+    batteryMeasuredAt: "usable",
     chargingTimeFastMin: 35,
     chargingTimeSlowHr: 5.5,
     topSpeedKmph: 200,
@@ -1739,6 +1841,8 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [205.0, 258.0],
     rangeKm: 603,
     batteryCapacityKwh: 101.7,
+    // 105.7 gross / 101.7 usable
+    batteryMeasuredAt: "usable",
     chargingTimeFastMin: 34,
     chargingTimeSlowHr: 5.5,
     topSpeedKmph: 250,
@@ -1784,6 +1888,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [155.0, 155.0],
     rangeKm: 857,
     batteryCapacityKwh: 107.8,
+    // 107.8 usable. Mercedes-Benz publishes usable capacity and does NOT
+    // publish a gross figure for this pack, so there is no gross value to
+    // switch to without inventing one.
+    batteryMeasuredAt: "usable",
     chargingTimeFastMin: 31,
     chargingTimeSlowHr: 10,
     topSpeedKmph: 210,
@@ -1832,6 +1940,8 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [310.0, 310.0],
     rangeKm: 473,
     batteryCapacityKwh: 116,
+    // 116 usable / 120 gross
+    batteryMeasuredAt: "usable",
     chargingTimeFastMin: 32,
     chargingTimeSlowHr: 12.5,
     topSpeedKmph: 180,
@@ -1887,6 +1997,12 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [225.0, 265.0],
     rangeKm: 611,
     batteryCapacityKwh: 122,
+    // 122 gross / 118 usable, per Autocar India on the India car. NOT stale —
+    // an earlier draft of the survey misread this against a European 125 gross.
+    // Note the three Mercedes records above record USABLE instead: Mercedes
+    // publishes usable capacity and never a gross figure, so this record is
+    // the odd one out within its own brand.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 31,
     chargingTimeSlowHr: 10,
     topSpeedKmph: 210,
@@ -1928,6 +2044,8 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [120.0, 120.0],
     rangeKm: 479,
     batteryCapacityKwh: 90.6,
+    // 90.6 usable; Mercedes publishes usable only.
+    batteryMeasuredAt: "usable",
     chargingTimeFastMin: 32,
     chargingTimeSlowHr: 10,
     topSpeedKmph: 210,
@@ -1975,6 +2093,8 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [115.0, 127.0],
     rangeKm: 600,
     batteryCapacityKwh: 114,
+    // 114 gross / 106 usable (audi.com)
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 31,
     chargingTimeSlowHr: 9,
     topSpeedKmph: 200,
@@ -2025,6 +2145,8 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [172.0, 195.0],
     rangeKm: 519,
     batteryCapacityKwh: 93.4,
+    // 93.4 gross / 84 net
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 23,
     chargingTimeSlowHr: 9.3,
     topSpeedKmph: 250,
@@ -2084,6 +2206,8 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [41.0, 41.0],
     rangeKm: 480,
     batteryCapacityKwh: 69,
+    // 69 gross / 65 usable
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 28,
     chargingTimeSlowHr: 7,
     topSpeedKmph: 180,
@@ -2127,6 +2251,8 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [49.0, 60.2],
     rangeKm: 470,
     batteryCapacityKwh: 78,
+    // 78 gross / 75 usable
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 34,
     chargingTimeSlowHr: 7,
     topSpeedKmph: 180,
@@ -2180,6 +2306,8 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [59.0, 59.0],
     rangeKm: 530,
     batteryCapacityKwh: 78,
+    // 78 gross / 75 usable
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 27,
     chargingTimeSlowHr: 7.5,
     topSpeedKmph: 180,
@@ -2222,6 +2350,8 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [54.9, 67.4],
     rangeKm: 462,
     batteryCapacityKwh: 66.45,
+    // 66.45 total (BMW-group convention).
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 29,
     chargingTimeSlowHr: 3.75,
     topSpeedKmph: 180,
@@ -2251,6 +2381,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [53.5, 55.0],
     rangeKm: 270,
     batteryCapacityKwh: 32.6,
+    // inferred basis: this OEM publishes one nominal pack figure and no usable
+    // figure, so the stored value is nominal by construction. Weaker evidence
+    // than a confirmed gross/usable pair — see BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 36,
     chargingTimeSlowHr: 2.5,
     topSpeedKmph: 150,
@@ -2280,6 +2414,8 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [170.0, 270.0],
     rangeKm: 705,
     batteryCapacityKwh: 105,
+    // 105 gross / 97 usable
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 18,
     chargingTimeSlowHr: 9,
     topSpeedKmph: 260,
@@ -2310,6 +2446,8 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [121.0, 121.0],
     rangeKm: 641,
     batteryCapacityKwh: 100,
+    // 100 gross / 95 usable
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 21,
     chargingTimeSlowHr: 9,
     topSpeedKmph: 260,
@@ -2340,6 +2478,8 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [255.0, 299.0],
     rangeKm: 600,
     batteryCapacityKwh: 112,
+    // 112 total / 107 usable
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 20,
     chargingTimeSlowHr: 9,
     topSpeedKmph: 265,
@@ -2369,6 +2509,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [234.0, 234.0],
     rangeKm: 610,
     batteryCapacityKwh: 102,
+    // inferred basis: this OEM publishes one nominal pack figure and no usable
+    // figure, so the stored value is nominal by construction. Weaker evidence
+    // than a confirmed gross/usable pair — see BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 14,
     chargingTimeSlowHr: 5.5,
     topSpeedKmph: 256,
@@ -2397,6 +2541,9 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [750.0, 950.0],
     rangeKm: 530,
     batteryCapacityKwh: 102,
+    // 105.7 gross / 102 usable — the same BMW-group pack as bmw-i7, and
+    // recorded on the same basis.
+    batteryMeasuredAt: "usable",
     chargingTimeFastMin: 34,
     chargingTimeSlowHr: 9,
     topSpeedKmph: 250,
@@ -2426,6 +2573,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [18.19, 20.09],
     rangeKm: 468,
     batteryCapacityKwh: 59.6,
+    // inferred basis: this OEM publishes one nominal pack figure and no usable
+    // figure, so the stored value is nominal by construction. Weaker evidence
+    // than a confirmed gross/usable pair — see BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 25,
     chargingTimeSlowHr: 8,
     topSpeedKmph: 175,
@@ -2455,6 +2606,10 @@ export const cars: Vehicle[] = [
     priceRangeLakh: [20.89, 25.49],
     rangeKm: 532,
     batteryCapacityKwh: 70.8,
+    // inferred basis: this OEM publishes one nominal pack figure and no usable
+    // figure, so the stored value is nominal by construction. Weaker evidence
+    // than a confirmed gross/usable pair — see BATTERY_CONVENTION_SURVEY.md.
+    batteryMeasuredAt: "gross",
     chargingTimeFastMin: 28,
     chargingTimeSlowHr: 8,
     topSpeedKmph: 175,

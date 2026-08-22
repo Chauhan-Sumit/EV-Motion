@@ -16,9 +16,9 @@ Branch: `battery-convention-audit`, off `data-model-decisions` at `4df4a1a`.
 
 | | Cars (54) |
 | --- | --- |
-| Records carrying a **gross / nominal** figure | **42** (21 confirmed against a published pair, 21 inferred from single-figure publication) |
+| Records carrying a **gross / nominal** figure | **43** (22 confirmed against a published pair, 21 inferred from single-figure publication) |
 | Records carrying a **net / usable** figure | **7** (all confirmed) |
-| **Unresolved** — sources conflict or the figure matches neither side | **5** |
+| **Unresolved** — sources conflict or the figure matches neither side | **4** (all BYD) |
 
 Two-wheelers (69) are a separate problem and are covered in their own section below: the question is
 mostly **not answerable from published sources**, because Indian two-wheeler OEMs publish a single
@@ -98,7 +98,7 @@ value is nominal by construction. `unresolved` = sources conflict, or the figure
 | `bmw-i7` | BMW | i7 | 101.7 | **NET** | confirmed | 105.7 gross / 101.7 usable |
 | `mercedes-benz-eqs` | Mercedes-Benz | EQS | 107.8 | **NET** | confirmed | 107.8 usable; Mercedes does not publish gross |
 | `mercedes-benz-g580` | Mercedes-Benz | G 580 with EQ Technology | 116 | **NET** | confirmed | 116 usable / 120 gross |
-| `mercedes-benz-maybach-eqs-suv` | Mercedes-Benz | Maybach EQS SUV | 122 | **AMBIGUOUS** | unresolved | 122 matches neither current usable (118) nor current gross (125); matches the pre-2025 gross. Possible staleness as well as convention |
+| `mercedes-benz-maybach-eqs-suv` | Mercedes-Benz | Maybach EQS SUV | 122 | **GROSS** | confirmed | Autocar India, on the India car: "122kWh battery pack (118kWh usable)". European listings give the gross as 125 — a source discrepancy, not a convention error |
 | `mercedes-benz-eqe` | Mercedes-Benz | EQE | 90.6 | **NET** | confirmed | 90.6 usable |
 | `audi-q8-e-tron` | Audi | Q8 e-tron | 114 | **GROSS** | confirmed | 114 gross / 106 usable (audi.com) |
 | `audi-e-tron-gt` | Audi | e-tron GT | 93.4 | **GROSS** | confirmed | 93.4 gross / 84 net |
@@ -115,11 +115,10 @@ value is nominal by construction. `unresolved` = sources conflict, or the figure
 | `vinfast-vf6` | VinFast | VF6 | 59.6 | **GROSS** | inferred | OEM publishes a single nominal pack figure; no usable figure disclosed |
 | `vinfast-vf7` | VinFast | VF7 | 70.8 | **GROSS** | inferred | OEM publishes a single nominal pack figure; no usable figure disclosed |
 
-### The five unresolved car records
+### The four unresolved car records — all BYD
 
 | Record | Stored | Why it is unresolved |
 | --- | --- | --- |
-| `mercedes-benz-maybach-eqs-suv` | 122 | Matches **neither** the current usable (118) **nor** the current gross (125). It matches the *pre-2025* gross figure, so this looks like a staleness problem wearing a convention problem's clothes. **Highest priority of the five** — it may be wrong regardless of which convention is chosen. |
 | `byd-seal` | 82.5 | Same Blade pack as `byd-sealion-7`, stored as 82.5 there and 82.56 here. One of the two is wrong on rounding alone. |
 | `byd-sealion-7` | 82.56 | Some sources label 82.5 explicitly as *useable*; BYD's own material is not explicit. |
 | `byd-emax-7` | 71.8 | No gross/usable pair established. |
@@ -162,7 +161,7 @@ The survey did **not** produce a "change these N records" list, because that was
 It produced a shape:
 
 1. **A single-convention rewrite is off the table** — proven above, in both directions.
-2. **The 42 gross / 7 net split is a real comparability defect today.** `bmw-ix` at 105.2 net is
+2. **The 43 gross / 7 net split is a real comparability defect today.** `bmw-ix` at 105.2 net is
    compared directly against `bmw-i4` at 83.9 gross, `audi-q8-e-tron` at 114 gross and
    `lotus-eletre` at 112 gross. The iX loses ground it should not lose, in the Compare winner
    engine, in kWh/100km efficiency, and in the battery filter bounds.
@@ -171,10 +170,33 @@ It produced a shape:
    `src/lib/vehicle-torque.ts` that refuses to rank two values measured differently. A
    `batteryMeasuredAt: "gross" | "usable"` field with a matching gate in a
    `src/lib/vehicle-battery.ts` would be the same solution to the same shape of problem.
-4. **`mercedes-benz-maybach-eqs-suv` should be checked on its own merits first** — it may be a
-   plain staleness bug, and it would be worth knowing that before deciding anything structural.
+4. **`mercedes-benz-maybach-eqs-suv` was checked on its own merits and cleared** — see the
+   correction below. It is a gross figure and it is current.
 
-None of the above is implemented. This document is the input to that decision, not the decision.
+**Implemented 2026-08-21**, on this branch: `BatteryMeasurementBasis`, an optional top-level
+`Vehicle.batteryMeasuredAt`, a `src/lib/vehicle-battery.ts` gate, and the Compare/VDP call sites.
+50 of 54 cars carry a basis (43 gross, 7 usable); the four BYD records and all 69 two-wheelers stay
+deliberately unstamped. **No battery figure was changed**, including the `byd-seal` 82.5 /
+`byd-sealion-7` 82.56 rounding mismatch, which remains open.
+
+---
+
+## Correction — the Maybach EQS SUV (2026-08-21)
+
+**The first version of this survey classified `mercedes-benz-maybach-eqs-suv` as unresolved and
+flagged it as possible staleness. That was wrong, and this is the corrected finding.**
+
+Autocar India's review of the India car states it outright: **"122kWh battery pack (118kWh
+usable)"**, alongside 611 km WLTP and 10-80% in 31 minutes at 200 kW. All three figures match the
+record exactly (`batteryCapacityKwh: 122`, `rangeKm: 611`, `chargingTimeFastMin: 31`).
+
+So **122 is the gross figure, correctly paired with the car's 118 kWh usable pack, and the record is
+current.** The original error was comparing the record against EV Database's European gross of
+**125** without locating the India-market 122/118 pairing. The 122-vs-125 gap is a discrepancy
+between Indian and European listings of the same gross figure — not a convention error and not
+staleness.
+
+Classification: **GROSS / confirmed**. No value changed.
 
 ---
 
