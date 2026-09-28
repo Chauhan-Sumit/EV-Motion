@@ -30,10 +30,6 @@ and video that do not exist yet. Read that before reviewing the content.
 - Not a component port. No React, no Tailwind, no project imports. The inline
   token block is copied from the live stylesheet, so the design already speaks
   the existing system's language, but nothing is shared at the code level.
-- Not related to `/model-page-mockup`, an earlier and separate VDP prototype
-  built as React components against real catalog data. The two are independent
-  proposals; neither imports the other.
-
 ## If this design is approved
 
 Port it into `src/` as components under the production route, reading real data
