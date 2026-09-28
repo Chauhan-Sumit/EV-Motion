@@ -100,6 +100,8 @@ export interface CompareColumn {
   shape: BodyShape;
   hex: string;
   self?: boolean;
+  /** Rival ex-showroom, so its on-road resolves against the reader's own city. */
+  exShowroom?: number;
   rows: { label: string; value: CompareValue }[];
 }
 

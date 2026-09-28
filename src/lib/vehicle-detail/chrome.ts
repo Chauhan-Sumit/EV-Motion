@@ -58,7 +58,26 @@ export const VDP_TABS: { id: string; label: string }[] = [
 ];
 
 /** Section eyebrow/title/lead. `{name}` is replaced with the model name. */
-export function vdpSections(name: string, categoryNoun: string): SectionCopy[] {
+export function vdpSections(
+  name: string,
+  categoryNoun: string,
+  /** Published connector, or null. Only claimed when the maker states one. */
+  chargingPort: string | null,
+): SectionCopy[] {
+  // "Similar Cars" on a car, exactly as approved; the noun follows the data
+  // rather than being genericised to "Vehicles". Splits on hyphens too, so
+  // "two-wheelers" title-cases to "Two-Wheelers" rather than "Two-wheelers".
+  const categoryNounTitle = categoryNoun
+    .split(" ")
+    .map((word) =>
+      word === "EVs"
+        ? word
+        : word
+            .split("-")
+            .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+            .join("-"),
+    )
+    .join(" ");
   return [
     { id: "overview", eyebrow: "Overview", title: `${name} at a glance` },
     {
@@ -71,7 +90,9 @@ export function vdpSections(name: string, categoryNoun: string): SectionCopy[] {
       id: "battery",
       eyebrow: "Battery & Charging",
       title: "Battery and charging",
-      lead: "How long a charge takes, at home and on a fast charger.",
+      lead: chargingPort
+        ? `${chargingPort} port, so every public DC network in India works without an adapter.`
+        : "How long a charge takes, at home and on a fast charger.",
     },
     {
       id: "real-world-range",
@@ -90,7 +111,7 @@ export function vdpSections(name: string, categoryNoun: string): SectionCopy[] {
       id: "compare",
       eyebrow: "Compare",
       title: "Compare with alternatives",
-      lead: `The ${categoryNoun} shoppers put beside it most often.`,
+      lead: `The two ${categoryNoun} shoppers put beside it most often.`,
     },
     { id: "features", eyebrow: "Features", title: "Top features" },
     {
@@ -108,7 +129,7 @@ export function vdpSections(name: string, categoryNoun: string): SectionCopy[] {
     { id: "faqs", eyebrow: "FAQs", title: "Frequently asked questions" },
     {
       id: "similar",
-      eyebrow: "Similar Vehicles",
+      eyebrow: `Similar ${categoryNounTitle}`,
       title: `Similar electric ${categoryNoun}`,
       lead: `Electric ${categoryNoun} shoppers view in the same session.`,
     },
@@ -153,14 +174,14 @@ export const VDP_SHOTS: GalleryShot[] = [
     kind: "slot",
     label: "Front row interior",
     shortLabel: "Interior",
-    note: "2400 × 1350 · dashboard and front seats, driver side",
+    note: "2400 × 1350 · dashboard and front seats, driver's side",
   },
   {
     id: "charging",
     kind: "slot",
     label: "Charging port",
     shortLabel: "Charging",
-    note: "2400 × 1350 · charge port open, cable connected",
+    note: "2400 × 1350 · CCS2 port open, cable connected",
   },
 ];
 
@@ -198,7 +219,7 @@ export const VDP_DAILY_DISTANCE: DailyDistanceRange = {
 
 /** The three video slots the design briefs, in order. */
 export const VDP_VIDEO_SLOTS = [
-  { id: "walkaround", title: "Full walkaround", note: "Exterior, cabin, storage · slot", duration: "4:00" },
+  { id: "walkaround", title: "Full walkaround", note: "Exterior, cabin, boot · slot", duration: "4:00" },
   { id: "road-test", title: "Road test & real range", note: "Highway and city loop · slot", duration: "8:00" },
   { id: "charging", title: "Charging in practice", note: "DC stop and home setup · slot", duration: "3:00" },
 ];

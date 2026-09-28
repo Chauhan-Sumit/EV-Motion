@@ -88,9 +88,18 @@ function formatHours(hours: number): string {
   return minutes === 0 ? `${whole} hr` : `${whole} hr ${minutes} min`;
 }
 
-/** Facts about the vehicle, for the hero pills. Never a marketing claim. */
+/**
+ * The hero pills. Facts from the catalogue record — never a marketing claim.
+ *
+ * The approved prototype's first pill read "Best seller", which nothing in the
+ * catalogue backs. Writing it here would assert it of all 123 vehicles, so the
+ * highlighted slot carries a real signal instead: "New Launch" where
+ * `launchStatus` says so, otherwise the body type. The pill treatment is the
+ * approved one; only the words are sourced.
+ */
 function badgesFor(vehicle: VehicleDetail): string[] {
   const badges: string[] = [];
+  if (vehicle.sourceVehicle.launchStatus === "just-launched") badges.push("New Launch");
   if (vehicle.bodySpecs.bodyType) badges.push(vehicle.bodySpecs.bodyType);
   if (vehicle.bodySpecs.seatingCapacity) badges.push(vehicle.bodySpecs.seatingCapacity);
   if (vehicle.charging.connectorType) badges.push(vehicle.charging.connectorType);
@@ -202,6 +211,20 @@ function similarFor(similar: VehicleDetail[]): SimilarVehicle[] {
  * the live configuration so switching variant restates the comparison; the
  * rest are its two closest rivals at their starting trim.
  */
+/** Driver assistance, sourced only — never inferred from trim names. */
+function adasFor(vehicle: VehicleDetail): string {
+  return vehicle.sourceVehicle.specs?.safety?.adas ? "ADAS" : "Not published";
+}
+
+/**
+ * Comparison columns, exactly the five rows the approved design carries.
+ *
+ * Every column's on-road price is resolved at render time from its own
+ * ex-showroom against the reader's city, so the three figures are quoted on
+ * the same basis — the row label carries `{city}` for the same reason. The
+ * first column is this vehicle, and its rows follow the live configuration so
+ * switching variant restates the comparison.
+ */
 function compareFor(vehicle: VehicleDetail, rivals: VehicleDetail[]): CompareColumn[] {
   const self: CompareColumn = {
     id: vehicle.slug,
@@ -211,13 +234,14 @@ function compareFor(vehicle: VehicleDetail, rivals: VehicleDetail[]): CompareCol
     hex: vehicle.oemColor,
     self: true,
     rows: [
-      { label: "On-road", value: { live: "onRoad" } },
+      { label: "On-road, {city}", value: { live: "onRoad" } },
       { label: "Claimed range", value: { live: "range" } },
       { label: "Battery", value: { live: "battery" } },
       {
         label: "Power",
         value: vehicle.quickSpecs.powerKw ? `${vehicle.quickSpecs.powerKw} kW` : "Not published",
       },
+      { label: "Driver assistance", value: adasFor(vehicle) },
     ],
   };
 
@@ -227,14 +251,16 @@ function compareFor(vehicle: VehicleDetail, rivals: VehicleDetail[]): CompareCol
     brand: rival.brand,
     shape: shapeFor(rival.sourceVehicle),
     hex: rival.oemColor,
+    exShowroom: rival.startingPrice,
     rows: [
-      { label: "On-road", value: "See page" },
+      { label: "On-road, {city}", value: { live: "onRoad" as const } },
       { label: "Claimed range", value: `${rival.quickSpecs.rangeKm} km` },
       { label: "Battery", value: `${rival.quickSpecs.batteryKwh} kWh` },
       {
         label: "Power",
         value: rival.quickSpecs.powerKw ? `${rival.quickSpecs.powerKw} kW` : "Not published",
       },
+      { label: "Driver assistance", value: adasFor(rival) },
     ],
   }));
 
@@ -312,6 +338,6 @@ export function buildVdpViewModel(
     realWorldRange: vehicle.realWorldRange,
     dailyDistance: VDP_DAILY_DISTANCE,
     tabs: VDP_TABS,
-    sections: vdpSections(vehicle.name, noun),
+    sections: vdpSections(vehicle.name, noun, vehicle.charging.connectorType ?? null),
   };
 }

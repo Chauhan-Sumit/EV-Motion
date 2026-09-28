@@ -92,6 +92,14 @@ export interface PricingConfig {
  * prints the assumption beside it.
  */
 export const PRICING_DEFAULTS: Omit<PricingConfig, "overrides"> = {
+  // The site-wide finance assumption: 80% financed, 9.5% p.a., 60 months.
+  //
+  // Deliberately NOT the approved prototype's 10.45% / 84 months. The
+  // prototype defines the page's UI and layout; it does not define the
+  // company's financial assumptions. Every surface that quotes an EMI —
+  // listing cards, Compare, the VDP, both calculators — reads this one value,
+  // so they cannot disagree, and a deployment can change it without a code
+  // change.
   finance: {
     annualRatePct: 9.5,
     defaultTenureMonths: 60,

@@ -88,8 +88,8 @@ export function VdpLayout({ vehicle }: { vehicle: VdpViewModel }) {
         onRoad: figures.onRoadLabel,
         range: figures.rangeLabel,
         battery: figures.batteryLabel,
-      }),
-    [vehicle.compare, figures.onRoadLabel, figures.rangeLabel, figures.batteryLabel],
+      }, { city: assumptions.city, charges: assumptions.charges }),
+    [vehicle.compare, figures.onRoadLabel, figures.rangeLabel, figures.batteryLabel, assumptions],
   );
 
   const section = (id: string): SectionCopy =>

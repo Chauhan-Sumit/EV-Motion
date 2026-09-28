@@ -127,12 +127,27 @@ export interface ResolvedCompareColumn extends Omit<CompareColumn, "rows"> {
 export function resolveCompareColumns(
   columns: CompareColumn[],
   live: { onRoad: string; range: string; battery: string },
+  context: { city: string; charges: StateCharges },
 ): ResolvedCompareColumn[] {
   return columns.map((column) => ({
     ...column,
     rows: column.rows.map((row) => {
-      const value = typeof row.value === "string" ? row.value : live[row.value.live];
-      return { label: row.label, value, unpublished: value === "Not published" };
+      let value: string;
+      if (typeof row.value === "string") {
+        value = row.value;
+      } else if (row.value.live === "onRoad" && !column.self && column.exShowroom) {
+        // A rival's on-road, quoted on the same basis as this vehicle's —
+        // same city, same RTO rates. Quoting one column on-road and the
+        // others "from ₹X ex-showroom" would not be a comparison.
+        value = formatRupees(calculateOnRoad(column.exShowroom, context.charges));
+      } else {
+        value = live[row.value.live];
+      }
+      return {
+        label: row.label.replace("{city}", context.city),
+        value,
+        unpublished: value === "Not published",
+      };
     }),
   }));
 }

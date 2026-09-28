@@ -84,7 +84,13 @@ describe("estimateEmiFrom", () => {
     expect(estimateEmiFrom(exShowroom)).toBeCloseTo(expected, 6);
   });
 
-  it("is cheaper than financing the full ex-showroom price", () => {
+  /**
+   * Never *more* than financing the whole price, and strictly less whenever a
+   * down payment is configured. Previously asserted as "strictly less", which
+   * silently assumed a non-zero default — that broke the moment the configured
+   * default became the approved prototype's 0% down.
+   */
+  it("never costs more than financing the full ex-showroom price", () => {
     const exShowroom = 1_500_000;
     const full = calculateEmi({
       principal: exShowroom,
@@ -92,7 +98,11 @@ describe("estimateEmiFrom", () => {
       tenureMonths: DEFAULT_EMI_ASSUMPTION.tenureMonths,
     }).emi;
 
-    expect(estimateEmiFrom(exShowroom)).toBeLessThan(full);
+    expect(estimateEmiFrom(exShowroom)).toBeLessThanOrEqual(full);
+
+    if (DEFAULT_EMI_ASSUMPTION.downPct > 0) {
+      expect(estimateEmiFrom(exShowroom)).toBeLessThan(full);
+    }
   });
 });
 

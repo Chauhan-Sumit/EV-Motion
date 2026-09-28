@@ -14,6 +14,19 @@ import { CarIllustration } from "./CarIllustration";
 import { Eyebrow } from "./Section";
 
 /**
+ * Column counts written out in full so Tailwind's scanner sees them — a
+ * template-built class name like `lg:grid-cols-${n}` is never emitted.
+ */
+const LG_COLUMNS: Record<number, string> = {
+  1: "lg:grid-cols-1",
+  2: "lg:grid-cols-2",
+  3: "lg:grid-cols-3",
+  4: "lg:grid-cols-4",
+  5: "lg:grid-cols-5",
+  6: "lg:grid-cols-6",
+};
+
+/**
  * Hero band: identity, the image stage with its thumbnail strip, the price
  * panel, and the quick-spec chips.
  *
@@ -162,19 +175,19 @@ export function VdpHero({
         </div>
 
         {/*
-          Flex rather than a fixed 5-column grid: the chip count varies by
-          category — a car has range/battery/DC/power/boot, a scooter has no
-          boot space and often no published power — and a 5-column grid left a
-          dead grey cell at the end of the strip. `lg:basis-0 flex-1` divides
-          the row evenly between however many chips there are, which reproduces
-          the approved 5-across layout exactly when all five are present.
+          The approved 5-across strip. The `lg:` column count follows the chip
+          count only so a category publishing fewer figures does not leave a
+          dead cell; with all five chips present — every car — this renders
+          exactly as approved.
         */}
-        <dl className="mt-5 flex flex-wrap gap-px overflow-hidden rounded-xl border border-border bg-border">
+        <dl
+          className={cn(
+            "mt-5 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-3",
+            LG_COLUMNS[quickSpecs.length] ?? "lg:grid-cols-5",
+          )}
+        >
           {quickSpecs.map((spec) => (
-            <div
-              key={spec.label}
-              className="flex flex-1 basis-[calc(50%-1px)] flex-col gap-1 bg-surface px-3.5 py-3 sm:basis-[calc(33.333%-1px)] lg:basis-0"
-            >
+            <div key={spec.label} className="flex flex-col gap-1 bg-surface px-3.5 py-3">
               <dt className="text-[11px] font-bold uppercase tracking-[0.08em] text-ink-muted">
                 {spec.label}
               </dt>
