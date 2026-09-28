@@ -1,74 +1,36 @@
 import type { VehicleDetail } from "@/types/vehicle-detail";
 import { getSimilarVehicleDetails } from "@/lib/data/ev-motion/toVehicleDetail";
-import { Container } from "@/components/ui/Container";
-import { AdSlot } from "@/components/common/AdSlot";
+import { buildVdpViewModel } from "@/lib/vehicle-detail/buildVdpViewModel";
 import { TrackPageView } from "@/components/common/TrackPageView";
-import { VehicleHero } from "./VehicleHero";
-import { QuickSpecsBar } from "./QuickSpecsBar";
-import { StickyTabs } from "./StickyTabs";
-import { VehicleSidebar } from "./VehicleSidebar";
-import { SectionOverview } from "./SectionOverview";
-import { SectionVariants } from "./SectionVariants";
-import { SectionColors } from "./SectionColors";
-import { SectionBattery } from "./SectionBattery";
-import { SectionOwnershipTools } from "./SectionOwnershipTools";
-import { SectionCompareSimilar } from "./SectionCompareSimilar";
-import { SectionFeatures } from "./SectionFeatures";
-import { SectionImages } from "./SectionImages";
-import { SectionVideos } from "./SectionVideos";
-import { SectionReviews } from "./SectionReviews";
-import { SectionFaqs } from "./SectionFaqs";
-import { SectionLatestNews } from "./SectionLatestNews";
-import { SectionSimilarElectricCars } from "./SectionSimilarElectricCars";
+import { VdpLayout } from "./vdp/VdpLayout";
 
 /**
- * The single reusable Vehicle Detail Page template. Every piece of content
- * comes from the `vehicle` prop — nothing here is specific to any one model,
- * so the same tree serves cars and 2-wheelers identically. Navbar/Footer
- * come from the root layout, not this template.
+ * The single reusable Vehicle Detail Page template — cars, scooters,
+ * motorcycles and commercial EVs all render through this one tree. Nothing
+ * below is specific to a category or a model: the whole page is driven by the
+ * view model that `buildVdpViewModel()` produces, so a different vehicle is a
+ * different argument, never a different component.
  *
- * Section order: Overview → Variants → Battery & Charging → Ownership Tools
- * → Compare with Similar Cars → Colours → Features → Images → Videos →
- * Reviews → FAQs, then (outside the sidebar-grid container, full width)
- * Latest News and Similar Electric Cars.
+ * This is a Server Component on purpose. It resolves the similar-vehicle set
+ * through `@/lib/data` — which must never be reachable from a client component
+ * (CLAUDE.md #23, ~110-130 KB of catalogue per page) — and hands `VdpLayout`
+ * a plain serializable object. `VdpLayout` owns all the interactive state.
+ *
+ * Navbar and Footer come from the root layout, not from here.
+ *
+ * Section order (mirrored 1:1 by the sticky nav, see `chrome.ts`):
+ *   Images (hero) → Overview → Variants → Battery & Charging →
+ *   Real World Range → Ownership Tools → Specifications → Compare →
+ *   Features → Videos → Reviews → FAQs → Similar → Latest News
  */
 export function VehicleDetailTemplate({ vehicle }: { vehicle: VehicleDetail }) {
+  const similar = getSimilarVehicleDetails(vehicle);
+  const viewModel = buildVdpViewModel(vehicle, similar);
+
   return (
     <>
-      <Container className="hidden justify-center py-3.5 lg:flex">
-        <AdSlot size="leaderboard" />
-      </Container>
-
       <TrackPageView event="vehicle_view" slug={vehicle.slug} category={vehicle.category} />
-
-      <VehicleHero vehicle={vehicle} />
-      <QuickSpecsBar vehicle={vehicle} />
-      <StickyTabs />
-
-      <Container>
-        <div className="grid gap-x-8 lg:grid-cols-[minmax(0,1fr)_280px]">
-          <div className="min-w-0 divide-y divide-border">
-            <SectionOverview vehicle={vehicle} />
-            <SectionVariants vehicle={vehicle} />
-            <SectionBattery vehicle={vehicle} />
-            <SectionOwnershipTools vehicle={vehicle} />
-            <SectionCompareSimilar vehicle={vehicle} similar={getSimilarVehicleDetails(vehicle).slice(0, 2)} />
-            <SectionColors vehicle={vehicle} />
-            <SectionFeatures vehicle={vehicle} />
-            <SectionImages vehicle={vehicle} />
-            <SectionVideos vehicle={vehicle} />
-            <SectionReviews vehicle={vehicle} />
-            <SectionFaqs vehicle={vehicle} />
-          </div>
-
-          <div className="mt-8 lg:mt-8">
-            <VehicleSidebar vehicle={vehicle} />
-          </div>
-        </div>
-      </Container>
-
-      <SectionLatestNews vehicle={vehicle} />
-      <SectionSimilarElectricCars vehicle={vehicle} />
+      <VdpLayout vehicle={viewModel} />
     </>
   );
 }

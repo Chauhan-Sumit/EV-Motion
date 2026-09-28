@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
-import { calculateEmi } from "@/lib/vehicle-pricing";
+import { calculateEmi, getPricingConfig } from "@/lib/vehicle-pricing";
 import { useVehiclePricing } from "@/hooks/useVehiclePricing";
 
 function formatINR(value: number): string {
@@ -11,10 +11,15 @@ function formatINR(value: number): string {
 
 /** Working EMI calculator — instant recompute on every input change, standard reducing-balance amortization. */
 export function EmiCalculator({ vehicles }: { vehicles: VehicleDetail[] }) {
+  // Seeded from the pricing service, not from literals: this control lets the
+  // reader tune the rate, but it must OPEN at the same assumption every other
+  // EMI figure on the site quotes, or the two disagree on first paint.
+  const { finance } = getPricingConfig();
+
   const [vehicleIndex, setVehicleIndex] = useState(0);
-  const [downPaymentPct, setDownPaymentPct] = useState(20);
-  const [interestRatePct, setInterestRatePct] = useState(9.5);
-  const [tenureMonths, setTenureMonths] = useState(60);
+  const [downPaymentPct, setDownPaymentPct] = useState(finance.defaultDownPaymentPct);
+  const [interestRatePct, setInterestRatePct] = useState(finance.annualRatePct);
+  const [tenureMonths, setTenureMonths] = useState(finance.defaultTenureMonths);
 
   const vehicle = vehicles[vehicleIndex] ?? vehicles[0];
   const pricing = useVehiclePricing(vehicle);

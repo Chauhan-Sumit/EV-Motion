@@ -1,4 +1,4 @@
-import type { Vehicle, VehicleCategory } from "@/types/vehicle";
+import type { Vehicle } from "@/types/vehicle";
 import type {
   VdpBodySpecs,
   VdpFaq,
@@ -9,6 +9,7 @@ import type {
 } from "@/types/vehicle-detail";
 import { getOemBySlug, getRelatedVehicles, getVehicleBySlug } from "@/lib/data";
 import { routeSegmentFor } from "@/lib/data/categories";
+import { getPricingConfig } from "@/lib/vehicle-pricing/config";
 
 /**
  * Adapter from a catalog `Vehicle` into the VDP view model.
@@ -169,16 +170,11 @@ function toFaqs(vehicle: Vehicle, fastChargeMinutes: number | undefined): VdpFaq
   return faqs;
 }
 
-const OWNERSHIP_ASSUMPTIONS: Record<VehicleCategory, { dailyKm: number; fuelKmPerL: number; fuelLabel: string }> = {
-  car: { dailyKm: 40, fuelKmPerL: 15, fuelLabel: "car" },
-  "2-wheeler": { dailyKm: 25, fuelKmPerL: 45, fuelLabel: "scooter" },
-  commercial: { dailyKm: 90, fuelKmPerL: 12, fuelLabel: "commercial vehicle" },
-};
-
-/** Tariff used by the running/charging-cost calculators, disclosed in their summaries. */
-const ELECTRICITY_RATE_PER_UNIT = 8;
-/** Petrol/diesel rate the fuel comparison is quoted against, disclosed likewise. */
-const FUEL_RATE_PER_LITRE = 105;
+// The daily distance, the ICE comparator and both tariffs now come from the
+// pricing service configuration. This file used to hold its own copies while
+// `chargingCost.ts` held another set, with a comment conceding the two were
+// "kept in sync deliberately" — a promise a comment cannot keep. See
+// `vehicle-pricing/config.ts`.
 
 /**
  * Calculators, not specs — every figure below is reproducible from the
@@ -192,8 +188,13 @@ const FUEL_RATE_PER_LITRE = 105;
  * an empty `rows` array here.
  */
 function ownershipTools(vehicle: Vehicle): VdpOwnershipTool[] {
-  const { dailyKm, fuelKmPerL, fuelLabel } = OWNERSHIP_ASSUMPTIONS[vehicle.category];
-  const monthlyKm = dailyKm * 30;
+  const { runningCost } = getPricingConfig({ category: vehicle.category });
+  const ELECTRICITY_RATE_PER_UNIT = runningCost.electricityCostPerUnit;
+  const FUEL_RATE_PER_LITRE = runningCost.petrolPricePerLitre;
+  const { kmPerLitre: fuelKmPerL, label: fuelLabel } =
+    runningCost.petrolComparatorByCategory[vehicle.category];
+  const dailyKm = runningCost.dailyKmByCategory[vehicle.category];
+  const monthlyKm = dailyKm * runningCost.daysPerMonth;
   const unitsPerMonth = (monthlyKm / vehicle.rangeKm) * vehicle.batteryCapacityKwh;
   const electricityCost = Math.round(unitsPerMonth * ELECTRICITY_RATE_PER_UNIT);
   const petrolEquivalent = Math.round((monthlyKm / fuelKmPerL) * FUEL_RATE_PER_LITRE);

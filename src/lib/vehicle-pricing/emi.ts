@@ -1,3 +1,5 @@
+import { getPricingConfig } from "./config";
+
 export interface EmiResult {
   emi: number;
   totalInterest: number;
@@ -28,15 +30,40 @@ export function calculateEmi({
   return { emi, totalInterest: totalCost - principal, totalCost };
 }
 
-/** Standard assumption every "EMI from ₹X/mo" figure on the site uses: 80% financed, 9.5% p.a., 60 months. */
-export const DEFAULT_EMI_ASSUMPTION = { downPct: 20, annualRatePct: 9.5, tenureMonths: 60 } as const;
+/**
+ * The assumption behind every "EMI from ₹X/mo" figure on the site.
+ *
+ * Resolved from `config.ts`, not written out here — the rate and tenure are
+ * deployment settings, and a second copy of them in this file is precisely how
+ * the VDP and a listing card end up quoting different EMIs for the same
+ * vehicle. A getter rather than a constant so it always reflects the resolved
+ * configuration.
+ */
+export function defaultEmiAssumption(): {
+  downPct: number;
+  annualRatePct: number;
+  tenureMonths: number;
+} {
+  const { finance } = getPricingConfig();
+  return {
+    downPct: finance.defaultDownPaymentPct,
+    annualRatePct: finance.annualRatePct,
+    tenureMonths: finance.defaultTenureMonths,
+  };
+}
+
+/**
+ * @deprecated Kept so existing call sites keep compiling. Prefer
+ * `defaultEmiAssumption()`, or read `getPricingConfig().finance` directly.
+ */
+export const DEFAULT_EMI_ASSUMPTION = defaultEmiAssumption();
 
 /** Convenience wrapper for the common "EMI from" display case, off a single ex-showroom figure (in rupees). */
 export function estimateEmiFrom(exShowroom: number): number {
-  const principal = exShowroom * (1 - DEFAULT_EMI_ASSUMPTION.downPct / 100);
+  const { downPct, annualRatePct, tenureMonths } = defaultEmiAssumption();
   return calculateEmi({
-    principal,
-    annualRatePct: DEFAULT_EMI_ASSUMPTION.annualRatePct,
-    tenureMonths: DEFAULT_EMI_ASSUMPTION.tenureMonths,
+    principal: exShowroom * (1 - downPct / 100),
+    annualRatePct,
+    tenureMonths,
   }).emi;
 }

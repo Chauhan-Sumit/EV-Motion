@@ -5,6 +5,7 @@ import { Search, X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { singleSliderValue } from "@/lib/slider-value";
 import {
   Select,
   SelectContent,
@@ -187,8 +188,8 @@ export function FilterBar({
           max={rangeBounds[1]}
           step={10}
           value={[minRange]}
-          onValueChange={(v) => onMinRangeChange((v as number[])[0])}
-          onValueCommitted={(v) => onMinRangeCommit((v as number[])[0])}
+          onValueChange={(v) => onMinRangeChange(singleSliderValue(v, minRange))}
+          onValueCommitted={(v) => onMinRangeCommit(singleSliderValue(v, minRange))}
         />
       </div>
 
@@ -202,8 +203,8 @@ export function FilterBar({
           max={batteryBounds[1]}
           step={batteryBounds[1] > 10 ? 5 : 0.5}
           value={[minBattery]}
-          onValueChange={(v) => onMinBatteryChange((v as number[])[0])}
-          onValueCommitted={(v) => onMinBatteryCommit((v as number[])[0])}
+          onValueChange={(v) => onMinBatteryChange(singleSliderValue(v, minBattery))}
+          onValueCommitted={(v) => onMinBatteryCommit(singleSliderValue(v, minBattery))}
         />
       </div>
 
