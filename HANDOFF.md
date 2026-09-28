@@ -1,7 +1,7 @@
 # EV Motion — Project Handoff
 
 **Project directory:** `C:\Users\sumit\EV-Motion` (renamed from `ev-wale` at some point after the paths below were first written — verify with `pwd`, don't trust the literal string in older paragraphs of this doc)
-**Last updated:** 2026-08-21 (**data-model decisions** — the four Batch 7 blockers resolved: `torqueMeasuredAt`, `ncapYear`, a `discontinued` launch status, and keeping the Kia commit, plus ImageKit fallback hardening. On branch `data-model-decisions`, pushed to GitHub and awaiting review; **not merged into `main`**. See [Data-Model Decisions](#data-model-decisions--2026-08-21).) Previously 2026-08-21 (Batch 7 sub-batches 4-12, researched 2026-08-20 — nine sub-batches of vehicle-specification research taking `Vehicle.specs` coverage from 28 to 65 of 123, a Bajaj line-up reconciliation against chetak.com that added the Chetak C3503 and re-keyed another record, and correction of several records that had gone stale against cars which launched. All merged to `main` and deployed. See [Batch 7 — Current Status](#batch-7--current-status-verified-2026-08-21).) Previously 2026-08-18 (homepage hero — a 2.5D vehicle + generated environment at `lg` and up, replacing an abandoned Three.js/R3F attempt. See [Homepage Hero](#homepage-hero--25d-vehicle--environment-2026-08-18).)
+**Last updated:** 2026-09-28 (**Vehicle Detail Page rebuild + centralized pricing configuration** — the approved VDP design is now the single data-driven template for every category, and every rate, tenure and tariff on the site resolves from one configurable pricing service. On branch `mockup/vdp-premium-design`, pushed to GitHub, **not merged into `main`**. See [Vehicle Detail Page Rebuild](#vehicle-detail-page-rebuild--2026-09-28).) Previously 2026-08-21 (**data-model decisions** — the four Batch 7 blockers resolved: `torqueMeasuredAt`, `ncapYear`, a `discontinued` launch status, and keeping the Kia commit, plus ImageKit fallback hardening. On branch `data-model-decisions`, pushed to GitHub and awaiting review; **not merged into `main`**. See [Data-Model Decisions](#data-model-decisions--2026-08-21).) Previously 2026-08-21 (Batch 7 sub-batches 4-12, researched 2026-08-20 — nine sub-batches of vehicle-specification research taking `Vehicle.specs` coverage from 28 to 65 of 123, a Bajaj line-up reconciliation against chetak.com that added the Chetak C3503 and re-keyed another record, and correction of several records that had gone stale against cars which launched. All merged to `main` and deployed. See [Batch 7 — Current Status](#batch-7--current-status-verified-2026-08-21).) Previously 2026-08-18 (homepage hero — a 2.5D vehicle + generated environment at `lg` and up, replacing an abandoned Three.js/R3F attempt. See [Homepage Hero](#homepage-hero--25d-vehicle--environment-2026-08-18).)
 **⚠️ Design system and layout direction are LOCKED as of 2026-08-15** — see [Design System — Locked Decisions](#design-system--locked-decisions-do-not-revert). Read that section before touching the homepage or `/compare`. The 2026-08-16 hardening pass changed *what data pages display* and *how much JavaScript they ship*, deliberately not the visual direction.
 **Status:** Feature-complete demo marketplace (cars + two-wheelers) that has been through **seven** major work sessions on top of the original build: a full production-readiness QA cycle, a session that replaced every visual-only interaction (location/filters/search) with real logic and generalized the app into a multi-category (car/2-wheeler/commercial) architecture, a **production polish pass** that re-audited the whole site end-to-end, fixed a page-wide layout bug and a root-cause search-navigation bug, and closed out most of the UX rough edges flagged as "known follow-ups" in the vehicle-data batch log, a **Compare page premium polish pass** that took the already-functional Compare page (below) and gave it a full UI/UX upgrade: bigger hero cards, a computed "Quick Verdict" summary, a minimal 3-instance-responsive sidebar with a single sticky ad, premium spec tables with visual bars and a graceful missing-data treatment, and a "Keep Exploring" ending section — see [Compare Page Premium Polish Pass](#compare-page-premium-polish-pass-2026-08-02) — and, most recently, a **site-wide pricing redesign and refactor** (2026-08-02) that replaced an earlier, narrower VDP-only pricing pass (same day, superseded — see below): the VDP price card is now a compact, CarWale-inspired block, and a single centralized pricing system (`src/lib/vehicle-pricing/`) now drives ex-showroom pricing — genuinely varying by city, not just the on-road extras on top of it — everywhere a price appears: VDP, homepage Featured Vehicle/cards, listing and brand pages, and the Compare page. See [Site-Wide Centralized Pricing Architecture](#site-wide-centralized-pricing-architecture-2026-08-02) — and, most recently, a **homepage redesign** (2026-08-15) that restructured Hero/Search/Trending/Key Highlights into a single cohesive top section with a runtime-measured (not hardcoded) sticky sidebar, replaced the flat green Sponsored banner with a premium Featured-EV banner, redesigned the Popular Cars/Scooters and Upcoming cards to a single-row horizontal-scroll layout, added a "Compare EVs Instantly" promo, an honest-empty-state "Latest EV News" section, and rebuilt the right sidebar (EV Tools, Popular Comparisons, Advertiser). **This pass also discovered pre-existing, previously-uncommitted ImageKit real-photo infrastructure** (`src/lib/imagekit.ts`, `VehicleImage.tsx` now on `@imagekit/next`, `photoUrl`/`gallery` fields on `VehicleImages`) from an earlier, undocumented session — wired in but still unpopulated with real photo data — see [Homepage Redesign — Premium Direction](#homepage-redesign--premium-direction-2026-08-15) and [Known Limitations](#known-limitations). Separately, the project is mid-expansion of the **vehicle dataset itself** into full India-market coverage, working one OEM group at a time — **Batches 1-4 (cars: Tata/Mahindra/MG/Hyundai/Kia/BYD/BMW/Mercedes-Benz/Audi/Volvo/MINI/Porsche/Lotus/Rolls-Royce/VinFast; two-wheelers: every active scooter and motorcycle brand) are complete**, Batch 5 (commercial EVs) is not started — see [Full-Market Expansion — Batch Log](#full-market-expansion--batch-log). The category *architecture* (commercial EVs, N-category system) is complete and verified; the commercial *data* is not — see [Known Limitations](#known-limitations) and [Next Session Instructions](#how-the-next-claude-session-should-continue). Check `git status`/`git log` before assuming what's committed — see [Project Status](#project-status).
 
@@ -22,8 +22,8 @@ Verified against the codebase and the live database, not from memory. Last check
 | Vehicle-type illustrations (AI) | 🟡 **5 of 6** | NEW 2026-08-17. Generic per-**body-type** AI art replacing the SVG placeholder — *not* per-model, *not* photoreal, and not in `photoUrl`. Scooter blocked on a provider generation cap. **Hardened 2026-08-21**: a missing ImageKit endpoint now falls back to the SVG icon instead of rendering broken images |
 | Data honesty (Batch 1) | ✅ **DONE** | No spec is derived. Guarded by tests |
 | Client bundle (Batch 2) | ✅ **DONE** | Catalog out of the browser; −110-130 KB/page. `/compare` is the documented exception |
-| SEO + routing (Batch 3) | ✅ **DONE** | **416 routes, 233 comparisons pre-rendered, 409 sitemap URLs.** Four discontinued vehicles no longer seed comparison pairs; every one of their pages still builds and stays in the sitemap |
-| Test suite (Batch 4) | ✅ **DONE** | **240 tests**, 15 files, ~12s |
+| SEO + routing (Batch 3) | ✅ **DONE** | **415 routes, 233 comparisons pre-rendered, 409 sitemap URLs.** Four discontinued vehicles no longer seed comparison pairs; every one of their pages still builds and stays in the sitemap |
+| Test suite (Batch 4) | ✅ **DONE** | **292 tests**, 19 files |
 | Lead capture (Batch 5) | ✅ **DONE** | Live, verified end to end. RLS deny-all |
 | Analytics + errors (Batch 6) | ✅ **DONE** | Live, verified. Cookie-less, no PII, no IP. **Server errors now captured too** (2026-08-21), and Sentry is wired but optional |
 | Specs expansion (Batch 7) | 🟡 **IN PROGRESS** | 12 sub-batches done. Cars: Tata, MG, Mahindra, Hyundai, Kia, BYD, BMW, Mercedes-Benz, **Volvo, Audi**. Two-wheelers: Ather, TVS, Ola, Bajaj. 58 left (9 cars, 49 two-wheelers); **~11 more sub-batches** |
@@ -33,10 +33,14 @@ Verified against the codebase and the live database, not from memory. Last check
 | Real backend for vehicle data | ⛔ **NOT STARTED** | Still static TypeScript |
 | Analytics dashboards / alerting | 🟡 **PARTLY** | Still no dashboards. But **Sentry** (error alerting) and **`LEAD_WEBHOOK_URL`** (lead alerting) are wired and tested — both need only an env var to go live |
 | Lighthouse / axe-core audit | ⛔ **NOT STARTED** | Never run |
+| Vehicle Detail Page | ✅ **DONE** | NEW 2026-09-28. One data-driven template for all four categories; 14 sections; sticky nav mirrors them 1:1. See [VDP Rebuild](#vehicle-detail-page-rebuild--2026-09-28) |
+| Pricing configuration | ✅ **DONE** | NEW 2026-09-28. Every rate/tenure/tariff in one place, 13 env-overridable settings, seams for an API source and state-wise rates |
 
 **Quality gate (all four clean):** `npm test` · `npx tsc --noEmit` · `npx eslint .` · `npm run build`
 
-**Git:** `master` and `origin/main` are both at **`6993c77`**. Branch **`data-model-decisions`** sits **four commits** ahead of it and is **pushed to `origin/data-model-decisions`** (2026-08-21):
+**Git (2026-09-28):** branch **`mockup/vdp-premium-design`** is pushed to `origin` at **`5b2f7ec`** and is **not merged into `main`** — it carries the VDP rebuild and the pricing configuration (`0c8a04d`, `5e10ad5`, `5b2f7ec`).
+
+**Git (2026-08-21):** `master` and `origin/main` are both at **`6993c77`**. Branch **`data-model-decisions`** sits **four commits** ahead of it and is **pushed to `origin/data-model-decisions`** (2026-08-21):
 
 | Commit | What |
 | --- | --- |
@@ -54,6 +58,139 @@ Verified against the codebase and the live database, not from memory. Last check
 **Deployment:** Vercel builds `main` as Production, and the `7e5a856` deployment is **live and verified on 2026-08-21** at the canonical domain **https://www.evmotion.in** (`ev-motion.vercel.app` serves the identical build; per-deployment `*.vercel.app` URLs sit behind Vercel Authentication, so probe the canonical domain). Spot-checked one record per sub-batch, all serving the new data: Ioniq 6 `168 kW`, Syros EV `126 kW`, Sealion 7 `230 kW`, Ather 450 Apex `7 kW`, Ola Roadster X `58 Nm`, Chetak C3503 `35 L`, BMW i4 `250 kW`, EQS `400 kW`, EC40 `300 kW`. Sitemap serves **418 URLs including 244 pre-rendered comparisons**; the newly-added `bajaj-chetak-c3503` is present and the re-keyed `bajaj-chetak-3501` is gone from both the sitemap and the site (it now 404s — the re-key changed a public URL and there is no redirect layer for two-wheeler slugs, only `/compare` has one). `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` are both set in the Vercel environment; the latter was **unset until 2026-08-20**, which had silently broken every AI vehicle illustration in Production (fixed 2026-08-20) — see the note in sub-batch 4's section.
 
 **Supabase** (project `dzloqeyqpddjcyxzsvcz`): `0001_leads.sql` and `0003_analytics_events.sql` are **applied**. `0002_leads_publishable_key_policy.sql` is **deliberately not applied** — it is the alternative path for publishable-key setups, and this app runs on a secret key (verified: a publishable-key insert is rejected with 401/42501).
+
+## VEHICLE DETAIL PAGE REBUILD — 2026-09-28
+
+The approved VDP design is now the single data-driven template behind every
+vehicle route, and the pricing assumptions it displays come from one
+configurable service rather than from five scattered copies.
+
+**Branch:** `mockup/vdp-premium-design`, pushed, **not merged into `main`**.
+Commits: `0c8a04d` (architecture), `5e10ad5` (remove superseded mockup),
+`5b2f7ec` (restore approved copy).
+
+### What replaced what
+
+One template serves cars, scooters, motorcycles and commercial EVs:
+
+```
+/cars/[slug] · /two-wheelers/[slug] · /commercial/[slug]   (routes unchanged)
+  └── VehicleDetailTemplate          Server Component — resolves catalogue data
+        buildVdpViewModel(detail, similar)
+        └── VdpLayout                the only client component; owns all state
+              └── 14 presentational sections
+```
+
+- `src/lib/vehicle-detail/` — `types.ts` (view model), `buildVdpViewModel.ts`
+  (the one seam between catalogue and page vocabularies), `chrome.ts` (section
+  order, nav tabs, ad inventory), `calculations.ts` (derived figures, no React),
+  `useVdpPricingAssumptions.ts`.
+- `src/components/vehicle-detail/vdp/` — the section components, moved wholesale
+  from the approved prototype rather than rewritten.
+- **23 superseded section components deleted** (−1,612 lines), along with an
+  earlier `model-page-mockup` prototype (−3,606 lines).
+
+Section order, mirrored 1:1 by the sticky nav: Images → Overview → Variants →
+Battery & Charging → Real World Range → Ownership Tools → Specifications →
+Compare → Features → Videos → Reviews → FAQs → Similar → Latest News. Real
+World Range was promoted out of the sidebar into the main flow; Latest News is
+the final section.
+
+### The mistake this session made, and the rule that came out of it
+
+The brief said "keep everything exactly as the approved prototype" with two
+named mobile exceptions. The components were ported verbatim — but
+`mock-data.ts` was deleted and its content **re-authored** into `chrome.ts`,
+which silently changed section copy, cut the comparison table from five rows to
+four, replaced rival on-road prices with "See page", and swapped the hero's
+quick-spec grid for a flex row. Each change had a defensible reason; none was
+mine to make unilaterally, and none was surfaced.
+
+**The rule, going forward: an approved prototype is the source of truth for UI
+and layout only** — markup, spacing, typography, colour, hierarchy, positioning,
+interactions. It is *not* the source of truth for:
+
+- **content claims** — "Best seller" has no catalogue field behind it and would
+  assert it of all 123 vehicles, so the highlighted hero pill carries
+  "New Launch" from `launchStatus` instead, with the approved treatment intact;
+- **financial assumptions** — the prototype's 10.45% / 84 months is a mock
+  value; the site quotes the centralized 9.5% / 60 months everywhere.
+
+Port verbatim, then raise each conflict as a question rather than resolving it
+in code. **Verify by rendering the approved artefact and the production page at
+the same width and diffing section by section** — that comparison, run late,
+is what caught the drift. It found one remaining copy difference, and checking
+a second category then exposed two real bugs (a false "CCS2 port" claim on a
+scooter that publishes no connector, and "Two-wheelers" mis-capitalised).
+
+### Centralized pricing configuration
+
+`src/lib/vehicle-pricing/config.ts` is now the one place any rate, tenure or
+tariff resolves. Before it, the same assumptions were written out in **five**
+places — `emi.ts`, `chargingCost.ts`, `toVehicleDetail.ts`, the VDP's own chrome
+file — plus a literal `8` passed at three Compare call sites. One of them
+carried a comment conceding the copies were "kept in sync deliberately", which
+is a promise a comment cannot keep.
+
+- **13 settings overridable by environment variable** (see `.env.example`), so
+  changing the financed rate or the electricity tariff is a deployment setting.
+- **Bad values cannot reach a price.** Malformed or out-of-range input falls
+  back to the documented default with a dev-time warning. Previously a typo'd
+  tariff would have put `₹NaN` in front of a buyer on every page. 17 tests
+  cover this, mutation-checked.
+- **`setPricingConfigResolver()`** is the seam for an API- or database-backed
+  service: fetch asynchronously at startup, serve synchronously thereafter. The
+  getter stays synchronous because its callers are render-path.
+- **`getPricingConfig(scope)`** already receives state and category from every
+  call site, so a future state-wise rate table is a change to that one file and
+  to no consumer. A test pins that.
+
+Verified: no import cycles across 261 modules; `config.ts` has exactly one
+dependency, a type-only import.
+
+### Bugs found and fixed along the way
+
+- **Base UI sliders emit a scalar on track-press and an array on
+  keyboard/drag.** The `(v as number[])[0]` idiom silently yielded `undefined`.
+  It affected the `/cars` filters (both `onValueChange` *and* the
+  `onValueCommitted` that applies the filter) and the homepage range panel —
+  clicking the track blanked the label while the slider moved underneath.
+  `src/lib/slider-value.ts` normalises it; 6 tests, mutation-checked.
+  Invisible to `tsc` because `ui/slider.tsx` widens Base UI's `Value` generic.
+- **The VDP costed every category against a 15 km/l car**, overstating a
+  scooter's saving roughly threefold. The petrol comparator is now per category
+  (car 15, scooter 45, commercial 12) in the pricing configuration.
+- **`pricing.test.ts`** asserted the headline EMI is *strictly* cheaper than
+  financing the full price, silently assuming a non-zero down payment. Rewritten
+  to assert the real invariant so it survives a configuration change.
+
+### Illustrations
+
+`CarIllustration` went from three car silhouettes to seven, adding scooter,
+motorcycle, van and three-wheeler so no category renders a car shape. Two-
+wheelers are drawn as **separate parts** rather than one filled outline — the
+first attempt drew them closed and the scooter came out a flat platform, the
+motorcycle a dune buggy. `sedan` and `muv` reuse existing shapes, and all five
+commercial types reduce to `van` or `three-wheeler`: these are generic category
+art, and a distinct silhouette per body type would imply precision they lack.
+
+### Mobile
+
+Videos and Similar Vehicles are snapping horizontal carousels at ~1.47 cards on
+screen; desktop grids unchanged (Videos 3-col, Similar 4-col). The hero
+quick-spec strip keeps the approved 5-across layout and only varies its column
+count so a category publishing fewer figures leaves no dead cell.
+
+### Still open
+
+- **Commercial EVs are wired end to end but have no data** — `commercial.ts` is
+  `[]`, so that path has never rendered a real record. Verify it when Batch 5
+  lands.
+- **Latest News cannot show articles.** No news source exists anywhere in the
+  project; the section is an honest empty state in its approved position, ready
+  for a `.scroll-row` of cards.
+
+---
 
 ## BATCH 7 — STALENESS SWEEP (2026-08-21)
 
