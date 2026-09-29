@@ -23,7 +23,7 @@ interface QuickVerdictCardProps {
 
 /** The user's instant takeaway, computed live from real per-metric winners — never an editorial assertion. Shown both below the hero (full) and in the sidebar (compact). */
 export function QuickVerdictCard({ vehicles, variant = "full" }: QuickVerdictCardProps) {
-  const annualRunningCost = vehicles.map((v) => estimateMonthlyChargingCost(v.sourceVehicle, 8) * 12);
+  const annualRunningCost = vehicles.map((v) => estimateMonthlyChargingCost(v.sourceVehicle) * 12);
   const items = computeQuickVerdict(vehicles, annualRunningCost);
 
   if (items.length === 0) {

@@ -3,12 +3,13 @@
 import { useMemo, useState } from "react";
 import type { VehicleDetail } from "@/types/vehicle-detail";
 import type { VehicleCategory } from "@/types/vehicle";
+import { getPricingConfig } from "@/lib/vehicle-pricing";
 
 const PUBLIC_CHARGING_RATE = 15; // ₹/unit — typical DC fast-charging public tariff, estimated
-const PETROL_PRICE_PER_L = 105;
 const DIESEL_PRICE_PER_L = 92;
 
-const FUEL_KM_PER_L: Record<VehicleCategory, number> = { car: 15, "2-wheeler": 45, commercial: 10 };
+// Diesel is the one comparator the pricing configuration does not carry — it
+// holds the petrol equivalent per category. Kept local rather than half-moved.
 const DIESEL_KM_PER_L: Record<VehicleCategory, number> = { car: 18, "2-wheeler": 45, commercial: 12 };
 
 function formatINR(value: number): string {
@@ -25,7 +26,13 @@ export function ChargingCostCalculator({ vehicles }: { vehicles: VehicleDetail[]
     return Math.round(avg * 10) / 10;
   }, [vehicles]);
 
-  const [electricityRate, setElectricityRate] = useState(8);
+  // Seeded from the pricing service so this control opens at the same tariff
+  // the Vehicle Detail Page and the ownership tools quote.
+  const { runningCost } = getPricingConfig({ category });
+  const PETROL_PRICE_PER_L = runningCost.petrolPricePerLitre;
+  const FUEL_KM_PER_L = runningCost.petrolComparatorByCategory[category].kmPerLitre;
+
+  const [electricityRate, setElectricityRate] = useState(runningCost.electricityCostPerUnit);
   const [monthlyDistance, setMonthlyDistance] = useState(category === "2-wheeler" ? 750 : 1200);
   const [efficiency, setEfficiency] = useState(defaultEfficiency);
   const [homeChargingPct, setHomeChargingPct] = useState(80);
@@ -35,7 +42,7 @@ export function ChargingCostCalculator({ vehicles }: { vehicles: VehicleDetail[]
   const monthlyCost = monthlyKwh * blendedRate;
   const yearlyCost = monthlyCost * 12;
 
-  const petrolMonthlyCost = (monthlyDistance / FUEL_KM_PER_L[category]) * PETROL_PRICE_PER_L;
+  const petrolMonthlyCost = (monthlyDistance / FUEL_KM_PER_L) * PETROL_PRICE_PER_L;
   const dieselMonthlyCost = (monthlyDistance / DIESEL_KM_PER_L[category]) * DIESEL_PRICE_PER_L;
   const savingsVsPetrol = (petrolMonthlyCost - monthlyCost) * 12;
   const savingsVsDiesel = (dieselMonthlyCost - monthlyCost) * 12;

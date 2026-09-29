@@ -19,7 +19,7 @@ export function OwnershipSection({ vehicles }: { vehicles: VehicleDetail[] }) {
     getVehiclePricingSnapshot({ vehicleId: v.id, vehicleName: v.name, exShowroomRangeLakh: v.priceRangeLakh, city }),
   );
 
-  const annualCharging = vehicles.map((v) => estimateMonthlyChargingCost(v.sourceVehicle, 8) * 12);
+  const annualCharging = vehicles.map((v) => estimateMonthlyChargingCost(v.sourceVehicle) * 12);
   const annualInsurance = snapshots.map((s) => s.breakdown.low.insurance);
   const roadTax = snapshots.map((s) => s.breakdown.low.registration + s.breakdown.low.roadTax);
   const fiveYearCost = snapshots.map(

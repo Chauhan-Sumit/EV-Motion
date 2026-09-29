@@ -8,6 +8,7 @@ import { ResponsivePopover } from "@/components/common/ResponsivePopover";
 import { LocationSelector } from "@/components/layout/LocationSelector";
 import { useLocation } from "@/context/LocationContext";
 import { Slider } from "@/components/ui/slider";
+import { singleSliderValue } from "@/lib/slider-value";
 import { FilterBar } from "@/components/vehicles/FilterBar";
 // `@/lib/data/oems` directly, never the `@/lib/data` barrel: the barrel's
 // module body builds a category->vehicles map, so importing anything from it
@@ -279,7 +280,7 @@ function RangePanel({ config, onApply }: { config: CategoryFilterConfig; onApply
         max={config.rangeBounds[1]}
         step={10}
         value={[value]}
-        onValueChange={(v) => setValue((v as number[])[0])}
+        onValueChange={(v) => setValue(singleSliderValue(v, value))}
       />
       <ApplyButton onClick={() => onApply(value)} />
     </div>
