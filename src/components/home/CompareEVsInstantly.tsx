@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { Car, FileText, IndianRupee, Scale } from "lucide-react";
 import { VehicleImage } from "@/components/vehicles/VehicleImage";
-import { buildCompareSlug } from "@/lib/compare/slug";
+import { buildCompareSlug, MAX_COMPARE } from "@/lib/compare/slug";
 import { carComparisons, oemColorOf } from "@/lib/data/ev-motion/derive";
 
 const points = [
-  { icon: Car, label: "Up to 3 Vehicles" },
+  { icon: Car, label: `Up to ${MAX_COMPARE} Vehicles` },
   { icon: FileText, label: "Detailed Specs" },
   { icon: IndianRupee, label: "Real, City-Aware Pricing" },
   { icon: FileText, label: "Export PDF" },

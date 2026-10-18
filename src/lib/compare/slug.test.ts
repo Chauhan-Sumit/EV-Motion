@@ -90,3 +90,23 @@ describe("parseCompareSlug", () => {
     }
   });
 });
+
+describe("four-vehicle comparisons", () => {
+  const four = cars.slice(0, 4);
+
+  it("caps comparisons at four", () => {
+    expect(MAX_COMPARE).toBe(4);
+  });
+
+  it("round-trips a four-vehicle comparison", () => {
+    const slug = buildCompareSlug(four);
+    expect(slug.split("-vs-")).toHaveLength(4);
+    expect(parseCompareSlug(slug)?.map((v) => v.slug)).toEqual(four.map((v) => v.slug));
+  });
+
+  it("rejects a fifth vehicle rather than silently dropping one", () => {
+    // A five-part slug never resolves, so it 404s instead of rendering a
+    // comparison that differs from the URL.
+    expect(parseCompareSlug(cars.slice(0, 5).map((v) => v.slug).join("-vs-"))).toBeNull();
+  });
+});

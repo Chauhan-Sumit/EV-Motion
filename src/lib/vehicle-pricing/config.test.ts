@@ -40,9 +40,11 @@ describe("resolvePricingConfig", () => {
   it("takes the running-cost tariffs from the environment", () => {
     const config = resolvePricingConfig({
       [PRICING_ENV_KEYS.electricityCostPerUnit]: "11",
+      [PRICING_ENV_KEYS.publicChargingCostPerUnit]: "18.5",
       [PRICING_ENV_KEYS.petrolPricePerLitre]: "119.5",
     });
     expect(config.runningCost.electricityCostPerUnit).toBe(11);
+    expect(config.runningCost.publicChargingCostPerUnit).toBe(18.5);
     expect(config.runningCost.petrolPricePerLitre).toBe(119.5);
   });
 

@@ -6,8 +6,12 @@
  * therefore lives in `parse-slug.ts`, which is server-side only.
  */
 
-/** Single source of truth for the comparison cap — referenced by the picker, CompareHero, and the parser. */
-export const MAX_COMPARE = 3;
+/**
+ * Single source of truth for the comparison cap — referenced by the Compare
+ * page, the picker and the parser. Four since the showroom Compare page
+ * replaced the three-vehicle one (owner-confirmed, 2026-10-18).
+ */
+export const MAX_COMPARE = 4;
 export const MIN_COMPARE = 2;
 
 export const COMPARE_SLUG_DELIMITER = "-vs-";

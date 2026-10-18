@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Calculator, Gauge, PlugZap, Scale } from "lucide-react";
+import { MAX_COMPARE } from "@/lib/compare/slug";
 
 // Every link below points at a real, working feature already in the app —
 // no dead "coming soon" tool tiles.
@@ -7,7 +8,7 @@ const TOOLS = [
   { icon: Calculator, name: "EMI Calculator", desc: "Estimate your monthly EMI", href: "/compare" },
   { icon: Gauge, name: "Running Cost Calculator", desc: "See cost per km", href: "/compare" },
   { icon: PlugZap, name: "EV Subsidy Calculator", desc: "Check FAME-II & state subsidy", href: "#subsidy-calculator" },
-  { icon: Scale, name: "Compare EVs", desc: "Compare up to 3 vehicles", href: "/compare" },
+  { icon: Scale, name: "Compare EVs", desc: `Compare up to ${MAX_COMPARE} vehicles`, href: "/compare" },
 ];
 
 export function EVToolsCard() {

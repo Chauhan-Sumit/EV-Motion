@@ -19,14 +19,24 @@ function resolveParts(parts: string[]): Vehicle[] | null {
   return deduped.slice(0, MAX_COMPARE);
 }
 
+/** Every increasing choice of `k` split points from `positions`, in order. */
+function splitChoices(positions: number[], k: number, start = 0): number[][] {
+  if (k === 0) return [[]];
+  const out: number[][] = [];
+  for (let i = start; i <= positions.length - k; i++) {
+    for (const rest of splitChoices(positions, k - 1, i + 1)) out.push([positions[i], ...rest]);
+  }
+  return out;
+}
+
 /**
  * Parses a `-vs-`-delimited compare slug back into real vehicles. Doesn't
  * assume a naive single split is safe forever: no current vehicle slug
  * contains the literal substring `-vs-`, but a future one theoretically
- * could, so every possible partition of the string (using 1 or 2 of the
- * delimiter's occurrences as split points) is tried, and only a partition
- * where every resulting piece resolves to a real, same-category vehicle
- * slug is accepted.
+ * could, so every possible partition of the string (using 1 to `MAX_COMPARE - 1` of
+ * the delimiter's occurrences as split points, fewest first) is tried, and
+ * only a partition where every resulting piece resolves to a real,
+ * same-category vehicle slug is accepted.
  */
 export function parseCompareSlug(slug: string): Vehicle[] | null {
   const positions: number[] = [];
@@ -37,21 +47,16 @@ export function parseCompareSlug(slug: string): Vehicle[] | null {
   }
   if (positions.length === 0) return null;
 
-  // Two vehicles: exactly one occurrence acts as the delimiter.
-  for (const p of positions) {
-    const resolved = resolveParts([slug.slice(0, p), slug.slice(p + COMPARE_SLUG_DELIMITER.length)]);
-    if (resolved) return resolved;
-  }
-
-  // Three vehicles: exactly two occurrences (in order) act as delimiters.
-  for (let i = 0; i < positions.length; i++) {
-    for (let j = i + 1; j < positions.length; j++) {
-      const [p1, p2] = [positions[i], positions[j]];
-      const resolved = resolveParts([
-        slug.slice(0, p1),
-        slug.slice(p1 + COMPARE_SLUG_DELIMITER.length, p2),
-        slug.slice(p2 + COMPARE_SLUG_DELIMITER.length),
-      ]);
+  for (let splits = 1; splits < MAX_COMPARE && splits <= positions.length; splits++) {
+    for (const cuts of splitChoices(positions, splits)) {
+      const parts: string[] = [];
+      let from = 0;
+      for (const cut of cuts) {
+        parts.push(slug.slice(from, cut));
+        from = cut + COMPARE_SLUG_DELIMITER.length;
+      }
+      parts.push(slug.slice(from));
+      const resolved = resolveParts(parts);
       if (resolved) return resolved;
     }
   }
