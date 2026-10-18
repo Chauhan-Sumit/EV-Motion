@@ -21,9 +21,20 @@ export function dedupeVehicles<T extends { slug: string }>(vehicles: T[]): T[] {
   });
 }
 
-export function buildCompareSlug(vehicles: { slug: string }[]): string {
+/**
+ * Cap on vehicles in one showroom comparison (`components/compare/showroom/`).
+ * Four is the owner-confirmed limit (2026-10-18). It stays separate from
+ * `MAX_COMPARE` only while the current Compare page is live: the homepage
+ * promises "Up to 3 Vehicles" off that constant, and the old page's layout is
+ * built for three. When the showroom page replaces `/compare`, set
+ * `MAX_COMPARE` to 4 and fold this constant into it.
+ */
+export const SHOWROOM_MAX_COMPARE = 4;
+
+/** `max` defaults to the site-wide cap; only the showroom page passes its own. */
+export function buildCompareSlug(vehicles: { slug: string }[], max: number = MAX_COMPARE): string {
   return dedupeVehicles(vehicles)
-    .slice(0, MAX_COMPARE)
+    .slice(0, max)
     .map((v) => v.slug)
     .join(COMPARE_SLUG_DELIMITER);
 }

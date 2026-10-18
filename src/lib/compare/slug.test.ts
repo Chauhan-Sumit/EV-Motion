@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildCompareSlug, dedupeVehicles, MAX_COMPARE, MIN_COMPARE } from "./slug";
+import { buildCompareSlug, dedupeVehicles, MAX_COMPARE, MIN_COMPARE, SHOWROOM_MAX_COMPARE } from "./slug";
 import { parseCompareSlug } from "./parse-slug";
 import { cars } from "@/lib/data/cars";
 import { twoWheelers } from "@/lib/data/two-wheelers";
@@ -88,5 +88,23 @@ describe("parseCompareSlug", () => {
         expect(parseCompareSlug(slug), `expected ${slug} to resolve`).not.toBeNull();
       }
     }
+  });
+});
+
+describe("showroom four-vehicle cap", () => {
+  const four = cars.slice(0, 4);
+
+  it("builds and parses four vehicles when the showroom cap is passed", () => {
+    const slug = buildCompareSlug(four, SHOWROOM_MAX_COMPARE);
+    expect(slug.split("-vs-")).toHaveLength(4);
+    expect(parseCompareSlug(slug, SHOWROOM_MAX_COMPARE)?.map((v) => v.slug)).toEqual(four.map((v) => v.slug));
+  });
+
+  it("leaves the site-wide default at three for every other caller", () => {
+    // The homepage advertises "Up to 3 Vehicles" off MAX_COMPARE.
+    expect(MAX_COMPARE).toBe(3);
+    expect(buildCompareSlug(four).split("-vs-")).toHaveLength(3);
+    // A four-vehicle URL is not a valid default-cap comparison.
+    expect(parseCompareSlug(buildCompareSlug(four, SHOWROOM_MAX_COMPARE))).toBeNull();
   });
 });
