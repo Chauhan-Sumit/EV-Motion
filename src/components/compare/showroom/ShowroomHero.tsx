@@ -1,15 +1,12 @@
 "use client";
 
 import { Fragment, useMemo } from "react";
-import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
-import { routeSegmentFor, categoryConfig } from "@/lib/data/categories";
 import { computeWinners } from "@/lib/compare/winnerEngine";
 import { WINNER_METRICS } from "@/lib/compare/metrics";
 import { MAX_COMPARE } from "@/lib/compare/slug";
 import { heroRuling } from "@/lib/compare/showroom/verdicts";
 import { listJoin } from "@/lib/compare/showroom/metrics";
-import { formatPricingDate, PRICING_DATA_LAST_UPDATED } from "@/lib/vehicle-pricing";
 import { cn } from "@/lib/utils";
 import { useShowroom } from "./ShowroomContext";
 import { DISPLAY, WRAP } from "./ui";
@@ -23,7 +20,7 @@ const H1_SIZE: Record<number, string> = {
 };
 
 export function ShowroomHero() {
-  const { vehicles, pricing, settings, cityLabel, category, noun, openPicker, removeVehicle, openCityPicker } = useShowroom();
+  const { vehicles, pricing, settings, cityLabel, noun, openPicker, removeVehicle, openCityPicker } = useShowroom();
   const n = vehicles.length;
   const ruling = useMemo(() => heroRuling(vehicles, settings), [vehicles, settings]);
   const tally = useMemo(() => {
@@ -38,7 +35,7 @@ export function ShowroomHero() {
   const others = n - 1;
 
   return (
-    <section id="top" aria-labelledby="showroom-h1" className="relative overflow-hidden bg-surface-dark pb-7 pt-3.5 text-slate-200 md:pb-[34px] md:pt-[18px]">
+    <section id="top" aria-labelledby="showroom-h1" className="relative overflow-hidden bg-surface-dark pb-7 pt-7 text-slate-200 md:pb-[34px] md:pt-[34px]">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0"
@@ -48,22 +45,7 @@ export function ShowroomHero() {
         }}
       />
       <div className={cn(WRAP, "relative")}>
-        <nav aria-label="Breadcrumb" className="flex flex-wrap gap-2 text-[13px] text-slate-400">
-          <Link href="/" className="hover:text-white">Home</Link>
-          <span aria-hidden="true">/</span>
-          <Link href="/compare" className="hover:text-white">Compare</Link>
-          <span aria-hidden="true">/</span>
-          <Link href={`/${routeSegmentFor(category)}`} className="hover:text-white">{categoryConfig(category).label}</Link>
-          <span aria-hidden="true">/</span>
-          <span className="text-slate-200" aria-current="page">{names.join(" vs ")}</span>
-        </nav>
-
-        <div className="mt-[18px] flex flex-wrap items-center justify-center gap-x-2.5 text-center text-[11.5px] uppercase tracking-[.16em] text-slate-400">
-          <b className="font-semibold text-primary-bright" aria-hidden="true">●</b> The ruling <span aria-hidden="true">·</span> Updated{" "}
-          {formatPricingDate(PRICING_DATA_LAST_UPDATED)}
-        </div>
-
-        <h1 id="showroom-h1" className={cn(DISPLAY, H1_SIZE[n], "mt-2.5 text-center font-[850] uppercase leading-[.98] text-white font-stretch-[70%]")}>
+        <h1 id="showroom-h1" className={cn(DISPLAY, H1_SIZE[n], "text-center font-[850] uppercase leading-[.98] text-white font-stretch-[70%]")}>
           {names.map((nm, i) => (
             <Fragment key={nm}>
               {i > 0 ? (
