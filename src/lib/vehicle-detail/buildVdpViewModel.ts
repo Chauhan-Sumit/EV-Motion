@@ -37,8 +37,13 @@ import type {
  * Catalogue body type → silhouette. Deliberately lossy: `sedan` and `muv` take
  * the shapes closest to them rather than getting drawings of their own, since
  * these are generic category art, not model likenesses.
+ *
+ * Exported for the Compare page's vehicle art, so both pages pick the same
+ * silhouette. Takes only the four fields it reads, so a lightweight picker
+ * entry qualifies as well as a full `Vehicle`; this module imports nothing
+ * but types and `./chrome`, so it is safe in a client bundle (CLAUDE.md #23).
  */
-function shapeFor(vehicle: Vehicle): BodyShape {
+export function shapeFor(vehicle: Pick<Vehicle, "category" | "bodyType" | "twoWheelerType" | "commercialType">): BodyShape {
   if (vehicle.twoWheelerType === "scooter") return "scooter";
   if (vehicle.twoWheelerType === "motorcycle") return "motorcycle";
 

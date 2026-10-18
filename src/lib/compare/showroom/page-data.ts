@@ -9,7 +9,6 @@ import { slotColor } from "./palette";
 import { defaultOwnershipSettings } from "./ownership";
 import { showroomFaqs, type Faq } from "./verdicts";
 import type { ShowroomVehicle } from "./metrics";
-import type { ShapeSubject } from "./shape";
 
 /**
  * Server-side assembly for the showroom Compare page. **Server-only** — it
@@ -21,7 +20,7 @@ import type { ShapeSubject } from "./shape";
  */
 
 /** What the add/change picker needs per vehicle — nothing more. */
-export interface PickerCandidate extends ShapeSubject {
+export interface PickerCandidate extends Pick<Vehicle, "category" | "bodyType" | "twoWheelerType" | "commercialType"> {
   slug: string;
   name: string;
   oemName: string;

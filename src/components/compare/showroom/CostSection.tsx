@@ -10,7 +10,6 @@ import {
   ownershipBounds,
   petrolComparator,
   petrolMonthlyCost,
-  PUBLIC_CHARGING_PER_UNIT,
   runningCostPerKm,
   type OwnershipSettings,
 } from "@/lib/compare/showroom/ownership";
@@ -171,7 +170,7 @@ export function CostSection() {
           <div>
             <h3 className={cn(DISPLAY, "text-[21px] font-bold font-stretch-[95%]")}>Running cost calculator</h3>
             <p className="mt-1 text-[13.5px] text-ink-muted">
-              Public charging at ₹{PUBLIC_CHARGING_PER_UNIT}/unit · petrol {petrol.label} at ₹{petrol.pricePerLitre}/litre, {petrol.kmPerLitre} km/l
+              Public charging at ₹{settings.publicTariff}/unit · petrol {petrol.label} at ₹{petrol.pricePerLitre}/litre, {petrol.kmPerLitre} km/l
             </p>
           </div>
           <SliderField label="Distance per month" display={`${settings.kmPerMonth.toLocaleString("en-IN")} km`} value={settings.kmPerMonth} bounds={bounds.kmPerMonth} onChange={set("kmPerMonth")} />

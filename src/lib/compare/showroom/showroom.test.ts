@@ -42,6 +42,7 @@ describe("ownership defaults", () => {
     expect(carSettings.tenureMonths).toBe(PRICING_DEFAULTS.finance.defaultTenureMonths);
     expect(carSettings.downPaymentPct).toBe(PRICING_DEFAULTS.finance.defaultDownPaymentPct);
     expect(carSettings.homeTariff).toBe(PRICING_DEFAULTS.runningCost.electricityCostPerUnit);
+    expect(carSettings.publicTariff).toBe(PRICING_DEFAULTS.runningCost.publicChargingCostPerUnit);
   });
 });
 

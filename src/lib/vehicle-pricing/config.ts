@@ -57,6 +57,11 @@ export interface PetrolComparator {
 export interface RunningCostConfig {
   /** ₹ per kWh of domestic electricity. */
   electricityCostPerUnit: number;
+  /**
+   * ₹ per kWh at a public DC fast charger — the other half of the blended
+   * charging rate the Compare page's running-cost calculator uses.
+   */
+  publicChargingCostPerUnit: number;
   /** ₹ per litre of petrol, for the comparison against an ICE equivalent. */
   petrolPricePerLitre: number;
   /** Days per month used to turn a daily distance into a monthly cost. */
@@ -109,6 +114,7 @@ export const PRICING_DEFAULTS: Omit<PricingConfig, "overrides"> = {
   },
   runningCost: {
     electricityCostPerUnit: 8,
+    publicChargingCostPerUnit: 15,
     petrolPricePerLitre: 105,
     daysPerMonth: 30,
     dailyKmByCategory: { car: 40, "2-wheeler": 25, commercial: 90 },
@@ -132,6 +138,7 @@ export const PRICING_ENV_KEYS = {
   downMax: "NEXT_PUBLIC_PRICING_DOWN_MAX_PCT",
   downStep: "NEXT_PUBLIC_PRICING_DOWN_STEP_PCT",
   electricityCostPerUnit: "NEXT_PUBLIC_PRICING_ELECTRICITY_PER_UNIT",
+  publicChargingCostPerUnit: "NEXT_PUBLIC_PRICING_PUBLIC_CHARGING_PER_UNIT",
   petrolPricePerLitre: "NEXT_PUBLIC_PRICING_PETROL_PER_LITRE",
   daysPerMonth: "NEXT_PUBLIC_PRICING_DAYS_PER_MONTH",
 } as const;
@@ -220,6 +227,13 @@ export function resolvePricingConfig(env: PricingEnv): PricingConfig {
       money,
       overrides,
     ),
+    publicChargingCostPerUnit: readNumber(
+      env,
+      k.publicChargingCostPerUnit,
+      d.runningCost.publicChargingCostPerUnit,
+      money,
+      overrides,
+    ),
     petrolPricePerLitre: readNumber(
       env,
       k.petrolPricePerLitre,
@@ -267,6 +281,7 @@ const ENV: PricingEnv = {
   [PRICING_ENV_KEYS.downMax]: process.env.NEXT_PUBLIC_PRICING_DOWN_MAX_PCT,
   [PRICING_ENV_KEYS.downStep]: process.env.NEXT_PUBLIC_PRICING_DOWN_STEP_PCT,
   [PRICING_ENV_KEYS.electricityCostPerUnit]: process.env.NEXT_PUBLIC_PRICING_ELECTRICITY_PER_UNIT,
+  [PRICING_ENV_KEYS.publicChargingCostPerUnit]: process.env.NEXT_PUBLIC_PRICING_PUBLIC_CHARGING_PER_UNIT,
   [PRICING_ENV_KEYS.petrolPricePerLitre]: process.env.NEXT_PUBLIC_PRICING_PETROL_PER_LITRE,
   [PRICING_ENV_KEYS.daysPerMonth]: process.env.NEXT_PUBLIC_PRICING_DAYS_PER_MONTH,
 };

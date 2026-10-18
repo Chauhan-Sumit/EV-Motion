@@ -3,11 +3,11 @@
 import { useId } from "react";
 import { CarIllustration } from "@/components/vehicle-detail/vdp/CarIllustration";
 import { carGeometry, carStyleFor, TYPICAL_DIMS, type CarDims } from "@/lib/compare/showroom/outline";
-import { bodyShapeFor, type ShapeSubject } from "@/lib/compare/showroom/shape";
+import { shapeFor } from "@/lib/vehicle-detail/buildVdpViewModel";
 import type { Vehicle, VehicleDimensions } from "@/types/vehicle";
 import { cn } from "@/lib/utils";
 
-export interface CarArtSubject extends ShapeSubject {
+export interface CarArtSubject extends Pick<Vehicle, "category" | "bodyType" | "twoWheelerType" | "commercialType"> {
   dimensions?: Pick<VehicleDimensions, "lengthMm" | "heightMm" | "wheelbaseMm" | "groundClearanceMm">;
 }
 
@@ -53,7 +53,7 @@ export function ShowroomCar({
 }) {
   const id = useId().replace(/:/g, "");
   if (vehicle.category !== "car") {
-    return <CarIllustration shape={bodyShapeFor(vehicle)} bodyColor={paint[1]} alt={alt} detail={detail} className={className} />;
+    return <CarIllustration shape={shapeFor(vehicle)} bodyColor={paint[1]} alt={alt} detail={detail} className={className} />;
   }
 
   const g = carGeometry({ ...dimsFor(vehicle), style: carStyleFor(vehicle.bodyType), scale: 0.1, ...FRAME });

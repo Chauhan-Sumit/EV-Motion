@@ -15,13 +15,6 @@ import type { RangeConfig } from "@/lib/vehicle-pricing/config";
  * prints beside the number it drives.
  */
 
-/**
- * ₹/unit at a public DC charger. Not in the pricing configuration yet — it is
- * the figure the previous Compare page's charging calculator stated. Promote it
- * into `RunningCostConfig` so a deployment can change it like the other rates.
- */
-export const PUBLIC_CHARGING_PER_UNIT = 15;
-
 /** Share of charging done at home that the running-cost calculator opens at. */
 export const DEFAULT_HOME_SHARE_PCT = 80;
 
@@ -35,6 +28,8 @@ export interface OwnershipSettings {
   kmPerMonth: number;
   homeTariff: number;
   homeSharePct: number;
+  /** ₹/unit at a public DC charger — from the pricing configuration; not a slider. */
+  publicTariff: number;
 }
 
 export interface OwnershipBounds {
@@ -55,6 +50,7 @@ export function defaultOwnershipSettings(category: VehicleCategory): OwnershipSe
     kmPerMonth: runningCost.dailyKmByCategory[category] * runningCost.daysPerMonth,
     homeTariff: runningCost.electricityCostPerUnit,
     homeSharePct: DEFAULT_HOME_SHARE_PCT,
+    publicTariff: runningCost.publicChargingCostPerUnit,
   };
 }
 
@@ -79,7 +75,7 @@ export function ownershipBounds(category: VehicleCategory): OwnershipBounds {
 /** ₹ per kWh, blended across home and public charging. */
 export function blendedUnitRate(s: OwnershipSettings): number {
   const home = s.homeSharePct / 100;
-  return home * s.homeTariff + (1 - home) * PUBLIC_CHARGING_PER_UNIT;
+  return home * s.homeTariff + (1 - home) * s.publicTariff;
 }
 
 /**
