@@ -2,7 +2,7 @@ import { getCurrentVehiclesByCategory, getRelatedVehicles } from "@/lib/data";
 import { toVehicleDetail } from "@/lib/data/ev-motion/toVehicleDetail";
 import { DEFAULT_CITY } from "@/lib/data/cities";
 import { getVehiclePricingSnapshot } from "@/lib/vehicle-pricing";
-import { buildCompareSlug, SHOWROOM_MAX_COMPARE } from "@/lib/compare/slug";
+import { buildCompareSlug } from "@/lib/compare/slug";
 import type { Vehicle } from "@/types/vehicle";
 import type { VehicleDetail } from "@/types/vehicle-detail";
 import { slotColor } from "./palette";
@@ -15,8 +15,9 @@ import type { ShapeSubject } from "./shape";
  * Server-side assembly for the showroom Compare page. **Server-only** — it
  * reads the catalogue. The client receives the compared vehicles' details
  * plus two lightweight lists (picker candidates, popular comparisons) rather
- * than the catalogue itself, so this page does not need the CLAUDE.md #23
- * exception the current Compare page relies on.
+ * than the catalogue itself, so comparison pages do not need the CLAUDE.md #23
+ * exception — only the `/compare` picker (`components/compare/hero/`) still
+ * loads the catalogue on the client.
  */
 
 /** What the add/change picker needs per vehicle — nothing more. */
@@ -84,7 +85,7 @@ function popularFor(vehicles: Vehicle[]): PopularComparison[] {
       const key = [v.slug, other.slug].sort().join("|");
       if (seen.has(key)) return;
       seen.add(key);
-      out.push({ slug: buildCompareSlug([v, other], SHOWROOM_MAX_COMPARE), vehicles: [toCandidate(v), toCandidate(other)] });
+      out.push({ slug: buildCompareSlug([v, other]), vehicles: [toCandidate(v), toCandidate(other)] });
     });
   }
   return out;

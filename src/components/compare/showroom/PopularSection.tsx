@@ -10,7 +10,7 @@ import { DISPLAY, Reveal, SECTION, SectionHeader } from "./ui";
 import { ShowroomCar } from "./ShowroomCar";
 
 /** Nearby comparisons — each a real link to that comparison's page. */
-export function PopularSection({ popular, basePath }: { popular: PopularComparison[]; basePath: string }) {
+export function PopularSection({ popular }: { popular: PopularComparison[] }) {
   const { city } = useLocation();
   if (!popular.length) return null;
   return (
@@ -29,7 +29,7 @@ export function PopularSection({ popular, basePath }: { popular: PopularComparis
         {popular.map((p) => (
           <Link
             key={p.slug}
-            href={`${basePath}/${p.slug}`}
+            href={`/compare/${p.slug}`}
             className="flex flex-col overflow-hidden rounded-xl border border-border bg-surface text-ink transition-[box-shadow,transform] duration-[250ms] hover:-translate-y-[3px] hover:shadow-[0_14px_34px_rgba(0,0,0,.08)] focus-ring"
           >
             <div className="relative grid h-24 bg-surface-dark md:h-[132px]" style={{ gridTemplateColumns: `repeat(${p.vehicles.length}, 1fr)` }}>

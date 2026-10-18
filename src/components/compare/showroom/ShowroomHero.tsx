@@ -6,7 +6,7 @@ import { ShieldCheck } from "lucide-react";
 import { routeSegmentFor, categoryConfig } from "@/lib/data/categories";
 import { computeWinners } from "@/lib/compare/winnerEngine";
 import { WINNER_METRICS } from "@/lib/compare/metrics";
-import { SHOWROOM_MAX_COMPARE } from "@/lib/compare/slug";
+import { MAX_COMPARE } from "@/lib/compare/slug";
 import { heroRuling } from "@/lib/compare/showroom/verdicts";
 import { listJoin } from "@/lib/compare/showroom/metrics";
 import { formatPricingDate, PRICING_DATA_LAST_UPDATED } from "@/lib/vehicle-pricing";
@@ -75,7 +75,7 @@ export function ShowroomHero() {
         </h1>
         <p className="mt-2.5 text-center text-[13px] text-slate-400 md:text-[14.5px]">
           {n} {noun} compared on price, range, charging, running cost and safety
-          {n < SHOWROOM_MAX_COMPARE ? ` · add up to ${SHOWROOM_MAX_COMPARE - n} more` : ""}
+          {n < MAX_COMPARE ? ` · add up to ${MAX_COMPARE - n} more` : ""}
         </p>
 
         <div aria-label="Vehicles being compared" className="mt-[18px] grid grid-cols-2 gap-2.5 md:mt-6 md:gap-3.5 min-[68.75rem]:grid-cols-4">
@@ -92,8 +92,8 @@ export function ShowroomHero() {
               onRemove={() => removeVehicle(i)}
             />
           ))}
-          {Array.from({ length: SHOWROOM_MAX_COMPARE - n }, (_, k) => (
-            <EmptySlot key={`empty-${k}`} index={n + k} count={n} max={SHOWROOM_MAX_COMPARE} onAdd={() => openPicker()} />
+          {Array.from({ length: MAX_COMPARE - n }, (_, k) => (
+            <EmptySlot key={`empty-${k}`} index={n + k} count={n} max={MAX_COMPARE} onAdd={() => openPicker()} />
           ))}
         </div>
 

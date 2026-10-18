@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { NEUTRAL_PAINT } from "@/lib/compare/showroom/palette";
-import { SHOWROOM_MAX_COMPARE } from "@/lib/compare/slug";
+import { MAX_COMPARE } from "@/lib/compare/slug";
 import { cityAdjustedExShowroomRange } from "@/lib/vehicle-pricing";
 import { useLocation } from "@/context/LocationContext";
 import type { PickerCandidate } from "@/lib/compare/showroom/page-data";
@@ -34,7 +34,7 @@ export function VehiclePickerDialog({
   const [query, setQuery] = useState("");
   const q = query.trim().toLowerCase();
   const list = useMemo(() => candidates.filter((c) => !q || `${c.oemName} ${c.name}`.toLowerCase().includes(q)), [candidates, q]);
-  const left = SHOWROOM_MAX_COMPARE - count;
+  const left = MAX_COMPARE - count;
 
   return (
     <Dialog
@@ -60,7 +60,7 @@ export function VehiclePickerDialog({
           />
         </label>
         <DialogDescription className="text-[13px] text-ink-muted">
-          {replacing ? "Pick the vehicle to compare instead" : `Comparing ${count} of ${SHOWROOM_MAX_COMPARE} · ${left} slot${left === 1 ? "" : "s"} left`}
+          {replacing ? "Pick the vehicle to compare instead" : `Comparing ${count} of ${MAX_COMPARE} · ${left} slot${left === 1 ? "" : "s"} left`}
         </DialogDescription>
         <ul className="m-0 -mx-1 min-h-0 flex-1 list-none overflow-auto p-0">
           {list.length ? (

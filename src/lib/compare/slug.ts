@@ -6,8 +6,12 @@
  * therefore lives in `parse-slug.ts`, which is server-side only.
  */
 
-/** Single source of truth for the comparison cap — referenced by the picker, CompareHero, and the parser. */
-export const MAX_COMPARE = 3;
+/**
+ * Single source of truth for the comparison cap — referenced by the Compare
+ * page, the picker and the parser. Four since the showroom Compare page
+ * replaced the three-vehicle one (owner-confirmed, 2026-10-18).
+ */
+export const MAX_COMPARE = 4;
 export const MIN_COMPARE = 2;
 
 export const COMPARE_SLUG_DELIMITER = "-vs-";
@@ -21,20 +25,9 @@ export function dedupeVehicles<T extends { slug: string }>(vehicles: T[]): T[] {
   });
 }
 
-/**
- * Cap on vehicles in one showroom comparison (`components/compare/showroom/`).
- * Four is the owner-confirmed limit (2026-10-18). It stays separate from
- * `MAX_COMPARE` only while the current Compare page is live: the homepage
- * promises "Up to 3 Vehicles" off that constant, and the old page's layout is
- * built for three. When the showroom page replaces `/compare`, set
- * `MAX_COMPARE` to 4 and fold this constant into it.
- */
-export const SHOWROOM_MAX_COMPARE = 4;
-
-/** `max` defaults to the site-wide cap; only the showroom page passes its own. */
-export function buildCompareSlug(vehicles: { slug: string }[], max: number = MAX_COMPARE): string {
+export function buildCompareSlug(vehicles: { slug: string }[]): string {
   return dedupeVehicles(vehicles)
-    .slice(0, max)
+    .slice(0, MAX_COMPARE)
     .map((v) => v.slug)
     .join(COMPARE_SLUG_DELIMITER);
 }

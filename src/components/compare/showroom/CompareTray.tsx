@@ -1,7 +1,7 @@
 "use client";
 
 import { Download, Plus, Share2 } from "lucide-react";
-import { SHOWROOM_MAX_COMPARE } from "@/lib/compare/slug";
+import { MAX_COMPARE } from "@/lib/compare/slug";
 import { cn } from "@/lib/utils";
 import { useShowroom } from "./ShowroomContext";
 import { btn, Dot } from "./ui";
@@ -68,7 +68,7 @@ export function CompareTray() {
       </div>
       <span className="hidden h-[26px] w-px bg-[#343841] md:block" />
       <div className="flex items-center gap-1">
-        {vehicles.length < SHOWROOM_MAX_COMPARE ? (
+        {vehicles.length < MAX_COMPARE ? (
           <button type="button" onClick={() => openPicker()} aria-label="Add a vehicle" className={cn(ICON_BTN, "hidden md:grid")}>
             <Plus className="size-[18px]" aria-hidden="true" />
           </button>

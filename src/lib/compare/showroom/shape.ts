@@ -12,9 +12,9 @@ export interface ShapeSubject {
  * Catalogue body type → the generic `CarIllustration` silhouette.
  *
  * Mirrors the Vehicle Detail Page's private `shapeFor()` in
- * `lib/vehicle-detail/buildVdpViewModel.ts`, which is not exported and which
- * this branch deliberately does not edit. When the showroom page is
- * integrated, export that one and delete this.
+ * `lib/vehicle-detail/buildVdpViewModel.ts`, which is not exported; the
+ * Compare rebuild deliberately left the VDP untouched. The next change to the
+ * VDP should export that one and delete this.
  */
 export function bodyShapeFor(v: ShapeSubject): BodyShape {
   if (v.twoWheelerType === "scooter") return "scooter";

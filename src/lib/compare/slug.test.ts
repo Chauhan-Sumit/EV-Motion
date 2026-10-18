@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildCompareSlug, dedupeVehicles, MAX_COMPARE, MIN_COMPARE, SHOWROOM_MAX_COMPARE } from "./slug";
+import { buildCompareSlug, dedupeVehicles, MAX_COMPARE, MIN_COMPARE } from "./slug";
 import { parseCompareSlug } from "./parse-slug";
 import { cars } from "@/lib/data/cars";
 import { twoWheelers } from "@/lib/data/two-wheelers";
@@ -91,20 +91,22 @@ describe("parseCompareSlug", () => {
   });
 });
 
-describe("showroom four-vehicle cap", () => {
+describe("four-vehicle comparisons", () => {
   const four = cars.slice(0, 4);
 
-  it("builds and parses four vehicles when the showroom cap is passed", () => {
-    const slug = buildCompareSlug(four, SHOWROOM_MAX_COMPARE);
-    expect(slug.split("-vs-")).toHaveLength(4);
-    expect(parseCompareSlug(slug, SHOWROOM_MAX_COMPARE)?.map((v) => v.slug)).toEqual(four.map((v) => v.slug));
+  it("caps comparisons at four", () => {
+    expect(MAX_COMPARE).toBe(4);
   });
 
-  it("leaves the site-wide default at three for every other caller", () => {
-    // The homepage advertises "Up to 3 Vehicles" off MAX_COMPARE.
-    expect(MAX_COMPARE).toBe(3);
-    expect(buildCompareSlug(four).split("-vs-")).toHaveLength(3);
-    // A four-vehicle URL is not a valid default-cap comparison.
-    expect(parseCompareSlug(buildCompareSlug(four, SHOWROOM_MAX_COMPARE))).toBeNull();
+  it("round-trips a four-vehicle comparison", () => {
+    const slug = buildCompareSlug(four);
+    expect(slug.split("-vs-")).toHaveLength(4);
+    expect(parseCompareSlug(slug)?.map((v) => v.slug)).toEqual(four.map((v) => v.slug));
+  });
+
+  it("rejects a fifth vehicle rather than silently dropping one", () => {
+    // A five-part slug never resolves, so it 404s instead of rendering a
+    // comparison that differs from the URL.
+    expect(parseCompareSlug(cars.slice(0, 5).map((v) => v.slug).join("-vs-"))).toBeNull();
   });
 });

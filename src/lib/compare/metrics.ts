@@ -11,36 +11,39 @@ export interface SpecRow {
   label: string;
   section: string;
   render: (v: VehicleDetail) => string;
-  /** Optional raw numeric accessor — when present, SpecTable draws a proportional bar (value vs. the highest known value in the row) next to the text instead of just the number. Omit for rows with no meaningful magnitude (Colours, free-text). */
+  /**
+   * Optional raw numeric accessor for a proportional bar. No renderer reads it
+   * since the showroom page replaced the per-section spec tables — that page
+   * draws its bars from `lib/compare/showroom/metrics.ts`, which borrows
+   * `WINNER_METRICS`' values and gates. Omit for rows with no magnitude.
+   */
   barValue?: (v: VehicleDetail) => number | null;
   /**
    * Optional SET-level gate, mirroring `WinnerMetric.comparable`. When it
-   * returns false, SpecTable still renders every value but draws no
-   * proportional bars — a bar is a visual ranking, so leaving it on would
-   * crown a winner the engine has just refused to crown.
+   * returns false, every value still renders but no bar is drawn — a bar is
+   * a visual ranking, so leaving it on would crown a winner the engine has
+   * just refused to crown.
    */
   comparable?: (vehicles: VehicleDetail[]) => boolean;
 }
 
 /**
  * Two separate registries, not one — presentational rows (SPEC_ROWS-shaped
- * arrays below, each driving one section's SpecTable) vs. one scoreable
- * WINNER_METRICS array (drives the winner engine). Not every displayed row
- * has a meaningful "better" direction (Colours, free-text Warranty), so
- * keeping them apart means the Winner Ribbon / crown badges /
- * SmartRecommendation only ever touch the scoreable subset, keyed by the
+ * arrays below, which fill the showroom page's "Full specifications" groups)
+ * vs. one scoreable WINNER_METRICS array (drives the winner engine). Not
+ * every displayed row has a meaningful "better" direction (Colours, free-text
+ * Warranty), so keeping them apart means the wins tally, best-figure checks
+ * and showroom rankings only ever touch the scoreable subset, keyed by the
  * same `key`s as a subset of the various *_SPEC_ROWS arrays.
  *
  * WINNER_METRICS is intentionally ONE flat array spanning every section
- * (not one array per section) — the Winner Ribbon's "wins N categories"
- * tally and SmartRecommendation need a true cross-section count. Each
- * section's SpecTable filters it down to its own `section` when rendering
- * crowns. Both this file's row arrays and WINNER_METRICS grow as each
+ * (not one array per section) — the hero's "N wins" tally needs a true
+ * cross-section count. Both this file's row arrays and WINNER_METRICS grow as each
  * Compare section is built — this file is the single place a new schema
  * field needs to be registered, not a new component.
  */
 
-/** Shared sentinel a value's `render()` returns when a manufacturer hasn't published that spec — SpecTable (and any hand-rolled table) detects this exact string to swap in the premium `UnavailableValue` treatment instead of raw text. */
+/** Shared sentinel a value's `render()` returns when a manufacturer hasn't published that spec — the spec tables (showroom page, PDF export) detect this exact string to swap in the `UnavailableValue` treatment instead of raw text. */
 export const NOT_SPECIFIED = "Not officially specified";
 
 function fmtKm(n: number): string {

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useLocation } from "@/context/LocationContext";
 import { LocationSelector } from "@/components/layout/LocationSelector";
 import { getVehiclePricingSnapshot } from "@/lib/vehicle-pricing";
-import { buildCompareSlug, SHOWROOM_MAX_COMPARE } from "@/lib/compare/slug";
+import { buildCompareSlug, MAX_COMPARE } from "@/lib/compare/slug";
 import { slotColor } from "@/lib/compare/showroom/palette";
 import { defaultOwnershipSettings, type OwnershipSettings } from "@/lib/compare/showroom/ownership";
 import type { ShowroomVehicle } from "@/lib/compare/showroom/metrics";
@@ -44,8 +44,6 @@ export interface CompareShowroomProps {
   vehicles: VehicleDetail[];
   candidates: PickerCandidate[];
   popular: PopularComparison[];
-  /** Route the comparison lives under — `/compare` once integrated. */
-  basePath: string;
 }
 
 /**
@@ -54,7 +52,7 @@ export interface CompareShowroomProps {
  * a vehicle navigates to that comparison's canonical URL, so every state of
  * the page is a shareable, indexable address.
  */
-export function CompareShowroom({ vehicles, candidates, popular, basePath }: CompareShowroomProps) {
+export function CompareShowroom({ vehicles, candidates, popular }: CompareShowroomProps) {
   const router = useRouter();
   const { city } = useLocation();
   const category = vehicles[0].category;
@@ -85,15 +83,15 @@ export function CompareShowroom({ vehicles, candidates, popular, basePath }: Com
 
   const go = useCallback(
     (slugs: string[]) => {
-      router.push(`${basePath}/${buildCompareSlug(slugs.map((slug) => ({ slug })), SHOWROOM_MAX_COMPARE)}`, { scroll: false });
+      router.push(`/compare/${buildCompareSlug(slugs.map((slug) => ({ slug })))}`, { scroll: false });
     },
-    [router, basePath],
+    [router],
   );
 
   const openPicker = useCallback(
     (slot?: number) => {
-      if (slot === undefined && vehicles.length >= SHOWROOM_MAX_COMPARE) {
-        toast(`You can compare up to ${SHOWROOM_MAX_COMPARE} — remove one first.`);
+      if (slot === undefined && vehicles.length >= MAX_COMPARE) {
+        toast(`You can compare up to ${MAX_COMPARE} — remove one first.`);
         return;
       }
       setPicker({ open: true, slot: slot ?? null });
@@ -164,7 +162,7 @@ export function CompareShowroom({ vehicles, candidates, popular, basePath }: Com
           <ProsConsSection />
           <GoDeeperSection />
           <OffersSection />
-          <PopularSection popular={popular} basePath={basePath} />
+          <PopularSection popular={popular} />
           <FaqSection />
         </div>
         <div className="h-28" aria-hidden="true" />

@@ -16,10 +16,9 @@ import type { RangeConfig } from "@/lib/vehicle-pricing/config";
  */
 
 /**
- * ₹/unit at a public DC charger. Not in the pricing configuration yet; it is
- * the same figure the current Compare page's charging calculator states, so the
- * two pages agree. Promote it into `RunningCostConfig` when either is next
- * touched.
+ * ₹/unit at a public DC charger. Not in the pricing configuration yet — it is
+ * the figure the previous Compare page's charging calculator stated. Promote it
+ * into `RunningCostConfig` so a deployment can change it like the other rates.
  */
 export const PUBLIC_CHARGING_PER_UNIT = 15;
 

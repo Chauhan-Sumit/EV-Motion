@@ -1,10 +1,10 @@
 /**
  * Generic winner-scoring engine for the Compare page. Deliberately separate
- * from spec-row *rendering* (see SpecTable.tsx / each section's SPEC_ROWS) —
+ * from spec-row *rendering* (each `*_SPEC_ROWS` array in `metrics.ts`) —
  * not every displayed spec has a meaningful "better" direction (Colours,
  * free-text Warranty labels), so forcing every row through a scoring shape
- * would mean sprinkling `direction !== "none"` checks through the Winner
- * Ribbon, crown badges, and RatingsSection. Instead, WINNER_METRICS is a
+ * would mean sprinkling `direction !== "none"` checks through every consumer
+ * of a ranking. Instead, WINNER_METRICS is a
  * scoreable *subset*, keyed by the same `key`s as a subset of each section's
  * SPEC_ROWS.
  */
