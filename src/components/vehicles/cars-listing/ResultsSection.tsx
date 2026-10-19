@@ -49,6 +49,7 @@ export function ResultsSection() {
           <label className="relative flex h-10 items-center gap-1.5 rounded-xl border border-border bg-surface pl-3 pr-[34px] text-[13.5px] focus-within:border-primary max-[760px]:flex-1">
             <span className="whitespace-nowrap text-ink-muted">Sort by</span>
             <select
+              aria-label="Sort by"
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
               className="cursor-pointer appearance-none border-0 bg-transparent p-0 text-[13.5px] font-semibold outline-none max-[760px]:w-full"

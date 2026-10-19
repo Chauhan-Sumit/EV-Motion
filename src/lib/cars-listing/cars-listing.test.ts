@@ -115,6 +115,13 @@ describe("URL state", () => {
     expect(filters).toMatchObject({ brand: ["tata"], body: ["suv"], status: ["upcoming"], dc: 30, pmin: 1, pmax: 3 });
     expect(sort).toBe("range");
   });
+
+  it("widens the homepage's free-form budget and range to the nearest stops, never narrows them", () => {
+    const { filters } = parseListingQuery({ budget: "12-37", range: "330" }, brands);
+    expect(filters).toMatchObject({ pmin: 1, pmax: 6, range: 300 }); // ₹10 L – ₹40 L, 300+ km
+    const { filters: all } = parseListingQuery({ budget: "0-950", range: "900" }, brands);
+    expect(all).toMatchObject({ pmin: 0, pmax: LAST_STEP, range: 800 });
+  });
 });
 
 describe("generated copy", () => {

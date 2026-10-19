@@ -255,8 +255,13 @@ export interface ListingQueryState {
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
 const list = (v: string | string[] | undefined) => one(v).split(",").map((s) => s.trim()).filter(Boolean);
 const unique = <T,>(xs: T[]) => [...new Set(xs)];
-const nearestStep =(lakh: number) =>
-  PRICE_STEPS.reduce((best, step, i) => (Math.abs(step - lakh) < Math.abs(PRICE_STEPS[best] - lakh) ? i : best), 0);
+/** Highest stop at or below `lakh` — a minimum is widened, never narrowed. */
+const stepAtOrBelow = (lakh: number) => PRICE_STEPS.reduce((best, step, i) => (step <= lakh ? i : best), 0);
+/** Lowest stop at or above `lakh` — a maximum is widened, never narrowed. */
+const stepAtOrAbove = (lakh: number) => {
+  const i = PRICE_STEPS.findIndex((step) => step >= lakh);
+  return i < 0 ? LAST_STEP : i;
+};
 
 /**
  * Reads the listing's state from a query string. Understands this page's own
@@ -278,13 +283,16 @@ export function parseListingQuery(params: QueryParams, knownBrands: readonly str
   const pmin = PRICE_STEPS.indexOf(Number(one(params.pmin)) as (typeof PRICE_STEPS)[number]);
   const pmax = PRICE_STEPS.indexOf(Number(one(params.pmax)) as (typeof PRICE_STEPS)[number]);
   const [bMin, bMax] = one(params.budget).split("-").map(Number);
+  // `budget` comes from the homepage's continuous slider (e.g. "12-37"); it is
+  // snapped outward to the stops so no car inside the requested span is dropped.
   if (pmin > 0) f.pmin = Math.min(pmin, LAST_STEP - 1);
-  else if (Number.isFinite(bMin) && bMin > 0) f.pmin = Math.min(nearestStep(bMin), LAST_STEP - 1);
+  else if (Number.isFinite(bMin) && bMin > 0) f.pmin = Math.min(stepAtOrBelow(bMin), LAST_STEP - 1);
   if (pmax > f.pmin) f.pmax = pmax;
-  else if (Number.isFinite(bMax) && bMax > 0 && nearestStep(bMax) > f.pmin) f.pmax = nearestStep(bMax);
+  else if (Number.isFinite(bMax) && bMax > 0 && stepAtOrAbove(bMax) > f.pmin) f.pmax = stepAtOrAbove(bMax);
 
+  // Likewise a minimum range is rounded down to the slider's 50 km steps.
   const range = Number(one(params.range));
-  if (Number.isFinite(range) && range > 0) f.range = Math.min(RANGE_MAX, Math.round(range / RANGE_STEP) * RANGE_STEP);
+  if (Number.isFinite(range) && range > 0) f.range = Math.min(RANGE_MAX, Math.floor(range / RANGE_STEP) * RANGE_STEP);
 
   const charging = one(params.charging);
   const dc = Number(one(params.dc)) || (charging === "under30" ? 30 : charging === "under60" ? 60 : 0);

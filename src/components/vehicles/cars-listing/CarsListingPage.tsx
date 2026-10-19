@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "@/context/LocationContext";
 import { getVehiclePricingSnapshot } from "@/lib/vehicle-pricing";
 import { MAX_COMPARE } from "@/lib/compare/slug";
-import { filterAndSort, serializeListingQuery, type ListingQueryState } from "@/lib/cars-listing/filters";
+import { filterAndSort, parseListingQuery, serializeListingQuery, type ListingQueryState } from "@/lib/cars-listing/filters";
 import { featuredRank } from "@/lib/cars-listing/featured";
 import { superlatives } from "@/lib/cars-listing/copy";
 import type { CarsListingData, PricedCar } from "@/lib/cars-listing/types";
@@ -25,6 +25,20 @@ import { CompareTray } from "./CompareTray";
 /** The site navbar's height (`h-16`) plus breathing room — where sticky panels and scroll targets sit. */
 const NAV_CLEARANCE = 84;
 
+/**
+ * The state to start from. On the server, and on a fresh page load where the
+ * address bar and the server agree, that is `initial`. After Back/Forward,
+ * though, Next restores this route's original server render while the address
+ * bar holds the filters the visitor had set (written with `replaceState`), so
+ * the address bar is the source of truth. Same parser on both sides, so the
+ * first client render matches the server's.
+ */
+function fromAddressBar(initial: ListingQueryState, data: CarsListingData): ListingQueryState {
+  if (typeof window === "undefined") return initial;
+  const params = Object.fromEntries(new URLSearchParams(window.location.search));
+  return parseListingQuery(params, [...new Set(data.cars.map((c) => c.oem))]);
+}
+
 export interface CarsListingPageProps {
   data: CarsListingData;
   initial: ListingQueryState;
@@ -42,9 +56,10 @@ export interface CarsListingPageProps {
  */
 export function CarsListingPage({ data, initial }: CarsListingPageProps) {
   const { city } = useLocation();
-  const [filters, setFiltersState] = useState(initial.filters);
-  const [sort, setSortState] = useState(initial.sort);
-  const [view, setView] = useState(initial.view);
+  const [start] = useState(() => fromAddressBar(initial, data));
+  const [filters, setFiltersState] = useState(start.filters);
+  const [sort, setSortState] = useState(start.sort);
+  const [view, setView] = useState(start.view);
   const [picks, setPicks] = useState<string[]>([]);
   const [saved, setSaved] = useState<string[]>([]);
   const [filtersOpen, setFiltersOpen] = useState(false);
