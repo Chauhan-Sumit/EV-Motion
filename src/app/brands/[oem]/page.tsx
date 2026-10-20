@@ -6,6 +6,9 @@ import { Container } from "@/components/ui/Container";
 import { getOemBySlug, getVehiclesByOem, oems } from "@/lib/data";
 import { CATEGORIES } from "@/lib/data/categories";
 import { isCurrentlySold } from "@/lib/vehicle-availability";
+import { buildBrandPageData } from "@/lib/brand-page/page-data";
+import { BrandPage as RedesignedBrandPage } from "@/components/brands/brand-page/BrandPage";
+
 
 export function generateStaticParams() {
   return oems.map((oem) => ({ oem: oem.slug }));
@@ -28,6 +31,12 @@ export default async function BrandPage(props: PageProps<"/brands/[oem]">) {
   const oem = getOemBySlug(oemSlug);
 
   if (!oem) notFound();
+
+  // Every car and two-wheeler brand uses the approved brand page design
+  // (`components/brands/brand-page/`). The plain layout below remains only
+  // for a brand whose category has no template yet (commercial EVs).
+  const data = buildBrandPageData(oem.slug);
+  if (data) return <RedesignedBrandPage data={data} />;
 
   // A brand page is a listing of what the brand sells, so discontinued
   // records are filtered out here too — their own detail pages still work.
