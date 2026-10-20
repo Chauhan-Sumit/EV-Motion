@@ -1,15 +1,14 @@
+import type { ReactNode } from "react";
 import { ArrowDown } from "lucide-react";
-import type { PricedCar } from "@/lib/cars-listing/types";
 import type { BrandIdentity } from "@/lib/brand-page/types";
 import { btn, WRAP } from "@/components/vehicles/cars-listing/ui";
 import { cn } from "@/lib/utils";
-import { BrandLineupStage } from "./BrandLineupStage";
 
 /**
- * The brand's introduction: name, the catalogue's description of the brand,
- * and the line-up drawn in a studio beside it.
+ * The brand's introduction: name, what it sells, the catalogue's description
+ * of the brand, and the line-up studio beside it.
  */
-export function BrandHero({ brand, cars }: { brand: BrandIdentity; cars: PricedCar[] }) {
+export function BrandHero({ brand, heroLine, stage }: { brand: BrandIdentity; heroLine: string; stage: ReactNode }) {
   return (
     <section
       aria-labelledby="brand-h1"
@@ -23,7 +22,7 @@ export function BrandHero({ brand, cars }: { brand: BrandIdentity; cars: PricedC
         <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.08fr)] items-center gap-10 max-[1240px]:grid-cols-2 max-[1240px]:gap-7 max-[980px]:grid-cols-1 max-[760px]:gap-5">
           <div>
             <h1 id="brand-h1" className="text-[clamp(34px,4.2vw,56px)] font-extrabold leading-[1.02] tracking-[-.045em]">
-              {brand.name} <span className="block font-bold text-ink-muted">electric cars</span>
+              {brand.name} <span className="block font-bold text-ink-muted">{heroLine}</span>
             </h1>
             <p className="mt-3.5 max-w-[540px] text-[17px] leading-[1.55] text-ink-secondary max-[760px]:text-[15px]">{brand.description}</p>
 
@@ -35,7 +34,7 @@ export function BrandHero({ brand, cars }: { brand: BrandIdentity; cars: PricedC
             </div>
           </div>
 
-          <BrandLineupStage cars={cars} />
+          {stage}
         </div>
       </div>
     </section>
