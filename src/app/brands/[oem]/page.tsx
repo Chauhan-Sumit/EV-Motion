@@ -6,6 +6,15 @@ import { Container } from "@/components/ui/Container";
 import { getOemBySlug, getVehiclesByOem, oems } from "@/lib/data";
 import { CATEGORIES } from "@/lib/data/categories";
 import { isCurrentlySold } from "@/lib/vehicle-availability";
+import { buildBrandPageData } from "@/lib/brand-page/page-data";
+import { BrandPage as RedesignedBrandPage } from "@/components/brands/brand-page/BrandPage";
+
+/**
+ * Brands on the approved brand page design (`components/brands/brand-page/`).
+ * MG is the first; every other brand keeps the page below until it is moved
+ * across on its own.
+ */
+const REDESIGNED_BRANDS = new Set(["mg"]);
 
 export function generateStaticParams() {
   return oems.map((oem) => ({ oem: oem.slug }));
@@ -28,6 +37,12 @@ export default async function BrandPage(props: PageProps<"/brands/[oem]">) {
   const oem = getOemBySlug(oemSlug);
 
   if (!oem) notFound();
+
+  if (REDESIGNED_BRANDS.has(oem.slug)) {
+    const data = buildBrandPageData(oem.slug);
+    if (!data) notFound();
+    return <RedesignedBrandPage data={data} />;
+  }
 
   // A brand page is a listing of what the brand sells, so discontinued
   // records are filtered out here too — their own detail pages still work.

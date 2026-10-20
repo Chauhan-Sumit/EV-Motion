@@ -20,30 +20,33 @@ import { BrandModels } from "./BrandModels";
 
 const noop = () => {};
 
-/** After Back/Forward the address bar, not the server render, holds the visitor's sort (same reasoning as `CarsListingPage`). */
-function sortFromAddressBar(initial: BrandSortKey): BrandSortKey {
-  if (typeof window === "undefined") return initial;
-  return parseBrandSort(new URLSearchParams(window.location.search).get("sort") ?? undefined);
+/** Writes the sort to the address bar without a navigation; the default sort is left out of the URL. */
+function writeSortToAddressBar(sort: BrandSortKey) {
+  const params = new URLSearchParams(window.location.search);
+  if (sort === DEFAULT_BRAND_SORT) params.delete("sort");
+  else params.set("sort", sort);
+  const qs = params.toString();
+  const url = `${window.location.pathname}${qs ? `?${qs}` : ""}${window.location.hash}`;
+  if (url !== `${window.location.pathname}${window.location.search}${window.location.hash}`) window.history.replaceState(null, "", url);
 }
 
 export interface BrandPageProps {
   data: BrandPageData;
-  initialSort: BrandSortKey;
 }
 
 /**
  * A brand page — the approved design on the site's stack and data: brand hero
- * with the line-up drawn to scale, then every car the brand sells as the
- * Electric Cars listing's grid card, with sorting and compare.
+ * with the line-up drawn to scale, then every car the brand sells as a
+ * compact tile, with sorting and compare.
  *
- * The cards, compare tray and toast are the listing's own components, fed
- * through the listing's context, so a car looks and behaves the same here as
- * on `/cars`. Every price is the city-adjusted ex-showroom figure from the
+ * The compare tray, toast and car drawings are the Electric Cars listing's
+ * own components, fed through the listing's context, so compare and
+ * shortlist behave the same here as on `/cars`. Every price is the city-adjusted ex-showroom figure from the
  * site's one pricing service; changing city in the navbar moves them all.
  */
-export function BrandPage({ data, initialSort }: BrandPageProps) {
+export function BrandPage({ data }: BrandPageProps) {
   const { city } = useLocation();
-  const [sort, setSort] = useState<BrandSortKey>(() => sortFromAddressBar(initialSort));
+  const [sort, setSortState] = useState<BrandSortKey>(DEFAULT_BRAND_SORT);
   const [picks, setPicks] = useState<string[]>([]);
   const [saved, setSaved] = useState<string[]>([]);
   const [toastMsg, setToastMsg] = useState<{ text: string; id: number } | null>(null);
@@ -67,15 +70,18 @@ export function BrandPage({ data, initialSort }: BrandPageProps) {
     setToastMsg({ text, id: toastId.current });
   }, []);
 
-  // Keep the address bar in step with the sort, without a navigation.
+  // The page is pre-rendered with the default sort, so a `?sort=` in a shared
+  // link (or restored by Back/Forward) is applied once it has hydrated.
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (sort === DEFAULT_BRAND_SORT) params.delete("sort");
-    else params.set("sort", sort);
-    const qs = params.toString();
-    const url = `${window.location.pathname}${qs ? `?${qs}` : ""}${window.location.hash}`;
-    if (url !== `${window.location.pathname}${window.location.search}${window.location.hash}`) window.history.replaceState(null, "", url);
-  }, [sort]);
+    const fromUrl = parseBrandSort(new URLSearchParams(window.location.search).get("sort") ?? undefined);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- adopts the address bar's sort after the static render
+    if (fromUrl !== DEFAULT_BRAND_SORT) setSortState(fromUrl);
+  }, []);
+
+  const setSort = useCallback((next: BrandSortKey) => {
+    setSortState(next);
+    writeSortToAddressBar(next);
+  }, []);
 
   const togglePick = useCallback(
     (slug: string) => {
